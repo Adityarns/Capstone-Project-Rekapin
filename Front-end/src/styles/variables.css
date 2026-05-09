@@ -1,0 +1,239 @@
+/**
+ * ============================================================
+ *    REKAPIN — Design Tokens
+ *    src/styles/variables.css
+ *    
+ *    Eco-Fintech SaaS for Indonesian SMEs (UMKM)
+ *    Palette: Maroon × Sage Green × Beige × Off-White
+ *    ============================================================
+ *
+ * @format
+ */
+
+:root {
+  /* ----------------------------------------------------------
+     COLOR PALETTE
+     ---------------------------------------------------------- */
+
+  /* Primary — Maroon (trust, finance, authority) */
+  --color-primary-50: #fdf2f2;
+  --color-primary-100: #fce4e4;
+  --color-primary-200: #f9bfbf;
+  --color-primary-300: #f28b8b;
+  --color-primary-400: #e55555;
+  --color-primary-500: #c0392b; /* main brand maroon */
+  --color-primary-600: #a93226; /* hover state */
+  --color-primary-700: #8b2520; /* pressed / active */
+  --color-primary-800: #6e1c18;
+  --color-primary-900: #4f1210;
+
+  /* Accent — Sage Green (sustainability, carbon, eco) */
+  --color-accent-50: #f2f7f2;
+  --color-accent-100: #ddeedd;
+  --color-accent-200: #b8d9b8;
+  --color-accent-300: #87be87;
+  --color-accent-400: #5ea05e;
+  --color-accent-500: #4a8c4a; /* main sage green */
+  --color-accent-600: #3d763d; /* hover state */
+  --color-accent-700: #2f5e2f;
+  --color-accent-800: #224422;
+  --color-accent-900: #162d16;
+
+  /* Neutral — Beige / Off-White (warmth, readability) */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #faf9f7; /* off-white / page background */
+  --color-neutral-100: #f5f2ed; /* beige light */
+  --color-neutral-200: #ede8df; /* beige medium */
+  --color-neutral-300: #ddd5c8; /* beige border */
+  --color-neutral-400: #c5b9a8;
+  --color-neutral-500: #a89880;
+  --color-neutral-600: #8a7a65;
+  --color-neutral-700: #6b5e4e;
+  --color-neutral-800: #4a3f33;
+  --color-neutral-900: #2c2419; /* near-black text */
+
+  /* Semantic Colors */
+  --color-success: #4a8c4a; /* reuse sage */
+  --color-success-light: #f2f7f2;
+  --color-warning: #d97706;
+  --color-warning-light: #fffbeb;
+  --color-error: #c0392b; /* reuse maroon */
+  --color-error-light: #fdf2f2;
+  --color-info: #2563eb;
+  --color-info-light: #eff6ff;
+
+  /* Functional Aliases */
+  --color-bg-page: var(--color-neutral-50);
+  --color-bg-surface: var(--color-neutral-0);
+  --color-bg-subtle: var(--color-neutral-100);
+  --color-bg-muted: var(--color-neutral-200);
+
+  --color-border: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-300);
+
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-muted: var(--color-neutral-400);
+  --color-text-inverse: var(--color-neutral-0);
+  --color-text-accent: var(--color-primary-500);
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY
+     ---------------------------------------------------------- */
+
+  /* Font Families */
+  --font-sans:
+    "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+  /* Font Sizes — fluid & harmonious scale */
+  --text-xs: 0.75rem; /*  12px */
+  --text-sm: 0.875rem; /*  14px */
+  --text-base: 1rem; /*  16px */
+  --text-md: 1.0625rem; /*  17px */
+  --text-lg: 1.125rem; /*  18px */
+  --text-xl: 1.25rem; /*  20px */
+  --text-2xl: 1.5rem; /*  24px */
+  --text-3xl: 1.875rem; /*  30px */
+  --text-4xl: 2.25rem; /*  36px */
+  --text-5xl: 3rem; /*  48px */
+
+  /* Font Weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 1.75;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ----------------------------------------------------------
+     SPACING SYSTEM
+     Base: 4px (0.25rem)
+     ---------------------------------------------------------- */
+
+  --space-0: 0;
+  --space-1: 0.25rem; /*  4px */
+  --space-2: 0.5rem; /*  8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-7: 1.75rem; /* 28px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
+
+  /* Component-specific spacing */
+  --spacing-page-x: var(--space-8);
+  --spacing-page-y: var(--space-6);
+  --spacing-card: var(--space-6);
+  --spacing-card-sm: var(--space-4);
+  --spacing-input: var(--space-3) var(--space-4);
+  --spacing-button-sm: var(--space-2) var(--space-4);
+  --spacing-button-md: var(--space-3) var(--space-6);
+  --spacing-button-lg: var(--space-4) var(--space-8);
+
+  /* ----------------------------------------------------------
+     BORDER RADIUS
+     ---------------------------------------------------------- */
+
+  --radius-none: 0;
+  --radius-xs: 0.25rem; /*  4px */
+  --radius-sm: 0.375rem; /*  6px */
+  --radius-md: 0.5rem; /*  8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-2xl: 1.25rem; /* 20px */
+  --radius-3xl: 1.5rem; /* 24px */
+  --radius-full: 9999px; /* pill */
+
+  /* ----------------------------------------------------------
+     SHADOW SYSTEM
+     Warm-toned shadows (matches beige palette)
+     ---------------------------------------------------------- */
+
+  --shadow-xs: 0 1px 2px 0 rgba(44, 36, 25, 0.05);
+  --shadow-sm:
+    0 1px 3px 0 rgba(44, 36, 25, 0.08), 0 1px 2px -1px rgba(44, 36, 25, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(44, 36, 25, 0.08), 0 2px 4px -2px rgba(44, 36, 25, 0.04);
+  --shadow-lg:
+    0 10px 15px -3px rgba(44, 36, 25, 0.08),
+    0 4px 6px -4px rgba(44, 36, 25, 0.04);
+  --shadow-xl:
+    0 20px 25px -5px rgba(44, 36, 25, 0.1),
+    0 8px 10px -6px rgba(44, 36, 25, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(44, 36, 25, 0.18);
+
+  /* Colored glow shadows */
+  --shadow-primary: 0 4px 14px 0 rgba(192, 57, 43, 0.2);
+  --shadow-accent: 0 4px 14px 0 rgba(74, 140, 74, 0.2);
+
+  /* Inset (for inputs focus ring) */
+  --shadow-inset: inset 0 1px 2px rgba(44, 36, 25, 0.06);
+
+  /* ----------------------------------------------------------
+     TRANSITIONS
+     ---------------------------------------------------------- */
+
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1); /* ease-in-out */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* slight bounce */
+
+  --transition-fast: all var(--duration-fast) var(--ease-default);
+  --transition-default: all var(--duration-normal) var(--ease-default);
+  --transition-slow: all var(--duration-slow) var(--ease-default);
+  --transition-spring: all var(--duration-slow) var(--ease-spring);
+
+  /* Per-property transitions (better performance) */
+  --transition-color:
+    color var(--duration-normal) var(--ease-default),
+    background-color var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default);
+  --transition-transform: transform var(--duration-normal) var(--ease-default);
+  --transition-shadow: box-shadow var(--duration-normal) var(--ease-default);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-default);
+
+  /* ----------------------------------------------------------
+     LAYOUT
+     ---------------------------------------------------------- */
+
+  --sidebar-width: 240px;
+  --sidebar-width-compact: 64px;
+  --topbar-height: 64px;
+  --content-max-width: 1280px;
+  --card-max-width: 480px;
+
+  /* Z-index scale */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+}
