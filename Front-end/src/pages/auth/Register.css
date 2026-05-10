@@ -2,40 +2,26 @@
  * ============================================================
  *    REKAPIN — Register Page Styles
  *    src/pages/auth/Register.css
- * 
- *    Hanya berisi style TAMBAHAN untuk Register.
- *    Semua base styles (layout, card, tabs, inputs, button)
- *    sudah di-cover oleh Login.css via AuthLayout.jsx.
- *    ============================================================
  *
+ *    Hanya berisi style TAMBAHAN untuk Register.
+ *    Semua base styles (layout, scroll behavior, card, tabs,
+ *    inputs, button, form feedback) sudah ada di Login.css
+ *    via AuthLayout.jsx.
+ *
+ *    TIDAK perlu override scroll/height di sini karena
+ *    Login.css sudah menangani .login-right-inner dengan
+ *    margin: auto yang adaptif.
+ * ============================================================
  * @format
  */
 
 /* ----------------------------------------------------------
-   CARD OVERRIDE
-   Register card lebih tinggi — right panel perlu scroll support
-   ---------------------------------------------------------- */
-
-/* Right panel: align card ke top agar tidak terpotong saat overflow */
-.reg-card {
-  margin: auto 0; /* vertical centering saat konten pendek */
-}
-
-/* Right panel scroll — override login-right center alignment */
-.login-right:has(.reg-card) {
-  align-items: flex-start;
-  padding-top: var(--space-8);
-  padding-bottom: var(--space-8);
-  overflow-y: auto;
-}
-
-/* ----------------------------------------------------------
    TERMS CHECKBOX
-   Sedikit lebih longgar karena teks multi-baris
+   Align items ke atas karena teks multi-baris
    ---------------------------------------------------------- */
 
 .reg-terms-label {
-  align-items: flex-start; /* icon checkbox rata atas terhadap teks */
+  align-items: flex-start;
   gap: var(--space-3);
 }
 
@@ -46,61 +32,4 @@
 
 .reg-terms-label .checkbox-text {
   line-height: var(--leading-relaxed);
-}
-
-/* ----------------------------------------------------------
-   FORM FEEDBACK STATES
-   ---------------------------------------------------------- */
-
-/* Error border pada input */
-.form-input--error {
-  border-color: var(--color-error) !important;
-  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1) !important;
-}
-
-/* Success border pada input (e.g. passwords match) */
-.form-input--success {
-  border-color: var(--color-success) !important;
-  box-shadow: 0 0 0 3px rgba(74, 140, 74, 0.1) !important;
-}
-
-/* Error message */
-.form-error {
-  display: block;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--color-error);
-  margin-top: var(--space-1);
-  line-height: var(--leading-normal);
-}
-
-/* Success message */
-.form-success {
-  display: block;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--color-success);
-  margin-top: var(--space-1);
-  line-height: var(--leading-normal);
-}
-
-/* Hint / helper text (neutral) */
-.form-hint {
-  display: block;
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-top: var(--space-1);
-  line-height: var(--leading-normal);
-}
-
-/* ----------------------------------------------------------
-   RESPONSIVE
-   ---------------------------------------------------------- */
-
-@media (max-width: 768px) {
-  .login-right:has(.reg-card) {
-    padding-top: var(--space-5);
-    padding-bottom: var(--space-6);
-    align-items: flex-start;
-  }
 }

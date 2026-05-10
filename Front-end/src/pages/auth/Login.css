@@ -1,22 +1,64 @@
-/* ============================================================
-   REKAPIN — Login Page Styles
-   src/pages/auth/Login.css
-   ============================================================ */
-
+/**
+ * ============================================================
+ *    REKAPIN — Login & Auth Page Styles
+ *    src/pages/auth/Login.css
+ * 
+ *    Digunakan oleh: Login.jsx, AuthLayout.jsx (Register juga)
+ *    ============================================================
+ *
+ * @format
+ */
 
 /* ----------------------------------------------------------
-   PAGE LAYOUT — split 50/50 on desktop
+   PAGE LAYOUT — Split 50/50, locked to viewport
+
+   MENGAPA height: 100vh + overflow: hidden?
+
+   Masalah asal: `min-height: 100vh` membiarkan container
+   tumbuh melebihi viewport saat konten panjang (Register form),
+   sehingga SELURUH halaman ikut scroll.
+
+   Solusinya 3 properti yang bekerja bersama:
+
+   ① height: 100vh
+     → Mengunci container TEPAT setinggi viewport.
+        Tidak lebih, tidak kurang. Ini menciptakan
+        "bounding box" yang rigid untuk seluruh layout.
+
+   ② overflow: hidden
+     → Memastikan TIDAK ADA konten child yang bisa
+        bocor keluar bounding box ke level body/html.
+        Tanpa ini, child yang overflow tetap bisa
+        mendorong scroll ke seluruh halaman.
+
+   ③ Kombinasi keduanya = isolated scroll context.
+      Scroll hanya mungkin terjadi di dalam child
+      yang punya overflow-y: auto — yaitu .login-right.
    ---------------------------------------------------------- */
 
 .login-page {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
+
+  /* ① KUNCI: ganti min-height → height */
+  height: 100vh;
+
+  /* ② KUNCI: cegah konten bocor ke body */
+  overflow: hidden;
 }
 
-
 /* ----------------------------------------------------------
-   LEFT PANEL — Branding
+   LEFT PANEL — Branding (tidak pernah scroll)
+
+   MENGAPA height: 100% + overflow: hidden?
+
+   height: 100% → panel mengisi penuh grid cell (= 100vh).
+   Grid child tidak otomatis stretch ke tinggi container
+   jika kontennya lebih pendek.
+
+   overflow: hidden → panel kiri tidak pernah bisa scroll.
+   Swatch card dan teks selalu terkunci di tengah panel,
+   tidak peduli seberapa panjang konten panel kanan.
    ---------------------------------------------------------- */
 
 .login-left {
@@ -25,12 +67,12 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-8) var(--space-10);
+  height: 100%;
   overflow: hidden;
 }
 
-/* Subtle warm gradient overlay for depth */
 .login-left::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: radial-gradient(
@@ -49,6 +91,7 @@
   letter-spacing: var(--tracking-tight);
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 .login-left-content {
@@ -63,7 +106,6 @@
   z-index: 1;
 }
 
-/* ── Color Palette Swatch Card ── */
 .login-swatch-card {
   width: 280px;
   border-radius: var(--radius-2xl);
@@ -76,12 +118,19 @@
   height: 72px;
 }
 
-.swatch-maroon   { background-color: var(--color-primary-700); }
-.swatch-sage     { background-color: var(--color-accent-500); }
-.swatch-beige    { background-color: var(--color-neutral-300); }
-.swatch-offwhite { background-color: var(--color-neutral-100); }
+.swatch-maroon {
+  background-color: var(--color-primary-700);
+}
+.swatch-sage {
+  background-color: var(--color-accent-500);
+}
+.swatch-beige {
+  background-color: var(--color-neutral-300);
+}
+.swatch-offwhite {
+  background-color: var(--color-neutral-100);
+}
 
-/* ── Left Panel Copy ── */
 .login-left-copy {
   display: flex;
   flex-direction: column;
@@ -105,17 +154,53 @@
   margin: 0 auto;
 }
 
-
 /* ----------------------------------------------------------
-   RIGHT PANEL — Auth Form
+   RIGHT PANEL — HANYA panel ini yang scroll
+
+   MENGAPA height: 100% + overflow-y: auto?
+
+   height: 100% → panel kanan setinggi container (100vh).
+   Ini wajib agar overflow-y bekerja. Tanpa height eksplisit,
+   browser tidak tahu kapan "overflow" terjadi.
+
+   overflow-y: auto → scrollbar muncul HANYA jika konten
+   (.login-card) lebih tinggi dari panel ini (100vh).
+   - Login form pendek: tidak ada scrollbar (auto = hidden jika cukup)
+   - Register form panjang: scrollbar muncul di sini saja
+
+   align-items: flex-start → agar card dimulai dari atas
+   saat konten melebihi tinggi panel (jika center, card
+   akan terpotong di atas saat scroll).
    ---------------------------------------------------------- */
 
 .login-right {
   background-color: var(--color-primary-50);
   display: flex;
-  align-items: center;
   justify-content: center;
+  height: 100%;
+  overflow-y: auto;
   padding: var(--space-10) var(--space-8);
+  align-items: flex-start;
+}
+
+/* ----------------------------------------------------------
+   INNER WRAPPER — Smart vertical centering
+
+   Trik centering yang adaptif:
+   - margin: auto pada flex child → center vertikal & horizontal
+   - Jika card LEBIH PENDEK dari panel: card ter-center sempurna
+   - Jika card LEBIH PANJANG dari panel: margin auto collapse
+     ke 0 secara otomatis, card mulai dari atas, panel scroll
+
+   Ini lebih baik dari align-items: center pada parent karena
+   center memotong konten di atas saat overflow terjadi.
+   ---------------------------------------------------------- */
+
+.login-right-inner {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  padding: var(--space-4) 0;
 }
 
 /* ── Auth Card ── */
@@ -126,13 +211,11 @@
   box-shadow: var(--shadow-xl);
   padding: var(--space-10) var(--space-8);
   width: 100%;
-  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
 }
 
-/* ── Card Header ── */
 .login-card-header {
   display: flex;
   flex-direction: column;
@@ -152,7 +235,6 @@
   color: var(--color-text-secondary);
   line-height: var(--leading-normal);
 }
-
 
 /* ----------------------------------------------------------
    TAB SWITCHER
@@ -192,7 +274,6 @@
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-
 /* ----------------------------------------------------------
    FORM
    ---------------------------------------------------------- */
@@ -203,7 +284,6 @@
   gap: var(--space-5);
 }
 
-/* ── Form Field ── */
 .form-field {
   display: flex;
   flex-direction: column;
@@ -229,7 +309,6 @@
   font-weight: var(--weight-medium);
 }
 
-/* ── Input Wrapper ── */
 .input-wrapper {
   position: relative;
   display: flex;
@@ -251,7 +330,7 @@
 .form-input {
   width: 100%;
   padding: var(--space-3) var(--space-4);
-  padding-left: calc(var(--space-4) + 18px + var(--space-3)); /* icon space */
+  padding-left: calc(var(--space-4) + 18px + var(--space-3));
   font-size: var(--text-sm);
   font-family: var(--font-sans);
   font-weight: var(--weight-regular);
@@ -276,15 +355,15 @@
 
 .form-input:focus {
   border-color: var(--color-primary-400);
-  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10), var(--shadow-inset);
+  box-shadow:
+    0 0 0 3px rgba(192, 57, 43, 0.1),
+    var(--shadow-inset);
 }
 
-/* Extra padding-right for password (eye toggle) */
 .form-input--password {
   padding-right: var(--space-10);
 }
 
-/* ── Password Toggle ── */
 .input-toggle-password {
   position: absolute;
   right: var(--space-3);
@@ -307,16 +386,11 @@
   color: var(--color-text-secondary);
 }
 
-
-/* ----------------------------------------------------------
-   REMEMBER ME + FORGOT PASSWORD ROW
-   ---------------------------------------------------------- */
-
 .form-row-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: calc(var(--space-1) * -1); /* tighten top gap */
+  margin-top: calc(var(--space-1) * -1);
 }
 
 /* ── Custom Checkbox ── */
@@ -349,9 +423,8 @@
   position: relative;
 }
 
-/* Checkmark via pseudo-element */
 .checkbox-custom::after {
-  content: '';
+  content: "";
   display: block;
   width: 9px;
   height: 5px;
@@ -382,7 +455,6 @@
   font-weight: var(--weight-medium);
 }
 
-/* ── Subtle Link ── */
 .link-subtle {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
@@ -409,7 +481,6 @@
   color: var(--color-primary-500);
 }
 
-
 /* ----------------------------------------------------------
    PRIMARY BUTTON
    ---------------------------------------------------------- */
@@ -429,9 +500,10 @@
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-default),
-              box-shadow var(--duration-normal) var(--ease-default),
-              transform var(--duration-fast) var(--ease-default);
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
   box-shadow: var(--shadow-primary);
   letter-spacing: var(--tracking-wide);
   line-height: 1;
@@ -450,11 +522,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-
-/* ----------------------------------------------------------
-   LEGAL TEXT
-   ---------------------------------------------------------- */
-
 .login-legal {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
@@ -462,20 +529,90 @@
   line-height: var(--leading-relaxed);
 }
 
+/* ----------------------------------------------------------
+   FORM FEEDBACK STATES (shared: Login + Register)
+   ---------------------------------------------------------- */
+
+.form-input--error {
+  border-color: var(--color-error) !important;
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1) !important;
+}
+
+.form-input--success {
+  border-color: var(--color-success) !important;
+  box-shadow: 0 0 0 3px rgba(74, 140, 74, 0.1) !important;
+}
+
+.form-error {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-error);
+  margin-top: var(--space-1);
+  line-height: var(--leading-normal);
+}
+
+.form-success {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-success);
+  margin-top: var(--space-1);
+  line-height: var(--leading-normal);
+}
+
+.form-hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+  line-height: var(--leading-normal);
+}
 
 /* ----------------------------------------------------------
-   RESPONSIVE — mobile stacks vertically
+   CUSTOM SCROLLBAR — hanya di panel kanan
+   Tipis, warm-toned, tidak mengganggu visual
+   ---------------------------------------------------------- */
+
+.login-right::-webkit-scrollbar {
+  width: 4px;
+}
+.login-right::-webkit-scrollbar-track {
+  background: transparent;
+}
+.login-right::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: var(--radius-full);
+}
+.login-right::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-neutral-400);
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+
+   Di mobile: split layout tidak masuk akal.
+   Kembali ke behavior scroll normal karena:
+   1. Layar sempit → fixed 100vh terlalu ketat
+   2. Left panel menjadi header di atas form
+   3. User expect scroll natural di mobile
    ---------------------------------------------------------- */
 
 @media (max-width: 768px) {
   .login-page {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
+    /* Kembalikan ke scroll normal di mobile */
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .login-left {
+    height: auto;
+    overflow: visible;
     padding: var(--space-6) var(--space-6) var(--space-8);
-    min-height: 280px;
+    min-height: 260px;
   }
 
   .login-left-content {
@@ -488,7 +625,6 @@
   .login-swatch-card {
     width: 140px;
   }
-
   .login-swatch-row {
     height: 40px;
   }
@@ -501,15 +637,20 @@
   .login-left-heading {
     font-size: var(--text-2xl);
   }
-
   .login-left-subtext {
-    font-size: var(--text-xs);
-    display: none; /* hide on mobile to keep it clean */
+    display: none;
   }
 
   .login-right {
+    height: auto;
+    overflow-y: visible;
     padding: var(--space-6) var(--space-4);
     align-items: flex-start;
+  }
+
+  .login-right-inner {
+    margin: 0 auto;
+    padding: var(--space-2) 0 var(--space-8);
   }
 
   .login-card {
@@ -518,10 +659,6 @@
 }
 
 @media (max-width: 480px) {
-  .login-right {
-    padding: var(--space-4) var(--space-3);
-  }
-
   .login-left {
     min-height: 200px;
     padding: var(--space-5);
@@ -530,11 +667,9 @@
   .login-left-content {
     gap: var(--space-4);
   }
-
   .login-swatch-card {
     width: 100px;
   }
-
   .login-swatch-row {
     height: 30px;
   }
@@ -542,8 +677,11 @@
   .login-left-copy {
     max-width: 200px;
   }
-
   .login-left-heading {
     font-size: var(--text-xl);
+  }
+
+  .login-right {
+    padding: var(--space-4) var(--space-3);
   }
 }

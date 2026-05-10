@@ -21,6 +21,7 @@ import {
   IconEyeOff,
   IconTicket,
   IconUser,
+  IconBuilding,
   IconArrowRight,
 } from "./authIcons";
 import "./Register.css";
@@ -148,6 +149,34 @@ export default function Register() {
             {errors.fullName && (
               <span className="form-error" role="alert">
                 {errors.fullName}
+              </span>
+            )}
+          </div>
+
+          {/* Business / UMKM Name */}
+          <div className="form-field">
+            <label className="form-label" htmlFor="reg-businessName">
+              Business / UMKM Name
+            </label>
+            <div className="input-wrapper">
+              <span className="input-icon">
+                <IconBuilding />
+              </span>
+              <input
+                id="reg-businessName"
+                name="businessName"
+                type="text"
+                className={`form-input ${errors.businessName ? "form-input--error" : ""}`}
+                placeholder="Company Ltd"
+                value={form.businessName}
+                onChange={handleChange}
+                autoComplete="organization"
+                required
+              />
+            </div>
+            {errors.businessName && (
+              <span className="form-error" role="alert">
+                {errors.businessName}
               </span>
             )}
           </div>
