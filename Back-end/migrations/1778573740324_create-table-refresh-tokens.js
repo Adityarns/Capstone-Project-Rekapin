@@ -9,32 +9,30 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("users", {
-    user_id: {
+  pgm.createTable("refresh_tokens", {
+    refresh_token_id: {
       type: "VARCHAR(50)",
       primaryKey: true,
     },
-    username: {
+    user_id: {
       type: "VARCHAR(50)",
       notNull: true,
+      references: "users(user_id)",
+      onDelete: "CASCADE",
+    },
+    token_hash: {
+      type: "TEXT",
+      notNull: true,
       unique: true,
     },
-    email: {
-      type: "VARCHAR(255)",
-      notNull: true,
-      unique: true,
-    },
-    password: {
-      type: "TEXT",
+    expires_at: {
+      type: "TIMESTAMPTZ",
       notNull: true,
     },
-    created_at: {
-      type: "TEXT",
+    is_revoked: {
+      type: "BOOLEAN",
       notNull: true,
-    },
-    updated_at: {
-      type: "TEXT",
-      notNull: true,
+      default: false,
     },
   });
 };
@@ -45,5 +43,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("users");
+  pgm.dropTable("refresh_tokens");
 };

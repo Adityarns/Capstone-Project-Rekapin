@@ -6,14 +6,13 @@ class UserRepositories {
   constructor() {
     this.pool = new Pool();
   }
-  async CreateUser({ name, email, password }) {
-    const id = nanoid(16);
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async addUser({ username, businessName, invitationCode, email, password }) {
+    const user_id = nanoid(16);
     const created_at = new Date().toISOString();
     const updated_at = created_at;
     const query = {
-      text: `INSERT INTO users(user_id, name, email, password, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING user_id AS id, name, email `,
-      values: [id, name, email, hashedPassword, created_at, updated_at],
+      text: `INSERT INTO users(user_id, username, email, password, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING user_id, username, email `,
+      values: [user_id, username, email, password, created_at, updated_at],
     };
     const results = await this.pool.query(query);
     return results.rows[0];
@@ -29,7 +28,7 @@ class UserRepositories {
 
   async verifyUserCredential(email, password) {
     const query = {
-      text: "SELECT user_id AS id, password FROM users WHERE email = $1",
+      text: "SELECT user_id, password FROM users WHERE email = $1",
       values: [email],
     };
 
@@ -44,13 +43,13 @@ class UserRepositories {
       return null;
     }
 
-    return result.rows[0].id;
+    return result.rows[0].user_id;
   }
 
-  async getUserById(id) {
+  async getUserById(user_id) {
     const query = {
-      text: `SELECT user_id AS id, name, email , created_at FROM users WHERE user_id = $1`,
-      values: [id],
+      text: `SELECT user_id, username, email, created_at FROM users WHERE user_id = $1`,
+      values: [user_id],
     };
     const results = await this.pool.query(query);
     return results.rows[0];

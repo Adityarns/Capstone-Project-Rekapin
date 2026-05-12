@@ -2,6 +2,7 @@ import Joi from "joi";
 export const postAuthenticationPayloadSchema = Joi.object({
   email: Joi.string().required().email().max(255),
   password: Joi.string().required(),
+  invitationCode: Joi.string().optional(),
 });
 export const putAuthenticationPayloadSchema = Joi.object({
   refreshToken: Joi.string().required(),

@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { Pool } from "pg";
 
 class AuthenticationsRepositories {
@@ -6,11 +7,12 @@ class AuthenticationsRepositories {
   }
 
   async addRefreshToken({ userId, tokenHash, expiresAt }) {
+    const refresh_token_id = nanoid(16);
     const query = {
-      text: `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-             VALUES ($1, $2, $3)
-             RETURNING id`,
-      values: [userId, tokenHash, expiresAt],
+      text: `INSERT INTO refresh_tokens (refresh_token_id, user_id, token_hash, expires_at)
+             VALUES ($1, $2, $3, $4)
+             RETURNING refresh_token_id`,
+      values: [refresh_token_id, userId, tokenHash, expiresAt],
     };
     const result = await this.pool.query(query);
     return result.rows[0];
@@ -28,7 +30,7 @@ class AuthenticationsRepositories {
 
   async verifyRefreshToken(tokenHash) {
     const query = {
-      text: `SELECT id, user_id, is_revoked, expires_at
+      text: `SELECT refresh_token_id, user_id, is_revoked, expires_at
              FROM refresh_tokens
              WHERE token_hash = $1`,
       values: [tokenHash],
@@ -46,16 +48,6 @@ class AuthenticationsRepositories {
     return token;
   }
 
-  async deleteAllRefreshTokensByUserId(userId) {
-    const query = {
-      text: `UPDATE refresh_tokens
-             SET is_revoked = TRUE
-             WHERE user_id = $1
-               AND is_revoked = FALSE`,
-      values: [userId],
-    };
-    await this.pool.query(query);
-  }
 }
 
 export default new AuthenticationsRepositories();

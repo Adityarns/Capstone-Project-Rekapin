@@ -11,38 +11,43 @@ import {
 } from "../../../exceptions/index.js";
 
 export const register = async (req, res, next) => {
-  const { fullName, businessName, email, password, invitationCode } =
+  const { username, businessName, email, password, role, invitationCode } =
     req.validated;
 
-  // Cek apakah email sudah dipakai
-  const emailTaken = await UserRepositories.isEmailTaken(email);
+  const emailTaken = await UserRepositories.verifyEmail(email);
   if (emailTaken) {
     return next(new InvariantError("Email sudah digunakan"));
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
+  const invitationCodeTaken =
+    await BusinessRepositories.findByInvitationCode(invitationCode);
+  if (invitationCode && invitationCodeTaken) {
+    return next(new InvariantError("Kode undangan sudah digunakan"));
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
 
   // ================================================
-  //  Invitation Code kosong → Owner baru
+  //  Owner → buat user + bisnis sekaligus
   // ================================================
-  if (!invitationCode) {
+  if (role === "owner") {
     if (!businessName) {
       return next(
         new InvariantError("Nama bisnis wajib diisi untuk pemilik UMKM"),
       );
     }
 
-    const { id: userId } = await UserRepositories.addUser({
-      fullName,
+    const { user_id: userId } = await UserRepositories.addUser({
+      username: username,
       email,
-      passwordHash,
+      password: passwordHash,
     });
 
-    const { id: businessId, invitation_code } =
-      await BusinessRepositories.addBusiness({
-        ownerId: userId,
-        businessName,
-      });
+    const { business_id: businessId } = await BusinessRepositories.addBusiness({
+      ownerId: userId,
+      businessName,
+      invitationCode,
+    });
 
     await TeamMemberRepositories.addTeamMember({
       businessId,
@@ -50,72 +55,124 @@ export const register = async (req, res, next) => {
       role: "owner",
     });
 
-    const accessToken = TokenManager.generateAccessToken({ id: userId });
-    const refreshToken = TokenManager.generateRefreshToken({ id: userId });
-    const { exp } = TokenManager.verifyRefreshToken(refreshToken);
+    const data = { username, email, role, userId, businessName };
 
-    await AuthenticationRepositories.addRefreshToken({
-      userId,
-      tokenHash: TokenManager.hashToken(refreshToken),
-      expiresAt: new Date(exp * 1000),
-    });
-
-    return response(res, 201, "Akun dan bisnis berhasil dibuat", {
-      accessToken,
-      refreshToken,
-      invitationCode: invitation_code, // kembalikan ke owner agar bisa dibagikan
-    });
+    return response(res, 201, "Akun dan bisnis berhasil dibuat", data);
   }
 
   // ================================================
-  // Invitation Code diisi → Admin
+  //  Karyawan → buat user saja, belum join bisnis
+  //  (akan join bisnis saat login dengan invitation code)
   // ================================================
-  const business =
-    await BusinessRepositories.findByInvitationCode(invitationCode);
-  if (!business) {
-    return next(new InvariantError("Kode undangan tidak valid"));
-  }
-
-  const { id: userId } = await UserRepositories.addUser({
-    fullName,
+  const { user_id: userId } = await UserRepositories.addUser({
+    username: username,
     email,
-    passwordHash,
+    password: passwordHash,
   });
 
-  // User yang bergabung via invitation code default role-nya Admin
-  await TeamMemberRepositories.addTeamMember({
-    businessId: business.id,
-    userId,
-    role: "Admin",
-  });
+  const data = { username, email, role, userId };
 
-  const accessToken = TokenManager.generateAccessToken({ id: userId });
-  const refreshToken = TokenManager.generateRefreshToken({ id: userId });
-  const { exp } = TokenManager.verifyRefreshToken(refreshToken);
-
-  await AuthenticationRepositories.addRefreshToken({
-    userId,
-    tokenHash: TokenManager.hashToken(refreshToken),
-    expiresAt: new Date(exp * 1000),
-  });
-
-  return response(res, 201, "Akun berhasil dibuat dan bergabung ke tim", {
-    accessToken,
-    refreshToken,
+  return response(res, 201, "Akun berhasil dibuat", {
+    data,
   });
 };
 
+/**
+ * @swagger
+ * /authentications:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Login user
+ *     description: Authenticate user and optionally join business with invitation code
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "johndoe@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "secret123"
+ *               invitationCode:
+ *                 type: string
+ *                 example: "ABC123"
+ *             required:
+ *               - email
+ *               - password
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication berhasil ditambahkan"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *                     refreshToken:
+ *                       type: string
+ *       400:
+ *         description: Authentication failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "fail"
+ *                 message:
+ *                   type: string
+ */
 export const login = async (req, res, next) => {
-  const { email, password } = req.validated;
+  const { email, password, invitationCode } = req.validated;
 
   const userId = await UserRepositories.verifyUserCredential(email, password);
   if (!userId) {
     return next(new AuthenticationError("Kredensial yang Anda berikan salah"));
   }
 
-  const accessToken = TokenManager.generateAccessToken({ id: userId });
-  const refreshToken = TokenManager.generateRefreshToken({ id: userId });
+  // ================================================
+  //  Jika invitation code diisi → gabungkan ke bisnis
+  // ================================================
+  if (invitationCode) {
+    const business =
+      await BusinessRepositories.findByInvitationCode(invitationCode);
+    if (!business) {
+      return next(new InvariantError("Kode undangan tidak valid"));
+    }
 
+    // Cek apakah user sudah terdaftar di bisnis ini
+    const alreadyMember = await TeamMemberRepositories.isMember({
+      businessId: business.business_id,
+      userId,
+    });
+
+    if (!alreadyMember) {
+      await TeamMemberRepositories.addTeamMember({
+        businessId: business.business_id,
+        userId,
+        role: "employee",
+      });
+    }
+  }
+
+  const accessToken = TokenManager.generateAccessToken({ user_id: userId });
+  const refreshToken = TokenManager.generateRefreshToken({ user_id: userId });
   const { exp } = TokenManager.verifyRefreshToken(refreshToken);
 
   await AuthenticationRepositories.addRefreshToken({
@@ -130,6 +187,57 @@ export const login = async (req, res, next) => {
   });
 };
 
+/**
+ * @swagger
+ * /authentications:
+ *   put:
+ *     tags: [Authentication]
+ *     summary: Refresh access token
+ *     description: Generate new access token using refresh token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "refresh-token-value"
+ *             required:
+ *               - refreshToken
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Access Token berhasil diperbarui"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *       400:
+ *         description: Invalid refresh token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "fail"
+ *                 message:
+ *                   type: string
+ */
 export const refreshToken = async (req, res, next) => {
   const { refreshToken } = req.validated;
 
@@ -140,14 +248,62 @@ export const refreshToken = async (req, res, next) => {
     return next(new InvariantError("Refresh token tidak valid"));
   }
 
-  const { id } = TokenManager.verifyRefreshToken(refreshToken);
-  const accessToken = TokenManager.generateAccessToken({ id });
+  const { user_id } = TokenManager.verifyRefreshToken(refreshToken);
+  const accessToken = TokenManager.generateAccessToken({ user_id });
 
   return response(res, 200, "Access Token berhasil diperbarui", {
     accessToken,
   });
 };
 
+/**
+ * @swagger
+ * /authentications:
+ *   delete:
+ *     tags: [Authentication]
+ *     summary: Logout user
+ *     description: Revoke refresh token and logout user
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "refresh-token-value"
+ *             required:
+ *               - refreshToken
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                 data: {}
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "fail"
+ *                 message:
+ *                   type: string
+ */
 export const logout = async (req, res, next) => {
   const { refreshToken } = req.validated;
 

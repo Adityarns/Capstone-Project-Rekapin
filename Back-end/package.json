@@ -20,6 +20,8 @@
     "nanoid": "^5.1.11",
     "node-pg-migrate": "^8.0.4",
     "nodemon": "^3.1.14",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.3"
   }
 }

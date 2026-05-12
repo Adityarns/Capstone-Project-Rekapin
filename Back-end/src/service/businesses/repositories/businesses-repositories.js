@@ -1,24 +1,27 @@
 import { Pool } from "pg";
-import crypto from "crypto";
+import { nanoid } from "nanoid";
 
 class BusinessRepositories {
   constructor() {
     this.pool = new Pool();
   }
 
-  // Generate kode undangan unik, contoh: REKAPIN-A3F9
-  generateInvitationCode() {
-    const suffix = crypto.randomBytes(2).toString("hex").toUpperCase();
-    return `REKAPIN-${suffix}`;
-  }
-
-  async addBusiness({ ownerId, businessName }) {
-    const invitationCode = this.generateInvitationCode();
+  async addBusiness({ ownerId, businessName, invitationCode }) {
+    const business_id = nanoid(16);
+    const created_at = new Date().toISOString();
+    const updated_at = created_at;
     const query = {
-      text: `INSERT INTO businesses (owner_id, business_name, invitation_code)
-             VALUES ($1, $2, $3)
-             RETURNING id, invitation_code`,
-      values: [ownerId, businessName, invitationCode],
+      text: `INSERT INTO businesses (business_id, owner_id, business_name, invitation_code, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING business_id, invitation_code`,
+      values: [
+        business_id,
+        ownerId,
+        businessName,
+        invitationCode,
+        created_at,
+        updated_at,
+      ],
     };
     const result = await this.pool.query(query);
     return result.rows[0];
@@ -31,7 +34,7 @@ class BusinessRepositories {
     if (fields.length === 0) return null;
     const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(", ");
     const query = {
-      text: `UPDATE businesses SET ${setClause} WHERE id = $${fields.length + 1} RETURNING id, business_name`,
+      text: `UPDATE businesses SET ${setClause} WHERE business_id = $${fields.length + 1} RETURNING business_id, business_name`,
       values: [...fields.map((key) => payload[key]), id],
     };
     const results = await this.pool.query(query);
@@ -40,7 +43,7 @@ class BusinessRepositories {
 
   async findByInvitationCode(invitationCode) {
     const query = {
-      text: `SELECT id FROM businesses WHERE invitation_code = $1`,
+      text: `SELECT business_id FROM businesses WHERE invitation_code = $1`,
       values: [invitationCode],
     };
     const result = await this.pool.query(query);

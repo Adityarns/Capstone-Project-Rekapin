@@ -20,11 +20,6 @@ router.put(
   validate(putAuthenticationPayloadSchema),
   refreshToken,
 );
-router.delete(
-  "/authentications",
-  authenticateToken,
-  validate(deleteAuthenticationSchema),
-  logout,
-);
+router.delete("/authentications", validate(deleteAuthenticationSchema), logout);
 
 export default router;
