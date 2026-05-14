@@ -1,0 +1,217 @@
+/** @format */
+/* ============================================================
+   REKAPIN — Sidebar Styles
+   src/components/layout/Sidebar.css
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   SIDEBAR CONTAINER
+   ---------------------------------------------------------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: var(--sidebar-width);
+  background-color: var(--color-primary-50);
+  padding: var(--space-6) 0;
+  overflow: hidden;
+
+  /* Subtle inset shadow untuk depth */
+  box-shadow: inset -1px 0 0 var(--color-primary-100);
+}
+
+/* ----------------------------------------------------------
+   LOGO SECTION
+   ---------------------------------------------------------- */
+
+.sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.sidebar-logo-text {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-primary-800);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+}
+
+.sidebar-logo-sub {
+  font-size: 0.625rem; /* 10px — tiny caps */
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------
+   CTA BUTTON — New Transaction
+   ---------------------------------------------------------- */
+
+.sidebar-cta-wrapper {
+  padding: 0 var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.sidebar-new-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-primary-700);
+  color: var(--color-text-inverse);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
+  box-shadow: var(--shadow-primary);
+  letter-spacing: var(--tracking-wide);
+}
+
+.sidebar-new-btn:hover {
+  background-color: var(--color-primary-800);
+  box-shadow: var(--shadow-md), var(--shadow-primary);
+  transform: translateY(-1px);
+}
+
+.sidebar-new-btn:active {
+  background-color: var(--color-primary-900);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ----------------------------------------------------------
+   NAVIGATION LIST
+   ---------------------------------------------------------- */
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+  list-style: none;
+}
+
+/* ----------------------------------------------------------
+   NAV ITEM
+
+   Active indicator menggunakan .sidebar-nav-indicator —
+   elemen absolut di sisi kanan yang muncul hanya saat active.
+   Pendekatan ini lebih reliable dari border-right karena
+   tidak mempengaruhi layout width sidebar.
+   ---------------------------------------------------------- */
+
+.sidebar-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    color var(--duration-normal) var(--ease-default);
+}
+
+.sidebar-nav-item:hover {
+  background-color: var(--color-primary-100);
+  color: var(--color-text-primary);
+}
+
+/* ── Active State ── */
+.sidebar-nav-item--active {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-weight: var(--weight-semibold);
+}
+
+/* Right-side active bar indicator */
+.sidebar-nav-indicator {
+  position: absolute;
+  right: calc(var(--space-3) * -1); /* flush ke tepi padding nav-list */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  min-height: 20px;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  transition: background-color var(--duration-normal) var(--ease-default);
+}
+
+.sidebar-nav-item--active .sidebar-nav-indicator {
+  background-color: var(--color-primary-600);
+}
+
+/* ── Icon ── */
+.sidebar-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity var(--duration-normal) var(--ease-default);
+}
+
+.sidebar-nav-item:hover .sidebar-nav-icon,
+.sidebar-nav-item--active .sidebar-nav-icon {
+  opacity: 1;
+}
+
+/* ── Label ── */
+.sidebar-nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----------------------------------------------------------
+   BOTTOM SECTION — Support + Logout
+   ---------------------------------------------------------- */
+
+.sidebar-bottom {
+  margin-top: auto; /* push ke bawah */
+  padding-top: var(--space-2);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background-color: var(--color-primary-200);
+  margin: 0 var(--space-5) var(--space-3);
+}
+
+/* Logout button style — sama dengan nav item tapi subtle merah */
+.sidebar-logout-btn {
+  color: var(--color-text-muted);
+}
+
+.sidebar-logout-btn:hover {
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+}

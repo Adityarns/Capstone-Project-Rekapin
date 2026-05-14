@@ -1,0 +1,125 @@
+/**
+ * ============================================================
+ *    REKAPIN — Dashboard Layout CSS
+ *    src/layouts/DashboardLayout.css
+ *    ============================================================
+ *
+ * @format
+ */
+
+/* ----------------------------------------------------------
+   CSS GRID NAMED AREAS
+
+   ┌──────────┬───────────────────────┐
+   │          │       topbar          │  ← var(--topbar-height) = 64px
+   │ sidebar  ├───────────────────────┤
+   │          │        main           │  ← scrollable
+   └──────────┴───────────────────────┘
+      240px          1fr
+
+   Sidebar span kedua rows → tetap full-height.
+   Topbar span hanya kolom kanan → di atas main content.
+   ---------------------------------------------------------- */
+
+.dash-layout {
+  display: grid;
+  grid-template-areas:
+    "sidebar topbar"
+    "sidebar main";
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: var(--topbar-height) 1fr;
+
+  /* Kunci scroll isolation */
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dash-sidebar {
+  grid-area: sidebar;
+}
+.dash-topbar {
+  grid-area: topbar;
+}
+.dash-main {
+  grid-area: main;
+}
+
+/* ----------------------------------------------------------
+   SIDEBAR SLOT
+   ---------------------------------------------------------- */
+
+.dash-sidebar {
+  overflow: hidden;
+  background-color: var(--color-primary-50);
+  border-right: 1px solid var(--color-primary-100);
+}
+
+/* ----------------------------------------------------------
+   TOPBAR SLOT
+   ---------------------------------------------------------- */
+
+.dash-topbar {
+  background-color: var(--color-neutral-50);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+  z-index: var(--z-raised);
+}
+
+/* ----------------------------------------------------------
+   MAIN CONTENT SLOT — satu-satunya area yang scroll
+   ---------------------------------------------------------- */
+
+.dash-main {
+  background-color: var(--color-neutral-50);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dash-main-inner {
+  padding: var(--space-6) var(--space-8);
+  min-height: 100%;
+}
+
+/* Scrollbar */
+.dash-main::-webkit-scrollbar {
+  width: 5px;
+}
+.dash-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dash-main::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: var(--radius-full);
+}
+.dash-main::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-neutral-400);
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+   ---------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .dash-layout {
+    grid-template-columns: var(--sidebar-width-compact) 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-layout {
+    grid-template-areas:
+      "topbar"
+      "main";
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--topbar-height) 1fr;
+  }
+
+  .dash-sidebar {
+    display: none;
+  }
+  .dash-main-inner {
+    padding: var(--space-4);
+  }
+}

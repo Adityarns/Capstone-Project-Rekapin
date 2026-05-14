@@ -3,10 +3,14 @@
  *    REKAPIN — Register Page
  *    src/pages/auth/Register.jsx
  *
- *    Reuses: AuthLayout, Login.css (base styles), authIcons
- *    Register.css hanya tambahan register-specific
- *    ============================================================
+ *    Refactor v2: Role-based registration flow
+ *    - Owner: Full Name, Business Name, Email, Password,
+ *             Confirm Password, Invitation Code (optional)
+ *    - Employee: Full Name, Email, Password, Confirm Password
  *
+ *    Reuses: AuthLayout, Login.css (base), authIcons
+ *    Register.css: role selector + register-specific additions
+ * ============================================================
  * @format
  */
 
@@ -26,51 +30,128 @@ import {
 } from "./authIcons";
 import "./Register.css";
 
+/* ── Role Config ─────────────────────────────────────────────── */
+
+const ROLES = [
+  { value: "owner", label: "Owner" },
+  { value: "employee", label: "Employee" },
+];
+
+/* ── Role Selector Component ─────────────────────────────────── */
+
+function RoleSelector({ role, onChange }) {
+  return (
+    <div className="reg-role-selector">
+      <span className="reg-role-label">REGISTER AS:</span>
+      <div className="reg-role-pills" role="group" aria-label="Register as">
+        {ROLES.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            className={[
+              "reg-role-pill",
+              role === value ? "reg-role-pill--active" : "",
+            ]
+              .join(" ")
+              .trim()}
+            onClick={() => onChange(value)}
+            aria-pressed={role === value}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Component ──────────────────────────────────────────── */
+
 export default function Register() {
   const navigate = useNavigate();
 
+  /* ── UI state ── */
+  const [role, setRole] = useState("owner");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirm] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
 
+  /* ── Form state ── */
   const [form, setForm] = useState({
     fullName: "",
-    businessName: "",
+    businessName: "", // owner only
     email: "",
     password: "",
     confirmPassword: "",
-    invitationCode: "",
+    invitationCode: "", // owner only
   });
 
   const [errors, setErrors] = useState({});
 
-  /* ── Handlers ── */
+  /* ── Role switch handler ─────────────────────────────────────
+     Saat role berganti ke employee, clear field owner-only
+     dan hapus error yang berkaitan agar form tetap clean.
+  ──────────────────────────────────────────────────────────── */
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+
+    if (newRole === "employee") {
+      // Clear owner-only fields
+      setForm((prev) => ({
+        ...prev,
+        businessName: "",
+        invitationCode: "",
+      }));
+      // Clear related errors
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.businessName;
+        delete next.invitationCode;
+        return next;
+      });
+    }
+  };
+
+  /* ── Field change handler ── */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  /* ── Validation — role-aware ─────────────────────────────────
+     businessName hanya di-validate untuk role owner.
+     invitationCode bersifat optional untuk owner, tidak ada
+     untuk employee.
+  ──────────────────────────────────────────────────────────── */
   const validate = () => {
     const err = {};
+
     if (!form.fullName.trim()) err.fullName = "Full name is required.";
-    if (!form.businessName.trim())
+
+    // Hanya validasi businessName untuk Owner
+    if (role === "owner" && !form.businessName.trim())
       err.businessName = "Business name is required.";
+
     if (!form.email.trim()) err.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       err.email = "Enter a valid email address.";
+
     if (!form.password) err.password = "Password is required.";
     else if (form.password.length < 8)
       err.password = "Password must be at least 8 characters.";
+
     if (!form.confirmPassword)
       err.confirmPassword = "Please confirm your password.";
     else if (form.password !== form.confirmPassword)
       err.confirmPassword = "Passwords do not match.";
+
     if (!agreeTerms) err.terms = "You must agree to the terms to continue.";
+
     return err;
   };
 
+  /* ── Submit ── */
   const handleSubmit = (e) => {
     e.preventDefault();
     const validation = validate();
@@ -78,19 +159,34 @@ export default function Register() {
       setErrors(validation);
       return;
     }
+
+    // Buat payload sesuai role — jangan kirim field yang tidak relevan
+    const payload =
+      role === "owner"
+        ? { role, ...form }
+        : {
+            role,
+            fullName: form.fullName,
+            email: form.email,
+            password: form.password,
+            confirmPassword: form.confirmPassword,
+          };
+
     // TODO: Supabase sign-up
-    console.log("Register submitted:", form);
+    console.log("Register submitted:", payload);
   };
 
   /* ── Derived state ── */
   const passwordsMatch =
     form.confirmPassword.length > 0 && form.password === form.confirmPassword;
 
+  const isOwner = role === "owner";
+
   /* ── Render ── */
   return (
     <AuthLayout>
       <div className="login-card reg-card fade-in-scale">
-        {/* Header */}
+        {/* ── Card Header ── */}
         <div className="login-card-header">
           <h2 className="login-title">Welcome</h2>
           <p className="login-subtitle">
@@ -98,7 +194,7 @@ export default function Register() {
           </p>
         </div>
 
-        {/* Tab Switcher — Register tab active, Log In navigates */}
+        {/* ── Login / Register Tab Switcher ── */}
         <div
           className="login-tabs"
           role="tablist"
@@ -123,9 +219,12 @@ export default function Register() {
           </button>
         </div>
 
-        {/* Form */}
+        {/* ── Role Selector — di bawah tabs, di atas form ── */}
+        <RoleSelector role={role} onChange={handleRoleChange} />
+
+        {/* ── Form ── */}
         <form className="login-form" onSubmit={handleSubmit} noValidate>
-          {/* Full Name */}
+          {/* Full Name — selalu tampil */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-fullName">
               Full Name
@@ -153,35 +252,37 @@ export default function Register() {
             )}
           </div>
 
-          {/* Business / UMKM Name */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="reg-businessName">
-              Business / UMKM Name
-            </label>
-            <div className="input-wrapper">
-              <span className="input-icon">
-                <IconBuilding />
-              </span>
-              <input
-                id="reg-businessName"
-                name="businessName"
-                type="text"
-                className={`form-input ${errors.businessName ? "form-input--error" : ""}`}
-                placeholder="Company Ltd"
-                value={form.businessName}
-                onChange={handleChange}
-                autoComplete="organization"
-                required
-              />
+          {/* Business / UMKM Name — Owner only */}
+          {isOwner && (
+            <div className="form-field">
+              <label className="form-label" htmlFor="reg-businessName">
+                Business / UMKM Name
+              </label>
+              <div className="input-wrapper">
+                <span className="input-icon">
+                  <IconBuilding />
+                </span>
+                <input
+                  id="reg-businessName"
+                  name="businessName"
+                  type="text"
+                  className={`form-input ${errors.businessName ? "form-input--error" : ""}`}
+                  placeholder="Company Ltd"
+                  value={form.businessName}
+                  onChange={handleChange}
+                  autoComplete="organization"
+                  required
+                />
+              </div>
+              {errors.businessName && (
+                <span className="form-error" role="alert">
+                  {errors.businessName}
+                </span>
+              )}
             </div>
-            {errors.businessName && (
-              <span className="form-error" role="alert">
-                {errors.businessName}
-              </span>
-            )}
-          </div>
+          )}
 
-          {/* Email */}
+          {/* Email — selalu tampil */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-email">
               Email Address
@@ -209,7 +310,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* Password */}
+          {/* Password — selalu tampil */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-password">
               Password
@@ -238,7 +339,6 @@ export default function Register() {
                 {showPassword ? <IconEyeOff /> : <IconEye />}
               </button>
             </div>
-            {/* Always show hint; show error only when validation fires */}
             {errors.password ? (
               <span className="form-error" role="alert">
                 {errors.password}
@@ -248,7 +348,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* Confirm Password */}
+          {/* Confirm Password — selalu tampil */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-confirm">
               Confirm Password
@@ -295,32 +395,34 @@ export default function Register() {
             )}
           </div>
 
-          {/* Invitation Code — optional */}
-          <div className="form-field">
-            <div className="form-label-row">
-              <label className="form-label" htmlFor="reg-code">
-                Invitation Code
-              </label>
-              <span className="form-label-badge">Optional</span>
+          {/* Invitation Code — Owner only, optional */}
+          {isOwner && (
+            <div className="form-field">
+              <div className="form-label-row">
+                <label className="form-label" htmlFor="reg-code">
+                  Invitation Code
+                </label>
+                <span className="form-label-badge">Optional</span>
+              </div>
+              <div className="input-wrapper">
+                <span className="input-icon">
+                  <IconTicket />
+                </span>
+                <input
+                  id="reg-code"
+                  name="invitationCode"
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. REKAPIN-2024"
+                  value={form.invitationCode}
+                  onChange={handleChange}
+                  autoComplete="off"
+                />
+              </div>
             </div>
-            <div className="input-wrapper">
-              <span className="input-icon">
-                <IconTicket />
-              </span>
-              <input
-                id="reg-code"
-                name="invitationCode"
-                type="text"
-                className="form-input"
-                placeholder="e.g. REKAPIN-2024"
-                value={form.invitationCode}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-            </div>
-          </div>
+          )}
 
-          {/* Terms & Conditions */}
+          {/* Terms & Conditions — selalu tampil */}
           <div className="form-field">
             <label className="checkbox-label reg-terms-label">
               <input
