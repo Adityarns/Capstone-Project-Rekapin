@@ -3,17 +3,98 @@
  *    REKAPIN — Register Page Styles
  *    src/pages/auth/Register.css
  *
- *    Hanya berisi style TAMBAHAN untuk Register.
- *    Semua base styles (layout, scroll behavior, card, tabs,
- *    inputs, button, form feedback) sudah ada di Login.css
- *    via AuthLayout.jsx.
+ *    Berisi:
+ *    1. Role selector (pill/chip style) — NEW
+ *    2. Terms checkbox alignment
+ *    3. Form feedback states (shared dengan Login.css)
  *
- *    TIDAK perlu override scroll/height di sini karena
- *    Login.css sudah menangani .login-right-inner dengan
- *    margin: auto yang adaptif.
+ *    Base styles (layout, card, tabs, inputs, button) ada
+ *    di Login.css via AuthLayout.jsx.
  * ============================================================
  * @format
  */
+
+/* ----------------------------------------------------------
+   ROLE SELECTOR
+
+   Posisi: di bawah Login/Register tab switcher,
+           di atas form fields.
+
+   Visual weight sengaja lebih ringan dari tab switcher:
+   - Ukuran lebih kecil
+   - Menggunakan accent color (sage green), bukan primary maroon
+   - Pill/chip shape (border-radius: full)
+   - Label uppercase kecil sebagai secondary indicator
+
+   Diferensiasi warna:
+   - Login/Register tabs → maroon (--color-primary)   = aksi utama
+   - Owner/Employee pills → sage green (--color-accent) = konteks/role
+   ---------------------------------------------------------- */
+
+.reg-role-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  /* Negative margin sedikit untuk kompensasi gap di .login-form
+     — role selector berada di luar form tapi secara visual
+     berdekatan dengan field pertama */
+  margin-bottom: calc(var(--space-2) * -1);
+}
+
+/* "REGISTER AS:" label — kecil, uppercase, muted */
+.reg-role-label {
+  font-size: 0.625rem; /* 10px — sama dengan sidebar sub-label */
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Pills container */
+.reg-role-pills {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Individual pill */
+.reg-role-pill {
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-full); /* pill shape */
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
+  border: 1.5px solid var(--color-neutral-300);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default),
+    color var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default);
+  line-height: 1.6;
+}
+
+.reg-role-pill:hover:not(.reg-role-pill--active) {
+  border-color: var(--color-accent-400);
+  color: var(--color-accent-600);
+  background-color: var(--color-accent-50);
+}
+
+/* Active pill — sage green */
+.reg-role-pill--active {
+  background-color: var(--color-accent-500);
+  border-color: var(--color-accent-500);
+  color: var(--color-neutral-0);
+  box-shadow: 0 2px 8px rgba(74, 140, 74, 0.25);
+}
+
+.reg-role-pill--active:hover {
+  background-color: var(--color-accent-600);
+  border-color: var(--color-accent-600);
+}
 
 /* ----------------------------------------------------------
    TERMS CHECKBOX

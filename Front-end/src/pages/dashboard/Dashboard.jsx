@@ -1,7 +1,11 @@
 /** @format */
 
-function Dashboard() {
-  return <h1>Dashboard</h1>;
+export default function Dashboard() {
+  return (
+    <div>
+      {Array.from({ length: 50 }).map((_, i) => (
+        <p key={i}>Dummy content {i}</p>
+      ))}
+    </div>
+  );
 }
-
-export default Dashboard;
