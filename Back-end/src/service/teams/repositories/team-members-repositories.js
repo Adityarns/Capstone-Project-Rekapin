@@ -28,6 +28,24 @@ class TeamMemberRepositories {
     const result = await this.pool.query(query);
     return result.rows.length > 0;
   }
+
+  async getTeamMembersById(businessId) {
+    const query = {
+      text: `SELECT users.username, team_members.role FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.business_id = $1`,
+      values: [businessId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows;
+  }
+
+  async deleteTeamMembersById(userId) {
+    const query = {
+      text: "DELETE FROM team_members USING users WHERE team_members.user_id = users.user_id AND team_members.user_id = $1 RETURNING users.username, team_members.user_id, team_members.role",
+      values: [userId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0];
+  }
 }
 
 export default new TeamMemberRepositories();

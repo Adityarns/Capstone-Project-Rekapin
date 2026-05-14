@@ -32,7 +32,7 @@ export const up = (pgm) => {
     industry: {
       type: "VARCHAR(100)",
     },
-    phoneNumber: {
+    phone_number: {
       type: "VARCHAR(20)",
     },
     address: {

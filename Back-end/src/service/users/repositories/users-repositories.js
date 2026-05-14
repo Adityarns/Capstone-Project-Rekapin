@@ -46,10 +46,29 @@ class UserRepositories {
     return result.rows[0].user_id;
   }
 
-  async getUserById(user_id) {
+  async getUserById(userId) {
     const query = {
-      text: `SELECT user_id, username, email, created_at FROM users WHERE user_id = $1`,
-      values: [user_id],
+      text: `SELECT user_id, username, email FROM users WHERE user_id = $1`,
+      values: [userId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0];
+  }
+
+  async editUserById({ userId, ...payload }) {
+    const updated_at = new Date().toISOString();
+    payload.updated_at = updated_at;
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+    const fields = Object.keys(payload).filter(
+      (key) => payload[key] !== undefined,
+    );
+    if (fields.length === 0) return null;
+    const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(", ");
+    const query = {
+      text: `UPDATE users SET ${setClause} WHERE user_id = $${fields.length + 1} RETURNING user_id, username`,
+      values: [...fields.map((key) => payload[key]), userId],
     };
     const results = await this.pool.query(query);
     return results.rows[0];

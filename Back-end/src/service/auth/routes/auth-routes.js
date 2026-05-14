@@ -1,25 +1,23 @@
 import { Router } from "express";
 import validate from "../../../middlewares/validator.js";
 import {
-  postAuthenticationPayloadSchema,
-  putAuthenticationPayloadSchema,
-  deleteAuthenticationSchema,
+  registerAuthPayloadSchema,
+  loginAuthPayloadSchema,
+  refreshAuthPayloadSchema,
+  logoutAuthPayloadSchema,
 } from "../validator/auth-schema.js";
 import authenticateToken from "../../../middlewares/auth.js";
-import { login, refreshToken, logout } from "../controller/auth-controller.js";
+import {
+  login,
+  refreshToken,
+  logout,
+  register,
+} from "../controller/auth-controller.js";
 
 const router = Router();
-
-router.post(
-  "/authentications",
-  validate(postAuthenticationPayloadSchema),
-  login,
-);
-router.put(
-  "/authentications",
-  validate(putAuthenticationPayloadSchema),
-  refreshToken,
-);
-router.delete("/authentications", validate(deleteAuthenticationSchema), logout);
+router.post("/auth/register", validate(registerAuthPayloadSchema), register);
+router.post("/auth/login", validate(loginAuthPayloadSchema), login);
+router.put("/auth/refresh", validate(refreshAuthPayloadSchema), refreshToken);
+router.delete("/auth/logout", validate(logoutAuthPayloadSchema), logout);
 
 export default router;

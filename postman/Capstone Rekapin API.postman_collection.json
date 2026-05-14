@@ -1,0 +1,1543 @@
+{
+  "info": {
+    "_postman_id": "9ea4dac5-023f-4b48-999a-9e00ff21feaf",
+    "name": "Capstone Rekapin API",
+    "description": "Dokumentasi API untuk backend Rekapin menggunakan Swagger UI.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51511193",
+    "_collection_link": "https://go.postman.co/collection/51511193-9ea4dac5-023f-4b48-999a-9e00ff21feaf?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "register",
+          "item": [
+            {
+              "name": "Register a new user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"owner\",\n  \"businessName\": \"My Business\",\n  \"invitationCode\": \"INVITE123\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "Register a new user with role-based business creation"
+              },
+              "response": [
+                {
+                  "name": "User registered successfully",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"username\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"owner\",\n  \"businessName\": \"My Business\",\n  \"invitationCode\": \"INVITE123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Akun dan bisnis berhasil dibuat\",\n  \"data\": {\n    \"username\": \"John Doe\",\n    \"email\": \"johndoe@example.com\",\n    \"role\": \"owner\",\n    \"userId\": \"user-xyz123\",\n    \"businessName\": \"My Business\"\n  }\n}"
+                },
+                {
+                  "name": "Bad Request (Validation failed or Invariant Error)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"username\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"owner\",\n  \"businessName\": \"My Business\",\n  \"invitationCode\": \"INVITE123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Email sudah digunakan\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "item": [
+            {
+              "name": "Login user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"invitationCode\": \"ABC123\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "Authenticate user and optionally join business with invitation code"
+              },
+              "response": [
+                {
+                  "name": "Login successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"invitationCode\": \"ABC123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Authentication berhasil ditambahkan\",\n  \"data\": {\n    \"accessToken\": \"string\",\n    \"refreshToken\": \"string\"\n  }\n}"
+                },
+                {
+                  "name": "Authentication failed",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"invitationCode\": \"ABC123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "refresh",
+          "item": [
+            {
+              "name": "Refresh access token",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/refresh",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "refresh"
+                  ]
+                },
+                "description": "Generate new access token using refresh token"
+              },
+              "response": [
+                {
+                  "name": "Token refreshed successfully",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/refresh",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "refresh"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Access Token berhasil diperbarui\",\n  \"data\": {\n    \"accessToken\": \"string\"\n  }\n}"
+                },
+                {
+                  "name": "Invalid refresh token",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/refresh",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "refresh"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "logout",
+          "item": [
+            {
+              "name": "Logout user",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/logout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "logout"
+                  ]
+                },
+                "description": "Revoke refresh token and logout user"
+              },
+              "response": [
+                {
+                  "name": "Logout successful",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "description": "Added as a part of security scheme: bearer",
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/logout",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "logout"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"string\",\n  \"data\": \"\"\n}"
+                },
+                {
+                  "name": "Unauthorized",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "description": "Added as a part of security scheme: bearer",
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/auth/logout",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "auth",
+                        "logout"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "{userId}",
+          "item": [
+            {
+              "name": "Get user by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "user-123",
+                      "description": "User ID"
+                    }
+                  ]
+                },
+                "description": "Retrieve user information by user ID"
+              },
+              "response": [
+                {
+                  "name": "User retrieved successfully",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "user-123",
+                          "description": "User ID"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Akun ditemukan\",\n  \"data\": {\n    \"id\": \"user-123\",\n    \"username\": \"John Doe\",\n    \"email\": \"johndoe@example.com\"\n  }\n}"
+                },
+                {
+                  "name": "User not found",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "user-123",
+                          "description": "User ID"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Edit user by ID",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "user-123",
+                      "description": "ID Pengguna"
+                    }
+                  ]
+                },
+                "description": "Memperbarui informasi pengguna berdasarkan ID pengguna"
+              },
+              "response": [
+                {
+                  "name": "User berhasil diperbarui",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "user-123",
+                          "description": "ID Pengguna"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"User berhasil diperbarui\",\n  \"data\": {\n    \"id\": \"user-123\",\n    \"username\": \"Aditya Rahman\",\n    \"email\": \"aditya@example.com\"\n  }\n}"
+                },
+                {
+                  "name": "User gagal diperbarui (Invariant Error) atau Payload tidak valid",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "user-123",
+                          "description": "ID Pengguna"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"User gagal diperbarui\"\n}"
+                },
+                {
+                  "name": "User tidak ditemukan",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/:userId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "user-123",
+                          "description": "ID Pengguna"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"User tidak ditemukan\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "businesses",
+      "item": [
+        {
+          "name": "{businessId}",
+          "item": [
+            {
+              "name": "members",
+              "item": [
+                {
+                  "name": "{userId}",
+                  "item": [
+                    {
+                      "name": "Delete team member by User ID",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "businesses",
+                            ":businessId",
+                            "members",
+                            ":userId"
+                          ],
+                          "variable": [
+                            {
+                              "key": "businessId"
+                            },
+                            {
+                              "key": "userId",
+                              "value": "user-456",
+                              "description": "ID Pengguna yang akan dihapus"
+                            }
+                          ]
+                        },
+                        "description": "Menghapus pengguna spesifik dari daftar anggota tim"
+                      },
+                      "response": [
+                        {
+                          "name": "User berhasil dihapus dari anggota tim",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "businesses",
+                                ":businessId",
+                                "members",
+                                ":userId"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "userId",
+                                  "value": "user-456",
+                                  "description": "ID Pengguna yang akan dihapus"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"status\": \"success\",\n  \"message\": \"User berhasil dihapus dari anggota tim\"\n}"
+                        },
+                        {
+                          "name": "User gagal dihapus dari anggota tim (Invariant Error)",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "businesses",
+                                ":businessId",
+                                "members",
+                                ":userId"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "userId",
+                                  "value": "user-456",
+                                  "description": "ID Pengguna yang akan dihapus"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"status\": \"fail\",\n  \"message\": \"User gagal dihapus dari anggota tim\"\n}"
+                        },
+                        {
+                          "name": "Anggota tim tidak ditemukan",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "businesses",
+                                ":businessId",
+                                "members",
+                                ":userId"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "userId",
+                                  "value": "user-456",
+                                  "description": "ID Pengguna yang akan dihapus"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Anggota tim tidak ditemukan\"\n}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Get team members by Business ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/businesses/:businessId/members",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "businesses",
+                        ":businessId",
+                        "members"
+                      ],
+                      "variable": [
+                        {
+                          "key": "businessId",
+                          "value": "business-123",
+                          "description": "ID Bisnis"
+                        }
+                      ]
+                    },
+                    "description": "Menampilkan daftar anggota tim berdasarkan ID bisnis"
+                  },
+                  "response": [
+                    {
+                      "name": "Anggota tim berhasil ditemukan",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/businesses/:businessId/members",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "businesses",
+                            ":businessId",
+                            "members"
+                          ],
+                          "variable": [
+                            {
+                              "key": "businessId",
+                              "value": "business-123",
+                              "description": "ID Bisnis"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"status\": \"success\",\n  \"message\": \"Anggota tim berhasil ditemukan\",\n  \"data\": {\n    \"teamMember\": [\n      {\n        \"username\": \"Aditya Rahman\",\n        \"role\": \"employee\"\n      },\n      {\n        \"username\": \"Aditya Rahman\",\n        \"role\": \"employee\"\n      }\n    ]\n  }\n}"
+                    },
+                    {
+                      "name": "Anggota tim tidak ditemukan",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/businesses/:businessId/members",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "businesses",
+                            ":businessId",
+                            "members"
+                          ],
+                          "variable": [
+                            {
+                              "key": "businessId",
+                              "value": "business-123",
+                              "description": "ID Bisnis"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Anggota tim tidak ditemukan\"\n}"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Get business by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/businesses/:businessId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "businesses",
+                    ":businessId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "businessId",
+                      "value": "business-123",
+                      "description": "ID Bisnis yang dicari"
+                    }
+                  ]
+                },
+                "description": "Mengambil informasi detail profil bisnis UMKM berdasarkan ID bisnis"
+              },
+              "response": [
+                {
+                  "name": "Business ditemukan",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/businesses/:businessId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "businesses",
+                        ":businessId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "businessId",
+                          "value": "business-123",
+                          "description": "ID Bisnis yang dicari"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Business ditemukan\",\n  \"data\": {\n    \"id\": \"business-123\",\n    \"name\": \"Wijaya Furniture\",\n    \"industry\": \"Home & Furniture\",\n    \"phone_number\": \"+62 812-3456-7890\",\n    \"address\": \"Jl. Sukapura No. 45, Bandung\",\n    \"invitation_code\": \"REKAPIN-2024\"\n  }\n}"
+                },
+                {
+                  "name": "Business tidak ditemukan",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/businesses/:businessId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "businesses",
+                        ":businessId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "businessId",
+                          "value": "business-123",
+                          "description": "ID Bisnis yang dicari"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Business tidak ditemukan\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Edit business by ID",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/businesses/:businessId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "businesses",
+                    ":businessId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "businessId",
+                      "value": "business-123",
+                      "description": "ID Bisnis yang akan diperbarui"
+                    }
+                  ]
+                },
+                "description": "Memperbarui informasi profil bisnis UMKM berdasarkan ID bisnis"
+              },
+              "response": [
+                {
+                  "name": "Business berhasil diperbarui",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/businesses/:businessId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "businesses",
+                        ":businessId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "businessId",
+                          "value": "business-123",
+                          "description": "ID Bisnis yang akan diperbarui"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Business berhasil diperbarui\",\n  \"data\": {\n    \"id\": \"business-123\",\n    \"name\": \"Wijaya Furniture\",\n    \"industry\": \"Home & Furniture\"\n  }\n}"
+                },
+                {
+                  "name": "Business gagal diperbarui (Invariant Error) atau Payload tidak valid",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/businesses/:businessId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "businesses",
+                        ":businessId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "businessId",
+                          "value": "business-123",
+                          "description": "ID Bisnis yang akan diperbarui"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Business gagal diperbarui\"\n}"
+                },
+                {
+                  "name": "Business tidak ditemukan",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/businesses/:businessId",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "businesses",
+                        ":businessId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "businessId",
+                          "value": "business-123",
+                          "description": "ID Bisnis yang akan diperbarui"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Business tidak ditemukan\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}
