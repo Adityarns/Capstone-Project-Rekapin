@@ -1,0 +1,139 @@
+/**
+ * ============================================================
+ *    REKAPIN — Auth Service
+ *    src/services/authService.js
+ *
+ *    Semua pemanggilan API yang berhubungan dengan auth.
+ *    File ini yang "tahu" tentang:
+ *    - Endpoint mana yang dipanggil
+ *    - Field apa yang dikirim
+ *    - Bagaimana response disimpan
+ *
+ *    FIELD MAPPING PENTING:
+ *    Frontend pakai "fullName" (lebih ramah user)
+ *    Backend expect "username" (sesuai DB schema)
+ *    → Mapping dilakukan di sini, bukan di komponen UI.
+ * ============================================================
+ * @format
+ */
+
+import { api, tokenStorage } from "./api";
+
+// ── REGISTER ──────────────────────────────────────────────────
+// POST /auth/register
+//
+// Menerima data dari Register.jsx (sudah divalidasi frontend),
+// mapping field sesuai API contract, lalu kirim ke backend.
+//
+// Owner  → kirim username, email, password, role, businessName, invitationCode?
+// Employee → kirim username, email, password, role (saja)
+
+export async function registerUser({
+  role,
+  fullName,
+  businessName,
+  email,
+  password,
+  invitationCode,
+}) {
+  // ── Kenapa kita buat payload manual, tidak langsung spread form? ──
+  // Karena frontend punya field "confirmPassword" yang TIDAK boleh
+  // dikirim ke backend. Dan "fullName" harus diubah jadi "username".
+
+  const payload = {
+    username: fullName, // ← mapping: fullName → username
+    email,
+    password,
+    role,
+  };
+
+  // Field owner-only: hanya tambahkan jika role owner
+  if (role === "owner") {
+    payload.businessName = businessName;
+    // invitationCode optional — hanya kirim jika diisi
+    if (invitationCode?.trim()) {
+      payload.invitationCode = invitationCode.trim();
+    }
+  }
+
+  // Response 201: { status: "success", data: { username, email, role, userId, businessName } }
+  const response = await api.post("/auth/register", payload);
+  return response.data;
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────
+// POST /auth/login
+//
+// Backend mengembalikan accessToken dan refreshToken.
+// Kita simpan keduanya ke localStorage via tokenStorage.
+// Fungsi ini mengembalikan data user agar bisa disimpan di context.
+
+export async function loginUser({ email, password, invitationCode }) {
+  const payload = { email, password };
+
+  // invitationCode di login: untuk employee join workspace
+  if (invitationCode?.trim()) {
+    payload.invitationCode = invitationCode.trim();
+  }
+
+  // Response 200: { status: "success", data: { accessToken, refreshToken } }
+  const response = await api.post("/auth/login", payload);
+  const { accessToken, refreshToken } = response.data;
+
+  // ── Kenapa kita simpan token di sini (service layer) bukan di komponen? ──
+  // Supaya Login.jsx tidak perlu "tahu" tentang localStorage.
+  // Komponen UI cukup panggil loginUser() dan terima hasilnya.
+  // Ini prinsip separation of concerns.
+  tokenStorage.setTokens(accessToken, refreshToken);
+
+  return response.data;
+}
+
+// ── LOGOUT ───────────────────────────────────────────────────
+// DELETE /auth/logout
+//
+// Backend butuh:
+// - Authorization: Bearer <accessToken>   → otomatis ditambah api.js
+// - Body: { refreshToken }                → kita kirim manual
+//
+// Setelah logout berhasil (atau gagal sekalipun), kita clear
+// semua token lokal agar user pasti ter-logout dari sisi frontend.
+
+export async function logoutUser() {
+  const refreshToken = tokenStorage.getRefresh();
+
+  try {
+    await api.delete("/auth/logout", { refreshToken });
+  } catch (err) {
+    // Jika request gagal (misal token sudah invalid di server),
+    // tetap lanjutkan clear token lokal. User harus bisa logout
+    // bahkan saat offline atau token sudah expired.
+    console.warn(
+      "Logout API error (token mungkin sudah invalid):",
+      err.message,
+    );
+  } finally {
+    // finally = selalu dijalankan, sukses maupun gagal
+    tokenStorage.clearAll();
+  }
+}
+
+// ── GET USER PROFILE ──────────────────────────────────────────
+// GET /users/:userId
+//
+// Dipanggil setelah login untuk mendapatkan data profil user.
+// userId didapat dari decode token atau dari response register.
+
+export async function getUserById(userId) {
+  // Response: { status: "success", data: { id, username, email } }
+  const response = await api.get(`/users/${userId}`);
+  return response.data;
+}
+
+// ── CHECK AUTH STATUS ─────────────────────────────────────────
+// Helper sederhana untuk cek apakah user masih punya session valid.
+// Digunakan di AppRoutes untuk ProtectedRoute guard.
+
+export function isSessionActive() {
+  return !!tokenStorage.getAccess();
+}

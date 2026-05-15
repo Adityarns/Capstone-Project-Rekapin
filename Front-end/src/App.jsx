@@ -1,12 +1,21 @@
-/** @format */
+/**
+ * ============================================================
+ *    REKAPIN — App Root
+ *    src/App.jsx
+ * ============================================================
+ * @format
+ */
 
 import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

@@ -1,21 +1,21 @@
 /**
  * ============================================================
- *    REKAPIN — Register Page
+ *    REKAPIN — Register Page (API-connected)
  *    src/pages/auth/Register.jsx
  *
- *    Refactor v2: Role-based registration flow
- *    - Owner: Full Name, Business Name, Email, Password,
- *             Confirm Password, Invitation Code (optional)
- *    - Employee: Full Name, Email, Password, Confirm Password
- *
- *    Reuses: AuthLayout, Login.css (base), authIcons
- *    Register.css: role selector + register-specific additions
+ *    Perubahan dari versi sebelumnya:
+ *    - Terhubung ke AuthContext via useAuth()
+ *    - handleSubmit memanggil register() → POST /auth/register
+ *    - Tambah: isSubmitting, apiError, apiSuccess state
+ *    - FIELD MAPPING: fullName (frontend) → username (API)
+ *    - Role selector (Owner/Employee) tetap sama
  * ============================================================
  * @format
  */
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 import AuthLayout from "./AuthLayout";
 import {
@@ -30,14 +30,11 @@ import {
 } from "./authIcons";
 import "./Register.css";
 
-/* ── Role Config ─────────────────────────────────────────────── */
-
+/* ── Role Config ── */
 const ROLES = [
   { value: "owner", label: "Owner" },
   { value: "employee", label: "Employee" },
 ];
-
-/* ── Role Selector Component ─────────────────────────────────── */
 
 function RoleSelector({ role, onChange }) {
   return (
@@ -65,128 +62,115 @@ function RoleSelector({ role, onChange }) {
   );
 }
 
-/* ── Main Component ──────────────────────────────────────────── */
-
+/* ── Main Component ── */
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth(); // ← ambil register() dari context
 
-  /* ── UI state ── */
   const [role, setRole] = useState("owner");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirm] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // ← NEW
+  const [apiError, setApiError] = useState(""); // ← NEW
+  const [apiSuccess, setApiSuccess] = useState(false); // ← NEW
 
-  /* ── Form state ── */
   const [form, setForm] = useState({
     fullName: "",
-    businessName: "", // owner only
+    businessName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    invitationCode: "", // owner only
+    invitationCode: "",
   });
-
   const [errors, setErrors] = useState({});
 
-  /* ── Role switch handler ─────────────────────────────────────
-     Saat role berganti ke employee, clear field owner-only
-     dan hapus error yang berkaitan agar form tetap clean.
-  ──────────────────────────────────────────────────────────── */
   const handleRoleChange = (newRole) => {
     setRole(newRole);
-
     if (newRole === "employee") {
-      // Clear owner-only fields
-      setForm((prev) => ({
-        ...prev,
-        businessName: "",
-        invitationCode: "",
-      }));
-      // Clear related errors
+      setForm((prev) => ({ ...prev, businessName: "", invitationCode: "" }));
       setErrors((prev) => {
-        const next = { ...prev };
-        delete next.businessName;
-        delete next.invitationCode;
-        return next;
+        const n = { ...prev };
+        delete n.businessName;
+        return n;
       });
     }
+    setApiError(""); // clear error saat role berganti
   };
 
-  /* ── Field change handler ── */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    if (apiError) setApiError("");
   };
 
-  /* ── Validation — role-aware ─────────────────────────────────
-     businessName hanya di-validate untuk role owner.
-     invitationCode bersifat optional untuk owner, tidak ada
-     untuk employee.
-  ──────────────────────────────────────────────────────────── */
   const validate = () => {
     const err = {};
-
     if (!form.fullName.trim()) err.fullName = "Full name is required.";
-
-    // Hanya validasi businessName untuk Owner
     if (role === "owner" && !form.businessName.trim())
       err.businessName = "Business name is required.";
-
     if (!form.email.trim()) err.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       err.email = "Enter a valid email address.";
-
     if (!form.password) err.password = "Password is required.";
     else if (form.password.length < 8)
       err.password = "Password must be at least 8 characters.";
-
     if (!form.confirmPassword)
       err.confirmPassword = "Please confirm your password.";
     else if (form.password !== form.confirmPassword)
       err.confirmPassword = "Passwords do not match.";
-
     if (!agreeTerms) err.terms = "You must agree to the terms to continue.";
-
     return err;
   };
 
-  /* ── Submit ── */
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Frontend validation dulu sebelum hit API
     const validation = validate();
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
       return;
     }
 
-    // Buat payload sesuai role — jangan kirim field yang tidak relevan
-    const payload =
-      role === "owner"
-        ? { role, ...form }
-        : {
-            role,
-            fullName: form.fullName,
-            email: form.email,
-            password: form.password,
-            confirmPassword: form.confirmPassword,
-          };
+    setIsSubmitting(true);
+    setApiError("");
 
-    // TODO: Supabase sign-up
-    console.log("Register submitted:", payload);
+    // ── Kirim ke API via AuthContext ────────────────────────
+    // register() → registerUser() di authService.js
+    // authService akan handle mapping fullName → username
+    const result = await register({
+      role,
+      fullName: form.fullName, // authService maps ke "username"
+      businessName: form.businessName,
+      email: form.email,
+      password: form.password,
+      invitationCode: form.invitationCode,
+      // confirmPassword TIDAK dikirim ke API — hanya untuk validasi frontend
+    });
+
+    setIsSubmitting(false);
+
+    if (result.success) {
+      // ── Register berhasil → redirect ke /login ──────────
+      // Kenapa tidak auto-login? Karena /auth/register tidak
+      // mengembalikan token — hanya data user.
+      // User perlu login manual setelahnya.
+      setApiSuccess(true);
+      setTimeout(() => navigate("/login"), 2000); // beri waktu baca success message
+    } else {
+      setApiError(result.message || "Registrasi gagal. Coba lagi.");
+    }
   };
 
-  /* ── Derived state ── */
+  const isOwner = role === "owner";
   const passwordsMatch =
     form.confirmPassword.length > 0 && form.password === form.confirmPassword;
 
-  const isOwner = role === "owner";
-
-  /* ── Render ── */
   return (
     <AuthLayout>
       <div className="login-card reg-card fade-in-scale">
-        {/* ── Card Header ── */}
         <div className="login-card-header">
           <h2 className="login-title">Welcome</h2>
           <p className="login-subtitle">
@@ -194,12 +178,7 @@ export default function Register() {
           </p>
         </div>
 
-        {/* ── Login / Register Tab Switcher ── */}
-        <div
-          className="login-tabs"
-          role="tablist"
-          aria-label="Authentication mode"
-        >
+        <div className="login-tabs" role="tablist">
           <button
             role="tab"
             aria-selected="false"
@@ -219,10 +198,22 @@ export default function Register() {
           </button>
         </div>
 
-        {/* ── Role Selector — di bawah tabs, di atas form ── */}
         <RoleSelector role={role} onChange={handleRoleChange} />
 
-        {/* ── Form ── */}
+        {/* ── Success Banner ── */}
+        {apiSuccess && (
+          <div className="login-api-success" role="status">
+            ✓ Akun berhasil dibuat! Mengalihkan ke halaman login...
+          </div>
+        )}
+
+        {/* ── Error Banner ── */}
+        {apiError && (
+          <div className="login-api-error" role="alert" aria-live="polite">
+            {apiError}
+          </div>
+        )}
+
         <form className="login-form" onSubmit={handleSubmit} noValidate>
           {/* Full Name — selalu tampil */}
           <div className="form-field">
@@ -252,7 +243,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* Business / UMKM Name — Owner only */}
+          {/* Business Name — Owner only */}
           {isOwner && (
             <div className="form-field">
               <label className="form-label" htmlFor="reg-businessName">
@@ -282,7 +273,7 @@ export default function Register() {
             </div>
           )}
 
-          {/* Email — selalu tampil */}
+          {/* Email */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-email">
               Email Address
@@ -310,7 +301,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* Password — selalu tampil */}
+          {/* Password */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-password">
               Password
@@ -334,7 +325,9 @@ export default function Register() {
                 type="button"
                 className="input-toggle-password"
                 onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showPassword ? "Sembunyikan password" : "Tampilkan password"
+                }
               >
                 {showPassword ? <IconEyeOff /> : <IconEye />}
               </button>
@@ -348,7 +341,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* Confirm Password — selalu tampil */}
+          {/* Confirm Password */}
           <div className="form-field">
             <label className="form-label" htmlFor="reg-confirm">
               Confirm Password
@@ -379,7 +372,9 @@ export default function Register() {
                 className="input-toggle-password"
                 onClick={() => setShowConfirm((v) => !v)}
                 aria-label={
-                  showConfirmPassword ? "Hide password" : "Show password"
+                  showConfirmPassword
+                    ? "Sembunyikan password"
+                    : "Tampilkan password"
                 }
               >
                 {showConfirmPassword ? <IconEyeOff /> : <IconEye />}
@@ -422,7 +417,7 @@ export default function Register() {
             </div>
           )}
 
-          {/* Terms & Conditions — selalu tampil */}
+          {/* Terms */}
           <div className="form-field">
             <label className="checkbox-label reg-terms-label">
               <input
@@ -454,13 +449,25 @@ export default function Register() {
             )}
           </div>
 
-          {/* Submit */}
-          <button type="submit" className="btn-primary-full">
-            Create Account <IconArrowRight />
+          <button
+            type="submit"
+            className="btn-primary-full"
+            disabled={isSubmitting || apiSuccess}
+            aria-busy={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className="spinner spinner-sm" aria-hidden="true" />{" "}
+                Membuat akun...
+              </>
+            ) : (
+              <>
+                Create Account <IconArrowRight />
+              </>
+            )}
           </button>
         </form>
 
-        {/* Footer */}
         <p className="login-legal">
           Already have an account?{" "}
           <button

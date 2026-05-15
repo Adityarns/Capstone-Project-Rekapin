@@ -1,51 +1,64 @@
-/** @format */
+/**
+ * ============================================================
+ *    REKAPIN — App Routes
+ *    src/routes/AppRoutes.jsx
+ * ============================================================
+ * @format
+ */
 
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-/* ── Auth Pages ─────────────────────────────────────────────── */
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
-
-/* ── Dashboard Layout (wraps all protected pages) ───────────── */
 import DashboardLayout from "../layouts/DashboardLayout";
-
-/* ── Protected Pages ────────────────────────────────────────── */
 import Dashboard from "../pages/dashboard/Dashboard";
 import Transactions from "../pages/transactions/Transactions";
 import Reports from "../pages/reports/Reports";
 import CarbonTracking from "../pages/carbon/CarbonTracking";
 import ProfileSettings from "../pages/profile/ProfileSettings";
 
-/* ── Auth Guard (simple placeholder) ────────────────────────────
-   TODO: Replace isAuthenticated with real Supabase session check.
-   Example:
-     import { useAuth } from '../hooks/useAuth'
-     const { session } = useAuth()
-     const isAuthenticated = !!session
-──────────────────────────────────────────────────────────────── */
-const isAuthenticated = false; // ← swap with real auth state later
+/* ── Loading Screen ── */
+function LoadingScreen() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        background: "var(--color-neutral-50)",
+        color: "var(--color-text-muted)",
+        fontFamily: "var(--font-sans)",
+        fontSize: "0.875rem",
+      }}
+    >
+      Memuat sesi...
+    </div>
+  );
+}
 
-/* Redirects to /login if user is not authenticated */
+/* ── Guards ── */
 function ProtectedRoute({ children }) {
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <LoadingScreen />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
-/* Redirects to /dashboard if user is already logged in */
 function PublicRoute({ children }) {
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
-/* ── Route Definitions ──────────────────────────────────────── */
+/* ── Route Definitions ── */
 export default function AppRoutes() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Routes>
-      {/* ── Root redirect ── */}
       <Route
         path="/"
         element={
@@ -53,7 +66,6 @@ export default function AppRoutes() {
         }
       />
 
-      {/* ── Public / Auth Routes ── */}
       <Route
         path="/login"
         element={
@@ -71,7 +83,6 @@ export default function AppRoutes() {
         }
       />
 
-      {/* ── Protected Routes (wrapped in DashboardLayout) ── */}
       <Route
         element={
           <ProtectedRoute>
@@ -86,7 +97,6 @@ export default function AppRoutes() {
         <Route path="/profile" element={<ProfileSettings />} />
       </Route>
 
-      {/* ── 404 fallback ── */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
