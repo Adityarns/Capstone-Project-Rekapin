@@ -10,6 +10,92 @@ import {
   AuthenticationError,
 } from "../../../exceptions/index.js";
 
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Register a new user
+ *     description: Register a new user with role-based business creation
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "John Doe"
+ *               businessName:
+ *                 type: string
+ *                 example: "My Business"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "johndoe@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "secret123"
+ *               role:
+ *                 type: string
+ *                 enum: [owner, employee]
+ *                 example: "owner"
+ *               invitationCode:
+ *                 type: string
+ *                 example: "INVITE123"
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *               - role
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Akun dan bisnis berhasil dibuat"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                       example: "John Doe"
+ *                     email:
+ *                       type: string
+ *                       example: "johndoe@example.com"
+ *                     role:
+ *                       type: string
+ *                       example: "owner"
+ *                     userId:
+ *                       type: string
+ *                       example: "user-xyz123"
+ *                     businessName:
+ *                       type: string
+ *                       description: "Hanya tersedia jika mendaftar sebagai owner"
+ *                       example: "My Business"
+ *       400:
+ *         description: Bad Request (Validation failed or Invariant Error)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "fail"
+ *                 message:
+ *                   type: string
+ *                   example: "Email sudah digunakan"
+ */
 export const register = async (req, res, next) => {
   const { username, businessName, email, password, role, invitationCode } =
     req.validated;
@@ -79,7 +165,7 @@ export const register = async (req, res, next) => {
 
 /**
  * @swagger
- * /authentications:
+ * /auth/login:
  *   post:
  *     tags: [Authentication]
  *     summary: Login user
@@ -189,7 +275,7 @@ export const login = async (req, res, next) => {
 
 /**
  * @swagger
- * /authentications:
+ * /auth/refresh:
  *   put:
  *     tags: [Authentication]
  *     summary: Refresh access token
@@ -258,7 +344,7 @@ export const refreshToken = async (req, res, next) => {
 
 /**
  * @swagger
- * /authentications:
+ * /auth/logout:
  *   delete:
  *     tags: [Authentication]
  *     summary: Logout user

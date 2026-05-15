@@ -36,8 +36,12 @@ const swaggerOptions = {
   apis: [
     "./src/service/auth/routes/*.js",
     "./src/service/users/routes/*.js",
+    "./src/service/businesses/routes/*.js",
+    "./src/service/teams/routes/*.js",
     "./src/service/auth/controller/*.js",
     "./src/service/users/controller/*.js",
+    "./src/service/businesses/controller/*.js",
+    "./src/service/teams/controller/*.js",
   ],
 };
 
@@ -48,6 +52,12 @@ app.use(
     origin: true,
   }),
 );
+
+app.get("/api-docs-json", (req, res) => {
+  res.json(swaggerSpec);
+});
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(express.json());
 app.use(routes);

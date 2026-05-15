@@ -27,7 +27,18 @@ class BusinessRepositories {
     return result.rows[0];
   }
 
-  async editBusinessById({ id, ...payload }) {
+  async getBusinessById(businessId) {
+    const query = {
+      text: `SELECT business_name, industry, phone_number, address FROM businesses WHERE business_id = $1`,
+      values: [businessId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0];
+  }
+
+  async editBusinessById({ businessId, ...payload }) {
+    const updated_at = new Date().toISOString();
+    payload.updated_at = updated_at;
     const fields = Object.keys(payload).filter(
       (key) => payload[key] !== undefined,
     );
@@ -35,7 +46,7 @@ class BusinessRepositories {
     const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(", ");
     const query = {
       text: `UPDATE businesses SET ${setClause} WHERE business_id = $${fields.length + 1} RETURNING business_id, business_name`,
-      values: [...fields.map((key) => payload[key]), id],
+      values: [...fields.map((key) => payload[key]), businessId],
     };
     const results = await this.pool.query(query);
     return results.rows[0];

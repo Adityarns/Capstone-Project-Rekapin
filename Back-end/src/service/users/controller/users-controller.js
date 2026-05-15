@@ -2,93 +2,6 @@ import UserRepositories from "../repositories/users-repositories.js";
 import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 
-/**
- * @swagger
- * /users:
- *   post:
- *     tags: [Users]
- *     summary: Register a new user
- *     description: Register a new user with role-based business creation
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 example: "John Doe"
- *               businessName:
- *                 type: string
- *                 example: "My Business"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "johndoe@example.com"
- *               password:
- *                 type: string
- *                 example: "secret123"
- *               role:
- *                 type: string
- *                 enum: [owner, employee]
- *                 example: "owner"
- *               invitationCode:
- *                 type: string
- *                 example: "INVITE123"
- *             required:
- *               - username
- *               - email
- *               - password
- *               - role
- *     responses:
- *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Akun dan bisnis berhasil dibuat"
- *                 data:
- *                   type: object
- *                   properties:
- *                     username:
- *                       type: string
- *                       example: "John Doe"
- *                     email:
- *                       type: string
- *                       example: "johndoe@example.com"
- *                     role:
- *                       type: string
- *                       example: "owner"
- *                     userId:
- *                       type: string
- *                       example: "user-xyz123"
- *                     businessName:
- *                       type: string
- *                       description: "Hanya tersedia jika mendaftar sebagai owner"
- *                       example: "My Business"
- *       400:
- *         description: Bad Request (Validation failed or Invariant Error)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "fail"
- *                 message:
- *                   type: string
- *                   example: "Email sudah digunakan"
- */
-
 export const addUser = async (req, res, next) => {
   const { username, email, passwordHash } = req.validated;
   const isEmailExist = await UserRepositories.verifyEmail(email);
@@ -110,14 +23,14 @@ export const addUser = async (req, res, next) => {
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/{userId}:
  *   get:
  *     tags: [Users]
  *     summary: Get user by ID
  *     description: Retrieve user information by user ID
  *     parameters:
  *       - in: path
- *         username: id
+ *         name: userId
  *         required: true
  *         schema:
  *           type: string
@@ -164,10 +77,113 @@ export const addUser = async (req, res, next) => {
  *                   type: string
  */
 export const getUserById = async (req, res, next) => {
-  const { id } = req.params;
-  const user = await UserRepositories.getUserById(id);
+  const { userId } = req.params;
+  const user = await UserRepositories.getUserById(userId);
   if (!user) {
     return next(new NotFoundError("Akun tidak ditemukan"));
   }
   return response(res, 200, "Akun ditemukan", user);
+};
+
+/**
+ * @swagger
+ * /users/{userId}:
+ *   put:
+ *     tags: [Users]
+ *     summary: Edit user by ID
+ *     description: Memperbarui informasi pengguna berdasarkan ID pengguna
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID Pengguna
+ *         example: "user-123"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "Aditya Rahman"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "aditya@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "newpassword123"
+ *     responses:
+ *       200:
+ *         description: User berhasil diperbarui
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "User berhasil diperbarui"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "user-123"
+ *                     username:
+ *                       type: string
+ *                       example: "Aditya Rahman"
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: "aditya@example.com"
+ *       400:
+ *         description: User gagal diperbarui (Invariant Error) atau Payload tidak valid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "fail"
+ *                 message:
+ *                   type: string
+ *                   example: "User gagal diperbarui"
+ *       404:
+ *         description: User tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "fail"
+ *                 message:
+ *                   type: string
+ *                   example: "User tidak ditemukan"
+ */
+export const editUserById = async (req, res, next) => {
+  const { userId } = req.params;
+  const isUserExist = await UserRepositories.getUserById(userId);
+  if (!isUserExist) {
+    return next(new NotFoundError("User tidak ditemukan"));
+  }
+  const payload = req.validated;
+  const user = await UserRepositories.editUserById({
+    userId,
+    ...payload,
+  });
+  if (!user) {
+    return next(new InvariantError("User gagal diperbarui"));
+  }
+  return response(res, 200, "User berhasil diperbarui", user);
 };
