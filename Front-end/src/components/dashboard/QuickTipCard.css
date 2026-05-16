@@ -1,0 +1,59 @@
+/**
+ * ============================================================
+ *    REKAPIN — Quick Tip Card Styles
+ *    src/components/dashboard/QuickTipCard.css
+ *    ============================================================
+ *
+ * @format
+ */
+
+.qtip-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ── Label ── */
+.qtip-card__label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+}
+
+/* ── Body: icon + text ── */
+.qtip-card__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* ── Bulb icon circle ── */
+.qtip-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+  flex-shrink: 0;
+  margin-top: 2px; /* optical alignment dengan baris pertama teks */
+}
+
+/* ── Tip text ── */
+.qtip-card__message {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}

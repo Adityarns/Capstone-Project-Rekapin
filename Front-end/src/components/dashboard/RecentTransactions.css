@@ -1,0 +1,139 @@
+/**
+ * ============================================================
+ *    REKAPIN — Recent Transactions Styles
+ *    src/components/dashboard/RecentTransactions.css
+ *    ============================================================
+ *
+ * @format
+ */
+
+.txn-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Header ── */
+.txn-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.txn-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.txn-card__view-all {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary-600);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--duration-normal) var(--ease-default);
+}
+
+.txn-card__view-all:hover {
+  color: var(--color-primary-800);
+}
+
+/* ── Table wrapper — horizontal scroll on mobile ── */
+.txn-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Table ── */
+.txn-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+/* ── Header cells ── */
+.txn-table__th {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  letter-spacing: var(--tracking-wide);
+}
+
+.txn-table__th--right {
+  text-align: right;
+}
+
+/* ── Rows ── */
+.txn-table__row {
+  transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.txn-table__row:hover {
+  background-color: var(--color-neutral-50);
+}
+
+.txn-table__row:not(:last-child) td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ── Body cells ── */
+.txn-table__td {
+  padding: var(--space-4) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  vertical-align: middle;
+}
+
+.txn-table__td--name {
+  color: var(--color-text-primary);
+  font-weight: var(--weight-medium);
+}
+
+.txn-table__td--right {
+  text-align: right;
+}
+
+.txn-table__td--amount {
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.txn-table__td--date {
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+/* ── Amount colors ── */
+.txn-amount--positive {
+  color: var(--color-accent-600);
+}
+.txn-amount--negative {
+  color: var(--color-text-primary);
+}
+
+/* ── Category badge ── */
+.txn-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  line-height: 1.5;
+}

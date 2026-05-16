@@ -1,0 +1,106 @@
+/**
+ * ============================================================
+ *    REKAPIN — Dashboard Page Layout
+ *    src/pages/dashboard/Dashboard.css
+ * 
+ *    Mengatur grid layout seluruh Dashboard Home.
+ *    Komponen-komponen individual punya CSS sendiri.
+ *    ============================================================
+ *
+ * @format
+ */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  /* min-height: 100% agar background mengisi seluruh .dash-main */
+  min-height: 100%;
+}
+
+/* ----------------------------------------------------------
+   ROW 1 — Summary Cards (4 kolom equal)
+   ---------------------------------------------------------- */
+
+.dashboard__summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+/* ----------------------------------------------------------
+   ROW 2 — Chart (kiri lebar) + Right Column (kanan fixed)
+
+   Proporsi sesuai design Stitch AI:
+   - Chart area: mengambil sisa ruang (1fr)
+   - Right column: fixed ~300px
+   ---------------------------------------------------------- */
+
+.dashboard__main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-6);
+  align-items: start; /* right col tidak stretch ke tinggi chart */
+}
+
+/* Kanan: 3 card ditumpuk vertikal */
+.dashboard__right-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+   ---------------------------------------------------------- */
+
+/* Tablet landscape: right col lebih sempit */
+@media (max-width: 1200px) {
+  .dashboard__main {
+    grid-template-columns: 1fr 260px;
+  }
+}
+
+/* Tablet portrait: summary 2 kolom, main stack */
+@media (max-width: 1024px) {
+  .dashboard__summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard__main {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__right-col {
+    /* Di tablet: right col cards jadi 2 kolom berdampingan */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  /* AI Insight span 2 kolom karena lebih penting */
+  .dashboard__right-col > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .dashboard__summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard__right-col {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__right-col > :first-child {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard__summary {
+    grid-template-columns: 1fr;
+  }
+}
