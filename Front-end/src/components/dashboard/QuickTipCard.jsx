@@ -7,7 +7,7 @@
  * @format
  */
 
-import { quickTipData } from "../../data/dashboardData";
+import { quickTip } from "../../data/dashboardData";
 import "./QuickTipCard.css";
 
 const IconBulb = () => (
@@ -28,7 +28,7 @@ const IconBulb = () => (
 );
 
 export default function QuickTipCard() {
-  const { message } = quickTipData;
+  const { message } = quickTip;
 
   return (
     <div className="qtip-card">

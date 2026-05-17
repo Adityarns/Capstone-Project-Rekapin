@@ -8,15 +8,15 @@
  */
 
 import {
-  recentTransactionsData,
-  categoryColors,
+  recentTransactions,
+  categoryConfig,
   formatRupiah,
 } from "../../data/dashboardData";
 import "./RecentTransactions.css";
 
 /* ── Category Badge ── */
 function CategoryBadge({ category }) {
-  const colors = categoryColors[category] ?? categoryColors.Other;
+  const colors = categoryConfig[category] ?? categoryConfig.Other;
   return (
     <span
       className="txn-badge"
@@ -31,7 +31,6 @@ function CategoryBadge({ category }) {
 export default function RecentTransactions() {
   return (
     <div className="txn-card">
-      {/* Header */}
       <div className="txn-card__header">
         <h3 className="txn-card__title">Recent Transactions</h3>
         <button type="button" className="txn-card__view-all">
@@ -39,7 +38,6 @@ export default function RecentTransactions() {
         </button>
       </div>
 
-      {/* Table */}
       <div className="txn-table-wrapper">
         <table className="txn-table">
           <thead>
@@ -51,7 +49,7 @@ export default function RecentTransactions() {
             </tr>
           </thead>
           <tbody>
-            {recentTransactionsData.map((txn) => (
+            {recentTransactions.map((txn) => (
               <tr key={txn.id} className="txn-table__row">
                 <td className="txn-table__td txn-table__td--name">
                   {txn.name}

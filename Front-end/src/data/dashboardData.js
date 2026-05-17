@@ -2,62 +2,58 @@
  * ============================================================
  *    REKAPIN — Dashboard Mock Data
  *    src/data/dashboardData.js
- *
- *    Data statis untuk development UI.
- *    Ganti dengan real API call saat integrasi backend.
  * ============================================================
+ *
  * @format
  */
 
+/* ── Summary Cards ── */
 export const summaryData = {
   totalIncome: {
-    label: "TOTAL INCOME",
     value: 24500000,
-    change: +12,
-    trend: "up",
+    change: 12,
+    positive: true,
   },
   totalExpense: {
-    label: "TOTAL EXPENSE",
     value: 18200000,
-    change: +5,
-    trend: "up",
+    change: 5,
+    positive: false,
   },
   netCashFlow: {
-    label: "NET CASH FLOW",
     value: 6300000,
-    change: null,
-    trend: "up",
+    change: 3.2,
+    positive: true,
   },
   carbonFootprint: {
-    label: "CARBON FOOTPRINT",
     value: 1.2,
     unit: "tons",
     change: -8,
-    changeLabel: "vs last mo",
-    trend: "down",
+    positive: true,
   },
 };
 
+/* ── Cash Flow Chart ── */
 export const cashFlowData = [
-  { month: "Mar", income: 18500000, expense: 14200000 },
-  { month: "Apr", income: 21000000, expense: 16800000 },
-  { month: "May", income: 19800000, expense: 15600000 },
-  { month: "Jun", income: 23500000, expense: 17900000 },
-  { month: "Jul", income: 17200000, expense: 13400000 },
-  { month: "Aug", income: 22100000, expense: 16500000 },
-  { month: "Sep", income: 25800000, expense: 19200000 },
-  { month: "Oct", income: 24500000, expense: 18200000 },
+  { month: "Apr", income: 16500000, expense: 13200000 },
+  { month: "Mei", income: 19800000, expense: 14800000 },
+  { month: "Jun", income: 17200000, expense: 15600000 },
+  { month: "Jul", income: 22100000, expense: 13900000 },
+  { month: "Agu", income: 14300000, expense: 16200000 },
+  { month: "Sep", income: 20600000, expense: 15100000 },
+  { month: "Okt", income: 24500000, expense: 18200000 },
+  { month: "Nov", income: 21800000, expense: 16700000 },
 ];
 
+/* ── AI Insight ── */
 export const aiInsight = {
   type: "warning",
-  title: "Expense Warning",
+  title: "AI INSIGHT",
   message:
-    "Your utility costs are 15% higher than last month. Consider reviewing energy usage for potential savings.",
+    "Expense Warning: Your utility costs are 15% higher than last month. Consider reviewing energy usage for potential savings.",
   action: "View Analysis",
-  actionHref: "/reports",
 };
 
+/* ── Sustainability Score ── */
 export const sustainabilityData = {
   score: 84,
   maxScore: 100,
@@ -66,79 +62,74 @@ export const sustainabilityData = {
     "You are performing 12% better than similar MSMEs in your region.",
 };
 
+/* ── Quick Tip ── */
 export const quickTip = {
   message: "You have a surplus; pay suppliers early for a 2% discount.",
 };
 
+/* ── Recent Transactions ── */
 export const recentTransactions = [
   {
-    id: "TRX-001",
+    id: "txn-001",
     name: "Supplier Payment",
     category: "Operations",
     amount: -2500000,
-    date: "2023-10-24",
+    date: "Oct 24, 2023",
   },
   {
-    id: "TRX-002",
+    id: "txn-002",
     name: "Client Invoice #88",
     category: "Sales",
-    amount: +8400000,
-    date: "2023-10-23",
+    amount: 8400000,
+    date: "Oct 23, 2023",
   },
   {
-    id: "TRX-003",
+    id: "txn-003",
     name: "Monthly Office Rent",
     category: "Rent",
     amount: -5000000,
-    date: "2023-10-20",
+    date: "Oct 20, 2023",
   },
   {
-    id: "TRX-004",
-    name: "Equipment Purchase",
-    category: "Operations",
-    amount: -3200000,
-    date: "2023-10-18",
+    id: "txn-004",
+    name: "Electricity Bill",
+    category: "Utilities",
+    amount: -850000,
+    date: "Oct 19, 2023",
   },
   {
-    id: "TRX-005",
-    name: "Freelance Service",
+    id: "txn-005",
+    name: "Product Sales — Batch 12",
     category: "Sales",
-    amount: +4750000,
-    date: "2023-10-17",
+    amount: 14200000,
+    date: "Oct 18, 2023",
   },
 ];
 
-/* ── Helpers ── */
-export function formatRupiah(amount, compact = false) {
-  const abs = Math.abs(amount);
-  if (compact) {
-    if (abs >= 1_000_000) return `Rp ${(abs / 1_000_000).toFixed(1)}jt`;
-    if (abs >= 1_000) return `Rp ${(abs / 1_000).toFixed(0)}rb`;
-    return `Rp ${abs}`;
-  }
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(abs);
-}
-
-export function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
+/* ── Category Config (badge colors) ── */
 export const categoryConfig = {
   Operations: {
     bg: "var(--color-neutral-200)",
     text: "var(--color-neutral-700)",
   },
   Sales: { bg: "var(--color-accent-100)", text: "var(--color-accent-700)" },
-  Rent: { bg: "var(--color-primary-100)", text: "var(--color-primary-700)" },
-  Utilities: { bg: "var(--color-warning-light)", text: "var(--color-warning)" },
+  Rent: { bg: "var(--color-warning-light)", text: "var(--color-warning)" },
+  Utilities: { bg: "var(--color-info-light)", text: "var(--color-info)" },
   Other: { bg: "var(--color-neutral-100)", text: "var(--color-neutral-600)" },
 };
+
+/* ── Format Helpers ── */
+export function formatRupiah(amount) {
+  const abs = Math.abs(amount);
+  const prefix = amount < 0 ? "- Rp " : "+ Rp ";
+  return `${prefix}${abs.toLocaleString("id-ID")}`;
+}
+
+// Versi singkat untuk summary cards (tanpa prefix +/-)
+export function formatRupiahShort(amount) {
+  const abs = Math.abs(amount);
+  if (abs >= 1_000_000) {
+    return `Rp ${(abs / 1_000_000).toFixed(1)} jt`;
+  }
+  return `Rp ${abs.toLocaleString("id-ID")}`;
+}

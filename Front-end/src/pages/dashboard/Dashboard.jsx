@@ -7,7 +7,11 @@
  * @format
  */
 
-import { summaryData, formatShortRupiah } from "../../data/dashboardData";
+import {
+  summaryData,
+  cashFlowData,
+  formatRupiahShort,
+} from "../../data/dashboardData";
 
 import SummaryCard from "../../components/dashboard/SummaryCard";
 import CashFlowChart from "../../components/dashboard/CashFlowChart";
@@ -28,19 +32,19 @@ export default function Dashboard() {
       <section className="dashboard__summary" aria-label="Financial summary">
         <SummaryCard
           label="TOTAL INCOME"
-          value={formatShortRupiah(totalIncome.value)}
+          value={formatRupiahShort(totalIncome.value)}
           change={totalIncome.change}
           positive={totalIncome.positive}
         />
         <SummaryCard
           label="TOTAL EXPENSE"
-          value={formatShortRupiah(totalExpense.value)}
+          value={formatRupiahShort(totalExpense.value)}
           change={totalExpense.change}
           positive={totalExpense.positive}
         />
         <SummaryCard
           label="NET CASH FLOW"
-          value={formatShortRupiah(netCashFlow.value)}
+          value={formatRupiahShort(netCashFlow.value)}
           change={netCashFlow.change}
           positive={netCashFlow.positive}
           showTrend
@@ -54,10 +58,10 @@ export default function Dashboard() {
         />
       </section>
 
-      {/* ── Row 2: Chart (kiri) + Right Column ── */}
+      {/* ── Row 2: Chart + Right Column ── */}
       <div className="dashboard__main">
         <section aria-label="Cash flow trend">
-          <CashFlowChart />
+          <CashFlowChart data={cashFlowData} />
         </section>
 
         <aside className="dashboard__right-col" aria-label="Insights">
