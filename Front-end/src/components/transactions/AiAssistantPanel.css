@@ -1,0 +1,125 @@
+/**
+ * ============================================================
+ *    REKAPIN — AI Assistant Panel Styles
+ *    src/components/transactions/AiAssistantPanel.css
+ *    ============================================================
+ *
+ * @format
+ */
+
+.ai-panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  /* Sticky saat form di-scroll */
+  position: sticky;
+  top: var(--space-6);
+}
+
+/* ── Header ── */
+.ai-panel__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Sparkle icon wrapper */
+.ai-panel__icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ai-panel__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-panel__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* "ACTIVE" badge */
+.ai-panel__badge {
+  font-size: 0.625rem;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-accent-600);
+  text-transform: uppercase;
+}
+
+/* ── Description ── */
+.ai-panel__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+/* ── Feature list ── */
+.ai-panel__features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ai-panel__feature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.ai-panel__feature-icon {
+  color: var(--color-neutral-400);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Carbon note ── */
+.ai-panel__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  background-color: var(--color-neutral-100);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.ai-panel__note-icon {
+  color: var(--color-neutral-500);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ai-panel__note-text {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}

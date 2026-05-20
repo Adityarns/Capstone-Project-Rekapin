@@ -1,0 +1,168 @@
+/**
+ * ============================================================
+ *    REKAPIN — Transactions Page Layout
+ *    src/pages/transactions/Transactions.css
+ *    ============================================================
+ *
+ * @format
+ */
+
+.txn-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 100%;
+}
+
+/* ----------------------------------------------------------
+   PAGE HEADER
+   ---------------------------------------------------------- */
+
+.txn-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.txn-page__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.txn-page__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--leading-normal);
+}
+
+/* ----------------------------------------------------------
+   2-COLUMN BODY LAYOUT
+   Left: form area (wider)
+   Right: AI panel (fixed ~280px)
+   ---------------------------------------------------------- */
+
+.txn-page__body {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Left column: stacked form cards + action buttons */
+.txn-page__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Right column: AI panel is sticky */
+.txn-page__right {
+  /* Allows AiAssistantPanel to use position: sticky internally */
+}
+
+/* ----------------------------------------------------------
+   ACTION BUTTONS
+   ---------------------------------------------------------- */
+
+.txn-page__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+/* Base button */
+.txn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-8);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
+  line-height: 1.5;
+  min-width: 120px;
+}
+
+/* Cancel — ghost/outline */
+.txn-btn--cancel {
+  background-color: transparent;
+  border: 1.5px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.txn-btn--cancel:hover {
+  border-color: var(--color-neutral-500);
+  color: var(--color-text-primary);
+  background-color: var(--color-neutral-100);
+}
+
+/* Save Transaction — primary maroon */
+.txn-btn--save {
+  background-color: var(--color-primary-700);
+  border: 1.5px solid var(--color-primary-700);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-primary);
+}
+
+.txn-btn--save:hover {
+  background-color: var(--color-primary-800);
+  border-color: var(--color-primary-800);
+  box-shadow: var(--shadow-md), var(--shadow-primary);
+  transform: translateY(-1px);
+}
+
+.txn-btn--save:active {
+  background-color: var(--color-primary-900);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+   ---------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .txn-page__body {
+    grid-template-columns: 1fr 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Stack: form on top, AI panel below */
+  .txn-page__body {
+    grid-template-columns: 1fr;
+  }
+
+  /* On mobile, AI panel loses sticky behavior */
+  .txn-page__right {
+    order: -1; /* Move AI panel above form on mobile */
+  }
+
+  .txn-page__actions {
+    flex-direction: column-reverse;
+  }
+
+  .txn-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .txn-page__title {
+    font-size: var(--text-2xl);
+  }
+}
