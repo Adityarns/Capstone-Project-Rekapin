@@ -1,0 +1,112 @@
+/* ============================================================
+   REKAPIN — Security Card Styles
+   src/components/profile/SecurityCard.css
+   ============================================================ */
+
+.security-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Header ── */
+.security-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.security-card__icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.security-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+/* ── Action rows ── */
+.security-card__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.security-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: background-color var(--duration-normal) var(--ease-default),
+              border-color var(--duration-normal) var(--ease-default);
+}
+
+.security-row:hover {
+  background-color: var(--color-neutral-50);
+  border-color: var(--color-border-strong);
+}
+
+.security-row__icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.security-row__label {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+}
+
+.security-row__chevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Logout from all devices ── */
+.security-card__logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-primary-300);
+  background: transparent;
+  color: var(--color-primary-600);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--duration-normal) var(--ease-default),
+              border-color var(--duration-normal) var(--ease-default),
+              color var(--duration-normal) var(--ease-default);
+}
+
+.security-card__logout-btn:hover {
+  background-color: var(--color-error-light);
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-700);
+}

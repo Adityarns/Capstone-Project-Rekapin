@@ -1,0 +1,244 @@
+/* ============================================================
+   REKAPIN — Modal Styles
+   src/components/profile/Modal.css
+
+   Includes: overlay, modal card, animation, AND
+   shared form field styles used inside modals.
+   ============================================================ */
+
+
+/* ----------------------------------------------------------
+   OVERLAY — dark backdrop
+   ---------------------------------------------------------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(20, 14, 8, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--space-4);
+
+  /* Fade in */
+  animation: overlayFadeIn var(--duration-normal) var(--ease-out) both;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ----------------------------------------------------------
+   MODAL CARD
+   ---------------------------------------------------------- */
+
+.modal {
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-2xl);
+  width: 100%;
+  max-height: calc(100vh - var(--space-8));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  /* Scale + fade in */
+  animation: modalSlideIn var(--duration-slow) var(--ease-spring) both;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+/* Size variants */
+.modal--sm { max-width: 400px; }
+.modal--md { max-width: 480px; }
+.modal--lg { max-width: 600px; }
+
+
+/* ----------------------------------------------------------
+   MODAL HEADER
+   ---------------------------------------------------------- */
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.modal__title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--duration-normal) var(--ease-default),
+              color var(--duration-normal) var(--ease-default);
+  flex-shrink: 0;
+}
+
+.modal__close:hover {
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-primary);
+}
+
+
+/* ----------------------------------------------------------
+   MODAL BODY
+   ---------------------------------------------------------- */
+
+.modal__body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+
+/* ----------------------------------------------------------
+   MODAL FORM FIELDS
+   (shared by EditBusinessModal + InviteUserModal)
+   ---------------------------------------------------------- */
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.modal-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.modal-input,
+.modal-select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: var(--transition-default);
+  line-height: var(--leading-normal);
+  box-shadow: var(--shadow-inset);
+}
+
+.modal-input::placeholder { color: var(--color-neutral-400); }
+
+.modal-input:hover,
+.modal-select:hover  { border-color: var(--color-border-strong); }
+
+.modal-input:focus,
+.modal-select:focus {
+  border-color: var(--color-primary-400);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10), var(--shadow-inset);
+}
+
+.modal-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.modal-select-wrap {
+  position: relative;
+}
+
+.modal-select-icon {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-neutral-400);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+
+/* ----------------------------------------------------------
+   MODAL FOOTER (action buttons)
+   ---------------------------------------------------------- */
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Cancel */
+.modal-btn-cancel {
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1.5px solid var(--color-border-strong);
+  cursor: pointer;
+  transition: var(--transition-color);
+}
+
+.modal-btn-cancel:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-neutral-100);
+}
+
+/* Primary action */
+.modal-btn-primary {
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-inverse);
+  background-color: var(--color-primary-700);
+  border: 1.5px solid var(--color-primary-700);
+  cursor: pointer;
+  transition: background-color var(--duration-normal) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+  box-shadow: var(--shadow-primary);
+}
+
+.modal-btn-primary:hover {
+  background-color: var(--color-primary-800);
+  transform: translateY(-1px);
+}
+
+.modal-btn-primary:active {
+  transform: translateY(0);
+}
