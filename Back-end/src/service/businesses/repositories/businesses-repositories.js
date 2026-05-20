@@ -60,6 +60,39 @@ class BusinessRepositories {
     const result = await this.pool.query(query);
     return result.rows[0] || null;
   }
+
+  async verifyBusinessOwner(userId) {
+    const query = {
+      text: "SELECT * FROM businesses WHERE owner_id = $1 LIMIT 1",
+      values: [userId],
+    };
+
+    const results = await this.pool.query(query);
+
+    if (!results.rows.length) {
+      return null;
+    }
+
+    return results.rows[0];
+  }
+
+  async verifyBusinessAccess(userId, businessId) {
+    const isOwner = await this.verifyBusinessOwner(userId, businessId);
+    if (isOwner) {
+      return true;
+    }
+    const queryEmployee = {
+      text: "SELECT id FROM employees WHERE business_id = $1 AND user_id = $2",
+      values: [businessId, userId],
+    };
+
+    const resultsEmployee = await this.pool.query(queryEmployee);
+
+    if (resultsEmployee.rows.length > 0) {
+      return true;
+    }
+    return false;
+  }
 }
 
 export default new BusinessRepositories();

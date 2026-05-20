@@ -1,6 +1,12 @@
-import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
+import {
+  AuthorizationError,
+  InvariantError,
+  NotFoundError,
+} from "../../../exceptions/index.js";
 import teamMembersRepositories from "../repositories/team-members-repositories.js";
+import authRepositories from "../../auth/repositories/auth-repositories.js";
 import response from "../../../utils/response.js";
+import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
 
 export const addTeamMember = async (req, res, next) => {
   const { businessId } = req.params;
@@ -146,6 +152,16 @@ export const deleteTeamMembersById = async (req, res, next) => {
   if (!isTeamMemberExist) {
     return next(new NotFoundError("Anggota tim tidak ditemukan"));
   }
+  const isOwner = await businessesRepositories.verifyBusinessUpdate(
+    userId,
+    businessId,
+  );
+  if (!isOwner) {
+    return next(
+      new AuthorizationError("Member tidak dapat menghapus anggota tim"),
+    );
+  }
+
   const teamMember =
     await teamMembersRepositories.deleteTeamMembersById(userId);
   if (!teamMember) {
