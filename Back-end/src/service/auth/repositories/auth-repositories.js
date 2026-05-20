@@ -47,7 +47,5 @@ class AuthenticationsRepositories {
 
     return token;
   }
-
 }
-
 export default new AuthenticationsRepositories();

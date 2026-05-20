@@ -9,6 +9,7 @@ import {
   InvariantError,
   AuthenticationError,
 } from "../../../exceptions/index.js";
+import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
 
 /**
  * @swagger
@@ -236,6 +237,15 @@ export const login = async (req, res, next) => {
   //  Jika invitation code diisi → gabungkan ke bisnis
   // ================================================
   if (invitationCode) {
+    const isOwner = await businessesRepositories.verifyBusinessOwner(userId);
+    if (isOwner) {
+      return next(
+        new InvariantError(
+          "Pemilik UMKM tidak dapat bergabung dengan bisnis lain",
+        ),
+      );
+    }
+
     const business =
       await BusinessRepositories.findByInvitationCode(invitationCode);
     if (!business) {
