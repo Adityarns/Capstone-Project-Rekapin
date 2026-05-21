@@ -1,7 +1,11 @@
-/* ============================================================
-   REKAPIN — Profile Card Styles
-   src/components/profile/ProfileCard.css
-   ============================================================ */
+/**
+ * ============================================================
+ *    REKAPIN — Profile Card Styles
+ *    src/components/profile/ProfileCard.css
+ *    ============================================================
+ *
+ * @format
+ */
 
 .profile-card {
   background-color: var(--color-bg-surface);
@@ -32,6 +36,18 @@
   justify-content: center;
   border: 3px solid var(--color-bg-surface);
   box-shadow: var(--shadow-md);
+}
+
+.profile-card__avatar {
+  overflow: hidden;
+}
+
+.profile-card__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .profile-card__initials {

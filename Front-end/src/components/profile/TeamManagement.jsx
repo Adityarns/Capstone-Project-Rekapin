@@ -3,11 +3,17 @@
  *    REKAPIN — Team Management Card
  *    src/components/profile/TeamManagement.jsx
  *
+ *    Changelog:
+ *    - RoleBadge: Admin → Owner, Viewer → Employee
+ *    - Tambah empty state saat members kosong
+ *
  *    Props:
- *    - team:        { invitationCode, members }
- *    - isOwner:     boolean
- *    - onInvite:    () => void
+ *    - team:     { invitationCode, members }
+ *    - isOwner:  boolean
+ *    - onInvite: () => void
  * ============================================================
+ *
+ * @format
  */
 
 import { useState } from "react";
@@ -15,9 +21,16 @@ import "./TeamManagement.css";
 
 /* ── Icons ── */
 const IconTeam = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.75"
-    strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -26,18 +39,32 @@ const IconTeam = () => (
 );
 
 const IconCopy = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <rect x="9" y="9" width="13" height="13" rx="2" />
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
   </svg>
 );
 
 const IconUserPlus = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="8.5" cy="7" r="4" />
     <line x1="20" y1="8" x2="20" y2="14" />
@@ -46,12 +73,37 @@ const IconUserPlus = () => (
 );
 
 const IconDots = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="5"  r="1" fill="currentColor" />
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="5" r="1" fill="currentColor" />
     <circle cx="12" cy="12" r="1" fill="currentColor" />
     <circle cx="12" cy="19" r="1" fill="currentColor" />
+  </svg>
+);
+
+const IconUsersEmpty = () => (
+  <svg
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
@@ -64,34 +116,54 @@ function MemberAvatar({ initials }) {
   );
 }
 
-/* ── Role badge ── */
+/* ── Role badge — UPDATED: Owner/Employee ── */
 function RoleBadge({ role }) {
-  const cls = role === "Admin"
-    ? "team-role-badge team-role-badge--admin"
-    : "team-role-badge team-role-badge--viewer";
+  const isOwnerRole = role === "Owner";
+  const cls = isOwnerRole
+    ? "team-role-badge team-role-badge--owner"
+    : "team-role-badge team-role-badge--employee";
   return <span className={cls}>{role}</span>;
 }
 
+/* ── Empty state ── */
+function EmptyTeam({ isOwner, onInvite }) {
+  return (
+    <div className="team-empty">
+      <div className="team-empty__icon" aria-hidden="true">
+        <IconUsersEmpty />
+      </div>
+      <p className="team-empty__heading">No employees added yet.</p>
+      <p className="team-empty__sub">
+        Invite your first employee to collaborate.
+      </p>
+      {isOwner && (
+        <button type="button" className="team-empty__cta" onClick={onInvite}>
+          <IconUserPlus />
+          Invite Employee
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ── Main Component ── */
 export default function TeamManagement({ team, isOwner, onInvite }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard
       .writeText(team.invitationCode)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch(() => {
-        /* Fallback for environments without clipboard API */
+      .catch(() => {}) // silent fail
+      .finally(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       });
   };
 
+  const hasMembers = team.members && team.members.length > 0;
+
   return (
     <div className="team-card">
-
       {/* Header */}
       <div className="team-card__header">
         <div className="team-card__title-group">
@@ -101,7 +173,6 @@ export default function TeamManagement({ team, isOwner, onInvite }) {
           <h3 className="team-card__title">Team Management</h3>
         </div>
 
-        {/* Invite User — owner only */}
         {isOwner ? (
           <button type="button" className="team-invite-btn" onClick={onInvite}>
             <IconUserPlus />
@@ -131,34 +202,37 @@ export default function TeamManagement({ team, isOwner, onInvite }) {
         </div>
       )}
 
-      {/* Member list */}
-      <ul className="team-member-list" role="list">
-        {team.members.map((member) => (
-          <li key={member.id} className="team-member">
-            <MemberAvatar initials={member.initials} />
+      {/* Member list OR empty state */}
+      {hasMembers ? (
+        <ul className="team-member-list" role="list">
+          {team.members.map((member) => (
+            <li key={member.id} className="team-member">
+              <MemberAvatar initials={member.initials} />
 
-            <div className="team-member__info">
-              <p className="team-member__name">{member.name}</p>
-              <p className="team-member__email">{member.email}</p>
-            </div>
+              <div className="team-member__info">
+                <p className="team-member__name">{member.name}</p>
+                <p className="team-member__email">{member.email}</p>
+              </div>
 
-            <RoleBadge role={member.role} />
+              <RoleBadge role={member.role} />
 
-            {/* Actions menu — owner only */}
-            {isOwner && (
-              <button
-                type="button"
-                className="team-member__menu-btn"
-                aria-label={`More options for ${member.name}`}
-                onClick={() => console.log("Member menu:", member.id)}
-              >
-                <IconDots />
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
-
+              {/* Management actions — owner only */}
+              {isOwner && (
+                <button
+                  type="button"
+                  className="team-member__menu-btn"
+                  aria-label={`More options for ${member.name}`}
+                  onClick={() => console.log("Member menu:", member.id)}
+                >
+                  <IconDots />
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyTeam isOwner={isOwner} onInvite={onInvite} />
+      )}
     </div>
   );
 }
