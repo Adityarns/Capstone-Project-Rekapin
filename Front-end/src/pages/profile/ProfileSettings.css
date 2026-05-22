@@ -1,0 +1,194 @@
+/* ============================================================
+   REKAPIN — Profile & Settings Page Layout
+   src/pages/profile/ProfileSettings.css
+   ============================================================ */
+
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 100%;
+}
+
+
+/* ----------------------------------------------------------
+   PAGE HEADER
+   ---------------------------------------------------------- */
+
+.profile-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.profile-page__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.profile-page__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+
+/* ----------------------------------------------------------
+   MAIN GRID LAYOUT
+
+   Desktop:
+   ┌──────────────┬──────────────────────────────┐
+   │  Left ~340px │  Right (1fr)                  │
+   │  ProfileCard │  TeamManagement               │
+   │  BizInfo     │  [Notifications] [Security]   │
+   └──────────────┴──────────────────────────────┘
+   ---------------------------------------------------------- */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+/* Left column: stacked */
+.profile-grid__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Right column: TeamManagement on top, then 2-col below */
+.profile-grid__right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Bottom row inside right column: Notifications + Security */
+.profile-grid__bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+
+/* ----------------------------------------------------------
+   PAGE ACTION BUTTONS
+   ---------------------------------------------------------- */
+
+.profile-page__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+/* Base */
+.profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--duration-normal) var(--ease-default),
+              border-color var(--duration-normal) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+  line-height: 1.5;
+}
+
+/* Discard — ghost */
+.profile-btn--discard {
+  background-color: transparent;
+  border: 1.5px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.profile-btn--discard:hover {
+  border-color: var(--color-neutral-500);
+  color: var(--color-text-primary);
+  background-color: var(--color-neutral-100);
+}
+
+/* Save — primary maroon */
+.profile-btn--save {
+  background-color: var(--color-primary-700);
+  border: 1.5px solid var(--color-primary-700);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-primary);
+}
+
+.profile-btn--save:hover {
+  background-color: var(--color-primary-800);
+  border-color: var(--color-primary-800);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md), var(--shadow-primary);
+}
+
+.profile-btn--save:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+   ---------------------------------------------------------- */
+
+/* Large tablet: compress left column */
+@media (max-width: 1100px) {
+  .profile-grid {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+/* Tablet: stack columns */
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* On tablet, ProfileCard + BizInfo go full width */
+  .profile-grid__left {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Tablet small: Notifications + Security stack */
+@media (max-width: 720px) {
+  .profile-grid__bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .profile-grid__left {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-page__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .profile-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-page__title {
+    font-size: var(--text-2xl);
+  }
+}

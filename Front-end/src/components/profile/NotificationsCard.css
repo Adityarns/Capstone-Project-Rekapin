@@ -1,0 +1,152 @@
+/* ============================================================
+   REKAPIN — Notifications Card Styles
+   src/components/profile/NotificationsCard.css
+   ============================================================ */
+
+.notif-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Header ── */
+.notif-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.notif-card__icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.notif-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+/* ── Rows ── */
+.notif-card__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.notif-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.notif-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-row__label-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.notif-row__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.notif-row__sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ECO badge */
+.notif-row__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.6rem;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  background-color: var(--color-accent-100);
+  color: var(--color-accent-700);
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+
+/* ----------------------------------------------------------
+   TOGGLE SWITCH
+   Pure CSS animated pill toggle
+   ---------------------------------------------------------- */
+
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Hide native checkbox */
+.toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Track — the pill background */
+.toggle__track {
+  display: block;
+  width: 44px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-neutral-300);
+  transition: background-color var(--duration-normal) var(--ease-default);
+  position: relative;
+}
+
+/* Thumb — the circle that slides */
+.toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-neutral-0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.20);
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+/* Checked state: track turns green, thumb slides right */
+.toggle__input:checked + .toggle__track {
+  background-color: var(--color-accent-500);
+}
+
+.toggle__input:checked + .toggle__track .toggle__thumb {
+  transform: translateX(20px); /* 44px - 18px - 3px - 3px = 20px */
+}
+
+/* Focus ring for accessibility */
+.toggle__input:focus-visible + .toggle__track {
+  outline: 2px solid var(--color-primary-400);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
