@@ -52,6 +52,13 @@ export const up = (pgm) => {
       references: "transaction_categories(transaction_categories_id)",
       onDelete: "CASCADE",
     },
+    quantity: {
+      type: "INT",
+    },
+    update_at: {
+      type: "VARCHAR(50)",
+      notNull: true,
+    },
   });
 };
 
