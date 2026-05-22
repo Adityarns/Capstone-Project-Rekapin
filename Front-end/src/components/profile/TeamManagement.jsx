@@ -3,9 +3,13 @@
  *    REKAPIN — Team Management Card
  *    src/components/profile/TeamManagement.jsx
  *
- *    Changelog:
- *    - RoleBadge: Admin → Owner, Viewer → Employee
- *    - Tambah empty state saat members kosong
+ *    Rules:
+ *    - isOwner = true  → full management access
+ *    - isOwner = false → read-only, no buttons at all
+ *    - "..." button only renders on members with role "Employee"
+ *    - One dropdown open at a time
+ *    - Click-outside closes via document listener
+ *    - Smooth CSS fade animation on dropdown mount
  *
  *    Props:
  *    - team:     { invitationCode, members }
@@ -16,10 +20,13 @@
  * @format
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./TeamManagement.css";
 
-/* ── Icons ── */
+/* ─────────────────────────────────────────────────────────── */
+/*  Icons                                                      */
+/* ─────────────────────────────────────────────────────────── */
+
 const IconTeam = () => (
   <svg
     width="18"
@@ -89,6 +96,23 @@ const IconDots = () => (
   </svg>
 );
 
+const IconUserMinus = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="8.5" cy="7" r="4" />
+    <line x1="23" y1="11" x2="17" y2="11" />
+  </svg>
+);
+
 const IconUsersEmpty = () => (
   <svg
     width="32"
@@ -107,7 +131,10 @@ const IconUsersEmpty = () => (
   </svg>
 );
 
-/* ── Member initials avatar ── */
+/* ─────────────────────────────────────────────────────────── */
+/*  Sub-components                                             */
+/* ─────────────────────────────────────────────────────────── */
+
 function MemberAvatar({ initials }) {
   return (
     <div className="team-avatar" aria-hidden="true">
@@ -116,16 +143,97 @@ function MemberAvatar({ initials }) {
   );
 }
 
-/* ── Role badge — UPDATED: Owner/Employee ── */
 function RoleBadge({ role }) {
   const isOwnerRole = role === "Owner";
-  const cls = isOwnerRole
-    ? "team-role-badge team-role-badge--owner"
-    : "team-role-badge team-role-badge--employee";
-  return <span className={cls}>{role}</span>;
+  return (
+    <span
+      className={`team-role-badge ${
+        isOwnerRole ? "team-role-badge--owner" : "team-role-badge--employee"
+      }`}
+    >
+      {role}
+    </span>
+  );
 }
 
-/* ── Empty state ── */
+/* ─────────────────────────────────────────────────────────── */
+/*  MemberRow — dropdown scoped here for isolation             */
+/* ─────────────────────────────────────────────────────────── */
+
+function MemberRow({ member, isOwner, isMenuOpen, onToggleMenu, onRemove }) {
+  /*
+   * "..." button rules:
+   *  ① Only rendered when isOwner = true
+   *  ② Only rendered when member.role === "Employee"
+   *     (Owners manage the workspace — no remove action for them)
+   */
+  const showMenu = isOwner && member.role === "Employee";
+
+  return (
+    <li className="team-member">
+      <MemberAvatar initials={member.initials} />
+
+      <div className="team-member__info">
+        <p className="team-member__name">{member.name}</p>
+        <p className="team-member__email">{member.email}</p>
+      </div>
+
+      <RoleBadge role={member.role} />
+
+      {/* Context menu — only for Employee members, only for Owner users */}
+      {showMenu && (
+        <div className="team-member__menu-wrap">
+          <button
+            type="button"
+            className={`team-member__menu-btn ${isMenuOpen ? "team-member__menu-btn--active" : ""}`}
+            aria-label={`Options for ${member.name}`}
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            onClick={(e) => {
+              /*
+               * stopPropagation prevents the document "click" listener
+               * (registered in TeamManagement) from firing immediately
+               * and closing the menu we're about to open.
+               */
+              e.stopPropagation();
+              onToggleMenu(member.id);
+            }}
+          >
+            <IconDots />
+          </button>
+
+          {isMenuOpen && (
+            /*
+             * stopPropagation on the dropdown itself prevents
+             * clicks *inside* it from reaching the document listener.
+             * Each item manually closes the menu after acting.
+             */
+            <div
+              className="team-dropdown"
+              role="menu"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="team-dropdown__item team-dropdown__item--danger"
+                role="menuitem"
+                onClick={() => onRemove(member.id)}
+              >
+                <IconUserMinus />
+                Remove Employee
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*  Empty state                                                */
+/* ─────────────────────────────────────────────────────────── */
+
 function EmptyTeam({ isOwner, onInvite }) {
   return (
     <div className="team-empty">
@@ -146,22 +254,63 @@ function EmptyTeam({ isOwner, onInvite }) {
   );
 }
 
-/* ── Main Component ── */
+/* ─────────────────────────────────────────────────────────── */
+/*  Main Component                                             */
+/* ─────────────────────────────────────────────────────────── */
+
 export default function TeamManagement({ team, isOwner, onInvite }) {
+  /* Local members state — allows Remove without an API call yet */
+  const [members, setMembers] = useState([...team.members]);
+
+  /* Track which member's dropdown is open. null = none. */
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  /* ── Click-outside: close any open dropdown ──────────────
+   *
+   *  Pattern:
+   *  1. Register document listener when a menu is open
+   *  2. Any click that was NOT stopPropagation'd reaches document
+   *  3. Listener fires → setOpenMenuId(null)
+   *  4. Cleanup on unmount OR when openMenuId changes back to null
+   * ─────────────────────────────────────────────────────── */
+  useEffect(() => {
+    if (openMenuId === null) return;
+
+    const handleDocClick = () => setOpenMenuId(null);
+    document.addEventListener("click", handleDocClick);
+
+    return () => document.removeEventListener("click", handleDocClick);
+  }, [openMenuId]);
+
+  /* Toggle: open this menu if it's closed, close if already open */
+  const handleToggleMenu = (memberId) => {
+    setOpenMenuId((prev) => (prev === memberId ? null : memberId));
+  };
+
+  /* Remove member from local state */
+  const handleRemove = (memberId) => {
+    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+    setOpenMenuId(null);
+    // TODO: DELETE /team/members/:memberId
+    console.log("Remove member:", memberId);
+  };
+
+  /* Invitation code copy */
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard
       .writeText(team.invitationCode)
-      .catch(() => {}) // silent fail
+      .catch(() => {})
       .finally(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       });
   };
 
-  const hasMembers = team.members && team.members.length > 0;
+  const hasMembers = members.length > 0;
 
+  /* ── Render ── */
   return (
     <div className="team-card">
       {/* Header */}
@@ -205,29 +354,15 @@ export default function TeamManagement({ team, isOwner, onInvite }) {
       {/* Member list OR empty state */}
       {hasMembers ? (
         <ul className="team-member-list" role="list">
-          {team.members.map((member) => (
-            <li key={member.id} className="team-member">
-              <MemberAvatar initials={member.initials} />
-
-              <div className="team-member__info">
-                <p className="team-member__name">{member.name}</p>
-                <p className="team-member__email">{member.email}</p>
-              </div>
-
-              <RoleBadge role={member.role} />
-
-              {/* Management actions — owner only */}
-              {isOwner && (
-                <button
-                  type="button"
-                  className="team-member__menu-btn"
-                  aria-label={`More options for ${member.name}`}
-                  onClick={() => console.log("Member menu:", member.id)}
-                >
-                  <IconDots />
-                </button>
-              )}
-            </li>
+          {members.map((member) => (
+            <MemberRow
+              key={member.id}
+              member={member}
+              isOwner={isOwner}
+              isMenuOpen={openMenuId === member.id}
+              onToggleMenu={handleToggleMenu}
+              onRemove={handleRemove}
+            />
           ))}
         </ul>
       ) : (
