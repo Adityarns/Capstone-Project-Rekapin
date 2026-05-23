@@ -1,0 +1,35 @@
+/**
+ * ============================================================
+ *    REKAPIN — Team Grid Styles
+ *    src/components/team/TeamGrid.css
+ *
+ *    3-column grid → 2 col tablet → 1 col mobile.
+ * ============================================================
+ *
+ * @format
+ */
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: 100%;
+}
+
+/* ── Tablet: 2 columns ── */
+@media (max-width: 1024px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+/* ── Mobile: 1 column ── */
+@media (max-width: 600px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
