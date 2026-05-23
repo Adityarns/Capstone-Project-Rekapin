@@ -1,0 +1,207 @@
+/**
+ * ============================================================
+ *    REKAPIN — Team Card Styles
+ *    src/components/team/TeamCard.css
+ *
+ *    Each card has an abstract wave/blob background at top,
+ *    circular avatar, name, university with icon, and role badge.
+ * ============================================================
+ *
+ * @format
+ */
+
+/* ── Card Container ── */
+.team-card {
+  position: relative;
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-neutral-100);
+  overflow: hidden;
+  text-align: left;
+  transition:
+    transform var(--duration-slow) var(--ease-spring),
+    box-shadow var(--duration-slow) var(--ease-default);
+  animation: fadeIn var(--duration-slow) var(--ease-out) both;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Wave Background (top area) ── */
+.team-card__wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* SVG wave fills the background area */
+.team-card__wave svg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Variant: olive ── */
+.team-card__wave--olive svg .wave-fill-1 {
+  fill: rgba(74, 140, 74, 0.15);
+}
+.team-card__wave--olive svg .wave-fill-2 {
+  fill: rgba(74, 140, 74, 0.08);
+}
+
+/* ── Variant: pink ── */
+.team-card__wave--pink svg .wave-fill-1 {
+  fill: rgba(192, 57, 43, 0.12);
+}
+.team-card__wave--pink svg .wave-fill-2 {
+  fill: rgba(192, 57, 43, 0.06);
+}
+
+/* ── Variant: olive-pink ── */
+.team-card__wave--olive-pink svg .wave-fill-1 {
+  fill: rgba(74, 140, 74, 0.12);
+}
+.team-card__wave--olive-pink svg .wave-fill-2 {
+  fill: rgba(192, 57, 43, 0.08);
+}
+
+/* ── Body (Flex Row) ── */
+.team-card__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-4);
+  height: 100%;
+}
+
+/* ── Avatar ── */
+.team-card__avatar-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.team-card__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--color-bg-surface);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--color-neutral-0);
+  user-select: none;
+  overflow: hidden;
+  background-color: var(--color-neutral-200);
+}
+
+.team-card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Content ── */
+.team-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.team-card__name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  line-height: var(--leading-tight);
+  margin-bottom: 0.15rem;
+  display: flex;
+  align-items: center;
+}
+
+/* ── University row ── */
+.team-card__university {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: #5f5a54;
+  margin-bottom: var(--space-2);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.team-card__uni-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary-500);
+  flex-shrink: 0;
+}
+
+/* ── Role Badge ── */
+.team-card__role {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-neutral-0);
+  text-align: center;
+}
+
+/* Badge variant: maroon */
+.team-card__role--maroon {
+  background-color: var(--color-primary-500);
+}
+
+/* Badge variant: olive */
+.team-card__role--olive {
+  background-color: var(--color-accent-500);
+}
+
+/* Badge variant: gradient (olive → maroon) */
+.team-card__role--gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-500) 0%,
+    var(--color-primary-500) 100%
+  );
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .team-card__body {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-4);
+  }
+
+  .team-card__content {
+    align-items: center;
+  }
+
+  .team-card__name {
+    margin-bottom: var(--space-2);
+  }
+}

@@ -17,6 +17,7 @@ import Transactions from "../pages/transactions/Transactions";
 import Reports from "../pages/reports/Reports";
 import CarbonTracking from "../pages/carbon/CarbonTracking";
 import ProfileSettings from "../pages/profile/ProfileSettings";
+import Team from "../pages/team/Team";
 
 /* ── Loading Screen ── */
 function LoadingScreen() {
@@ -103,6 +104,7 @@ export default function AppRoutes() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/carbon" element={<CarbonTracking />} />
         <Route path="/profile" element={<ProfileSettings />} />
+        <Route path="/support" element={<Team />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,11 +1,7 @@
-/**
- * ============================================================
- *    REKAPIN — Team Management Styles
- *    src/components/profile/TeamManagement.css
- *    ============================================================
- *
- * @format
- */
+/* ============================================================
+   REKAPIN — Team Management Styles
+   src/components/profile/TeamManagement.css
+   ============================================================ */
 
 .team-card {
   background-color: var(--color-bg-surface);
@@ -60,9 +56,8 @@
   background-color: var(--color-accent-600);
   border: none;
   cursor: pointer;
-  transition:
-    background-color var(--duration-normal) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default);
+  transition: background-color var(--duration-normal) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
   box-shadow: var(--shadow-accent);
   white-space: nowrap;
   flex-shrink: 0;
@@ -238,9 +233,8 @@
   color: var(--color-text-muted);
   cursor: pointer;
   flex-shrink: 0;
-  transition:
-    background-color var(--duration-normal) var(--ease-default),
-    color var(--duration-normal) var(--ease-default);
+  transition: background-color var(--duration-normal) var(--ease-default),
+              color var(--duration-normal) var(--ease-default);
 }
 
 .team-member__menu-btn:hover {
@@ -309,6 +303,7 @@
   background-color: var(--color-accent-700);
 }
 
+
 /* ─────────────────────────────────────────────────────────────
    DROPDOWN MENU
    ───────────────────────────────────────────────────────────── */
@@ -343,7 +338,8 @@
 .team-dropdown {
   position: absolute;
   right: 0;
-  top: calc(100% + var(--space-2));
+  bottom: calc(100% + var(--space-2));
+top: auto;
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -374,9 +370,8 @@
   border: none;
   cursor: pointer;
   text-align: left;
-  transition:
-    background-color var(--duration-fast) var(--ease-default),
-    color var(--duration-fast) var(--ease-default);
+  transition: background-color var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
   line-height: 1.4;
 }
 

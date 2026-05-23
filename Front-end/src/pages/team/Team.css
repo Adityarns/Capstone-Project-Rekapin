@@ -1,0 +1,32 @@
+/**
+ * ============================================================
+ *    REKAPIN — Team Page Styles
+ *    src/pages/team/Team.css
+ * ============================================================
+ *
+ * @format
+ */
+
+/*
+  The dash-main-inner already has padding: 24px 32px (space-6 / space-8).
+  We stretch team-page to fill the remaining scrollable area so the
+  grid sits naturally in the vertical middle—no empty bottom gap.
+*/
+.team-page {
+  display: flex;
+  flex-direction: column;
+  /* fill the full scrollable area minus dash-main-inner padding (top+bot = 48px) */
+  min-height: calc(100vh - var(--topbar-height) - 48px);
+  animation: fadeIn var(--duration-slow) var(--ease-out) both;
+}
+
+/* Push the grid to use remaining space, keeping hero compact */
+.team-page > .team-grid {
+  flex: 1;
+  align-content: stretch;
+}
+
+/* Each grid row stretches evenly */
+.team-grid .team-card {
+  height: 100%;
+}
