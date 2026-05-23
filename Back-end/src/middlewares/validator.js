@@ -4,7 +4,18 @@ const validate = (schema) => (req, res, next) => {
     allowUnknown: false,
     stripUnknown: true,
   });
-  if (error) return next(error);
+
+  if (error) {
+    const errorMessage = error.details
+      .map((detail) => detail.message)
+      .join(", ");
+
+    return res.status(400).json({
+      status: "failed",
+      message: errorMessage,
+    });
+  }
+
   req.validated = value;
   next();
 };

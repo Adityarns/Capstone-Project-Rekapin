@@ -8,95 +8,9 @@ import response from "../../../utils/response.js";
 import {
   InvariantError,
   AuthenticationError,
+  NotFoundError,
 } from "../../../exceptions/index.js";
-import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
 
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     tags: [Authentication]
- *     summary: Register a new user
- *     description: Register a new user with role-based business creation
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 example: "John Doe"
- *               businessName:
- *                 type: string
- *                 example: "My Business"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "johndoe@example.com"
- *               password:
- *                 type: string
- *                 example: "secret123"
- *               role:
- *                 type: string
- *                 enum: [owner, employee]
- *                 example: "owner"
- *               invitationCode:
- *                 type: string
- *                 example: "INVITE123"
- *             required:
- *               - username
- *               - email
- *               - password
- *               - role
- *     responses:
- *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Akun dan bisnis berhasil dibuat"
- *                 data:
- *                   type: object
- *                   properties:
- *                     username:
- *                       type: string
- *                       example: "John Doe"
- *                     email:
- *                       type: string
- *                       example: "johndoe@example.com"
- *                     role:
- *                       type: string
- *                       example: "owner"
- *                     userId:
- *                       type: string
- *                       example: "user-xyz123"
- *                     businessName:
- *                       type: string
- *                       description: "Hanya tersedia jika mendaftar sebagai owner"
- *                       example: "My Business"
- *       400:
- *         description: Bad Request (Validation failed or Invariant Error)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "fail"
- *                 message:
- *                   type: string
- *                   example: "Email sudah digunakan"
- */
 export const register = async (req, res, next) => {
   const { username, businessName, email, password, role, invitationCode } =
     req.validated;
@@ -142,7 +56,7 @@ export const register = async (req, res, next) => {
       role: "owner",
     });
 
-    const data = { username, email, role, userId, businessName };
+    const data = { username, email, role, userId, businessId };
 
     return response(res, 201, "Akun dan bisnis berhasil dibuat", data);
   }
@@ -159,111 +73,39 @@ export const register = async (req, res, next) => {
 
   const data = { username, email, role, userId };
 
-  return response(res, 201, "Akun berhasil dibuat", {
-    data,
-  });
+  return response(res, 201, "Akun berhasil dibuat", data);
 };
 
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     tags: [Authentication]
- *     summary: Login user
- *     description: Authenticate user and optionally join business with invitation code
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "johndoe@example.com"
- *               password:
- *                 type: string
- *                 example: "secret123"
- *               invitationCode:
- *                 type: string
- *                 example: "ABC123"
- *             required:
- *               - email
- *               - password
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Authentication berhasil ditambahkan"
- *                 data:
- *                   type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
- *                     refreshToken:
- *                       type: string
- *       400:
- *         description: Authentication failed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "fail"
- *                 message:
- *                   type: string
- */
 export const login = async (req, res, next) => {
   const { email, password, invitationCode } = req.validated;
 
   const userId = await UserRepositories.verifyUserCredential(email, password);
   if (!userId) {
-    return next(new AuthenticationError("Kredensial yang Anda berikan salah"));
+    return next(new NotFoundError("Kredensial yang Anda berikan salah"));
   }
-
-  // ================================================
-  //  Jika invitation code diisi → gabungkan ke bisnis
-  // ================================================
+  
   if (invitationCode) {
-    const isOwner = await businessesRepositories.verifyBusinessOwner(userId);
-    if (isOwner) {
-      return next(
-        new InvariantError(
-          "Pemilik UMKM tidak dapat bergabung dengan bisnis lain",
-        ),
-      );
-    }
-
     const business =
       await BusinessRepositories.findByInvitationCode(invitationCode);
+    console.log("Business found:", business); // CEK INI
+
     if (!business) {
       return next(new InvariantError("Kode undangan tidak valid"));
     }
 
-    // Cek apakah user sudah terdaftar di bisnis ini
-    const alreadyMember = await TeamMemberRepositories.isMember({
+    const isMember = await TeamMemberRepositories.isMember({
       businessId: business.business_id,
       userId,
     });
+    console.log("Already member:", isMember); // CEK INI
 
-    if (!alreadyMember) {
-      await TeamMemberRepositories.addTeamMember({
+    if (!isMember) {
+      const added = await TeamMemberRepositories.addTeamMember({
         businessId: business.business_id,
         userId,
         role: "employee",
       });
+      console.log("Add result:", added); // CEK INI
     }
   }
 
@@ -283,57 +125,6 @@ export const login = async (req, res, next) => {
   });
 };
 
-/**
- * @swagger
- * /auth/refresh:
- *   put:
- *     tags: [Authentication]
- *     summary: Refresh access token
- *     description: Generate new access token using refresh token
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *                 example: "refresh-token-value"
- *             required:
- *               - refreshToken
- *     responses:
- *       200:
- *         description: Token refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Access Token berhasil diperbarui"
- *                 data:
- *                   type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
- *       400:
- *         description: Invalid refresh token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "fail"
- *                 message:
- *                   type: string
- */
 export const refreshToken = async (req, res, next) => {
   const { refreshToken } = req.validated;
 
@@ -345,6 +136,18 @@ export const refreshToken = async (req, res, next) => {
   }
 
   const { user_id } = TokenManager.verifyRefreshToken(refreshToken);
+
+  const currentUserId = req.user.user_id;
+
+  if (currentUserId !== user_id) {
+    return next(
+      new InvariantError(
+        "Refresh token tidak sesuai dengan kredensial pengguna",
+      ),
+    );
+  }
+
+  // 4. Generate token baru jika identitas cocok
   const accessToken = TokenManager.generateAccessToken({ user_id });
 
   return response(res, 200, "Access Token berhasil diperbarui", {
@@ -352,54 +155,6 @@ export const refreshToken = async (req, res, next) => {
   });
 };
 
-/**
- * @swagger
- * /auth/logout:
- *   delete:
- *     tags: [Authentication]
- *     summary: Logout user
- *     description: Revoke refresh token and logout user
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *                 example: "refresh-token-value"
- *             required:
- *               - refreshToken
- *     responses:
- *       200:
- *         description: Logout successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                 data: {}
- *       401:
- *         description: Unauthorized
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "fail"
- *                 message:
- *                   type: string
- */
 export const logout = async (req, res, next) => {
   const { refreshToken } = req.validated;
 
@@ -408,6 +163,17 @@ export const logout = async (req, res, next) => {
   );
   if (!result) {
     return next(new InvariantError("Refresh token tidak valid"));
+  }
+
+  const { user_id } = TokenManager.verifyRefreshToken(refreshToken);
+  const currentUserId = req.user.user_id;
+
+  if (currentUserId !== user_id) {
+    return next(
+      new InvariantError(
+        "Refresh token tidak sesuai dengan kredensial pengguna",
+      ),
+    );
   }
 
   await AuthenticationRepositories.deleteRefreshToken(

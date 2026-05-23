@@ -29,7 +29,7 @@ class BusinessRepositories {
 
   async getBusinessById(businessId) {
     const query = {
-      text: `SELECT business_name, industry, phone_number, address FROM businesses WHERE business_id = $1`,
+      text: `SELECT * FROM businesses WHERE business_id = $1`,
       values: [businessId],
     };
     const results = await this.pool.query(query);
@@ -45,7 +45,7 @@ class BusinessRepositories {
     if (fields.length === 0) return null;
     const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(", ");
     const query = {
-      text: `UPDATE businesses SET ${setClause} WHERE business_id = $${fields.length + 1} RETURNING business_id, business_name`,
+      text: `UPDATE businesses SET ${setClause} WHERE business_id = $${fields.length + 1} RETURNING business_name, industry, phone_number, address`,
       values: [...fields.map((key) => payload[key]), businessId],
     };
     const results = await this.pool.query(query);
@@ -58,40 +58,21 @@ class BusinessRepositories {
       values: [invitationCode],
     };
     const result = await this.pool.query(query);
-    return result.rows[0] || null;
-  }
-
-  async verifyBusinessOwner(userId) {
-    const query = {
-      text: "SELECT * FROM businesses WHERE owner_id = $1 LIMIT 1",
-      values: [userId],
-    };
-
-    const results = await this.pool.query(query);
-
-    if (!results.rows.length) {
-      return null;
-    }
-
-    return results.rows[0];
+    return result.rows[0];
   }
 
   async verifyBusinessAccess(userId, businessId) {
-    const isOwner = await this.verifyBusinessOwner(userId, businessId);
-    if (isOwner) {
-      return true;
-    }
-    const queryEmployee = {
-      text: "SELECT id FROM employees WHERE business_id = $1 AND user_id = $2",
+    const query = {
+      text: `SELECT 1 FROM businesses 
+           WHERE business_id = $1 AND owner_id = $2
+           UNION
+           SELECT 1 FROM team_members
+           WHERE business_id = $1 AND user_id = $2`,
       values: [businessId, userId],
     };
 
-    const resultsEmployee = await this.pool.query(queryEmployee);
-
-    if (resultsEmployee.rows.length > 0) {
-      return true;
-    }
-    return false;
+    const result = await this.pool.query(query);
+    return result.rows.length > 0;
   }
 }
 

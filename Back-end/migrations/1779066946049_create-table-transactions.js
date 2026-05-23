@@ -53,11 +53,14 @@ export const up = (pgm) => {
       onDelete: "CASCADE",
     },
     quantity: {
-      type: "INT",
+      type: "DOUBLE PRECISION",
     },
     update_at: {
       type: "VARCHAR(50)",
       notNull: true,
+    },
+    image_url: {
+      type: "TEXT",
     },
   });
 };

@@ -5,12 +5,14 @@ import {
   editBusinessById,
 } from "../controller/business-controller.js";
 import { editBusinessPayloadSchema } from "../validator/businesses-validator.js";
+import AuthenticateToken from "../../../middlewares/auth.js";
 
 const router = express.Router();
 
-router.get("/businesses/:businessId", getBusinessById);
+router.get("/businesses/:businessId", AuthenticateToken, getBusinessById);
 router.put(
   "/businesses/:businessId",
+  AuthenticateToken,
   validate(editBusinessPayloadSchema),
   editBusinessById,
 );

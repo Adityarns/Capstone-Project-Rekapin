@@ -28,6 +28,9 @@ export const up = (pgm) => {
       type: "TEXT",
       notNull: true,
     },
+    avatar_url: {
+      type: "TEXT",
+    },
     created_at: {
       type: "TEXT",
       notNull: true,

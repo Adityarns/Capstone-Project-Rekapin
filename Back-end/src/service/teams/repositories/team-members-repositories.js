@@ -38,10 +38,10 @@ class TeamMemberRepositories {
     return results.rows;
   }
 
-  async deleteTeamMembersById(userId) {
+  async deleteTeamMembersById(userId, businessId) {
     const query = {
-      text: "DELETE FROM team_members USING users WHERE team_members.user_id = users.user_id AND team_members.user_id = $1 RETURNING users.username, team_members.user_id, team_members.role",
-      values: [userId],
+      text: "DELETE FROM team_members USING users WHERE team_members.user_id = users.user_id AND team_members.user_id = $1 AND team_members.business_id = $2 RETURNING users.username, team_members.user_id, team_members.role",
+      values: [userId, businessId],
     };
     const results = await this.pool.query(query);
     return results.rows[0];

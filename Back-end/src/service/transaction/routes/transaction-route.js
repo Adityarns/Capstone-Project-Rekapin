@@ -20,5 +20,11 @@ router.delete(
   authenticateToken,
   deleteTransaction,
 );
+// router.patch(
+//   "/transactions/:transactionId/image",
+//   authenticateToken,
+//   upload.single("image"),
+//   uploadTransactionImg,
+// );
 
 export default router;

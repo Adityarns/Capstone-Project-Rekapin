@@ -132,6 +132,18 @@ class TransactionRepositories {
     const results = await this.pool.query(query);
     return results.rows[0] || null;
   }
+
+  // async uploadTransactionImage({ userId, transactionUrl }) {
+  //   const query = {
+  //     text: `INSERT INTO transactions (image_url)
+  //            VALUES ($1)
+  //            WHERE user_id = $2
+  //            RETURNING image_url`,
+  //     values: [transactionUrl, userId],
+  //   };
+  //   const results = await this.pool.query(query);
+  //   return results.rows[0] || null;
+  // }
 }
 
 export default new TransactionRepositories();

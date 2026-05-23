@@ -2,6 +2,7 @@ import { scanReceiptWithAI } from "../../../service/Ai Models/ai-service.js";
 import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 import TransactionRepositories from "../repositories/transaction-repositories.js";
+// import { uploadTransactionImage } from "../../supabase/supabase-service.js";
 
 export const scanReceipt = async (req, res, next) => {
   if (!req.file) {
@@ -30,6 +31,7 @@ export const addTransaction = async (req, res, next) => {
   const {
     title,
     amount,
+    quantity,
     transaction_date,
     transaction_type,
     description,
@@ -38,22 +40,10 @@ export const addTransaction = async (req, res, next) => {
   } = req.validated;
   const userId = req.user.id;
 
-  // Validasi tipe transaksi harus cocok dengan kategori
-  const category = await TransactionRepositories.getCategoryById(categoryId);
-  if (!category) {
-    return next(new InvariantError("Kategori tidak ditemukan"));
-  }
-  if (category.type !== transaction_type) {
-    return next(
-      new InvariantError(
-        `Kategori "${category.name}" hanya bisa digunakan untuk ${category.type === "income" ? "pemasukan" : "pengeluaran"}`,
-      ),
-    );
-  }
-
   const newTransaction = await TransactionRepositories.createTransaction({
     title,
     amount,
+    quantity,
     transaction_date,
     transaction_type,
     description,
@@ -124,3 +114,46 @@ export const deleteTransaction = async (req, res, next) => {
 
   return response(res, 200, "Transaksi berhasil dihapus", deletedTransaction);
 };
+
+// export const uploadTransactionImg = async (req, res, next) => {
+//   if (!req.file) {
+//     return next(new InvariantError("File foto tidak ditemukan"));
+//   }
+
+//   const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
+//   if (!allowedMimeTypes.includes(req.file.mimetype)) {
+//     return next(
+//       new InvariantError(
+//         "Format file tidak didukung. Gunakan JPG, PNG, atau WebP",
+//       ),
+//     );
+//   }
+
+//   const maxSizeBytes = 2 * 1024 * 1024; // 2MB
+//   if (req.file.size > maxSizeBytes) {
+//     return next(new InvariantError("Ukuran foto maksimal 2MB"));
+//   }
+
+//   const userId = req.user.user_id;
+
+//   // Upload foto baru ke Supabase
+//   const transactionUrl = await uploadTransactionImage({
+//     userId,
+//     fileBuffer: req.file.buffer,
+//     mimeType: req.file.mimetype,
+//   });
+
+//   // Simpan URL baru ke database
+//   const uploadTransaction =
+//     await TransactionRepositories.uploadTransactionImage({
+//       userId,
+//       transactionUrl,
+//     });
+//   if (!uploadTransaction) {
+//     return next(new InvariantError("Gagal memperbarui foto transaksi"));
+//   }
+
+//   return response(res, 200, "Foto transaksi berhasil diperbarui", {
+//     transactionUrl: uploadTransaction.transactionUrl,
+//   });
+// };
