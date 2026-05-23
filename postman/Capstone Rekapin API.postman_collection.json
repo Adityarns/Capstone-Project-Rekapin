@@ -1,1543 +1,2035 @@
 {
   "info": {
-    "_postman_id": "9ea4dac5-023f-4b48-999a-9e00ff21feaf",
-    "name": "Capstone Rekapin API",
-    "description": "Dokumentasi API untuk backend Rekapin menggunakan Swagger UI.",
+    "_postman_id": "c1de4b77-f4f9-45a9-a05a-56844c25902c",
+    "name": "Capstone Project Rekapin",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51511193",
-    "_collection_link": "https://go.postman.co/collection/51511193-9ea4dac5-023f-4b48-999a-9e00ff21feaf?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/51511193-c1de4b77-f4f9-45a9-a05a-56844c25902c?source=collection_link"
   },
   "item": [
     {
-      "name": "auth",
+      "name": "Authentications",
       "item": [
         {
-          "name": "register",
-          "item": [
+          "name": "Register - Owner 1",
+          "event": [
             {
-              "name": "Register a new user",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response Content-Type header should have application/json value', () => {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');",
+                  "});",
+                  "",
+                  "pm.test('response body should be an object', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"Response memiliki format success yang sesuai\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");",
+                  "    pm.expect(jsonData.message).to.eql(\"Akun dan bisnis berhasil dibuat\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"userId\");",
+                  "    pm.expect(jsonData.data.role).to.eql(\"owner\");",
+                  "    pm.environment.set('ownerId1', jsonData.data.userId);",
+                  "    pm.environment.set('businessId1', jsonData.data.businessId);",
+                  "});"
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"username\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"owner\",\n  \"businessName\": \"My Business\",\n  \"invitationCode\": \"INVITE123\"\n}",
-                  "options": {
-                    "raw": {
-                      "headerFamily": "json",
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "register"
-                  ]
-                },
-                "description": "Register a new user with role-based business creation"
-              },
-              "response": [
-                {
-                  "name": "User registered successfully",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"username\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"owner\",\n  \"businessName\": \"My Business\",\n  \"invitationCode\": \"INVITE123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/register",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "register"
-                      ]
-                    }
-                  },
-                  "status": "Created",
-                  "code": 201,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Akun dan bisnis berhasil dibuat\",\n  \"data\": {\n    \"username\": \"John Doe\",\n    \"email\": \"johndoe@example.com\",\n    \"role\": \"owner\",\n    \"userId\": \"user-xyz123\",\n    \"businessName\": \"My Business\"\n  }\n}"
-                },
-                {
-                  "name": "Bad Request (Validation failed or Invariant Error)",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"username\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"owner\",\n  \"businessName\": \"My Business\",\n  \"invitationCode\": \"INVITE123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/register",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "register"
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Email sudah digunakan\"\n}"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"Aditya\",\r\n  \"email\": \"adit@example.com\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"owner\",\r\n  \"businessName\": \"Rekapin\",\r\n  \"invitationCode\": \"INVITE123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
               ]
             }
-          ]
+          },
+          "response": []
         },
         {
-          "name": "login",
-          "item": [
+          "name": "Register - Owner 2",
+          "event": [
             {
-              "name": "Login user",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body should be an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response memiliki format success yang sesuai\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");\r",
+                  "    pm.expect(jsonData.message).to.eql(\"Akun dan bisnis berhasil dibuat\");\r",
+                  "    pm.expect(jsonData.data).to.have.property(\"userId\");\r",
+                  "    pm.expect(jsonData.data.role).to.eql(\"owner\");\r",
+                  "    pm.environment.set('ownerId2', jsonData.data.userId);\r",
+                  "    pm.environment.set('businessId2', jsonData.data.businessId);\r",
+                  "});"
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"invitationCode\": \"ABC123\"\n}",
-                  "options": {
-                    "raw": {
-                      "headerFamily": "json",
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/login",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "login"
-                  ]
-                },
-                "description": "Authenticate user and optionally join business with invitation code"
-              },
-              "response": [
-                {
-                  "name": "Login successful",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"invitationCode\": \"ABC123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/login",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "login"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Authentication berhasil ditambahkan\",\n  \"data\": {\n    \"accessToken\": \"string\",\n    \"refreshToken\": \"string\"\n  }\n}"
-                },
-                {
-                  "name": "Authentication failed",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"secret123\",\n  \"invitationCode\": \"ABC123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/login",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "login"
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"Naufal\",\r\n  \"email\": \"naufal@example.com\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"owner\",\r\n  \"businessName\": \"Rekapuy\",\r\n  \"invitationCode\": \"UNDANGAN123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
               ]
             }
-          ]
+          },
+          "response": []
         },
         {
-          "name": "refresh",
-          "item": [
+          "name": "Register - Employee 1",
+          "event": [
             {
-              "name": "Refresh access token",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body should be an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response memiliki format success yang sesuai\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");\r",
+                  "    pm.expect(jsonData.data).to.have.property(\"userId\");\r",
+                  "    pm.expect(jsonData.data.role).to.eql(\"employee\");\r",
+                  "    pm.environment.set('empId1', jsonData.data.userId);\r",
+                  "});"
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
-                  "options": {
-                    "raw": {
-                      "headerFamily": "json",
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/refresh",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "refresh"
-                  ]
-                },
-                "description": "Generate new access token using refresh token"
-              },
-              "response": [
-                {
-                  "name": "Token refreshed successfully",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/refresh",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "refresh"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Access Token berhasil diperbarui\",\n  \"data\": {\n    \"accessToken\": \"string\"\n  }\n}"
-                },
-                {
-                  "name": "Invalid refresh token",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/refresh",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "refresh"
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"Hira\",\r\n    \"email\": \"hira@example.com\",\r\n    \"password\": \"password123\",\r\n    \"role\": \"employee\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
               ]
             }
-          ]
+          },
+          "response": []
         },
         {
-          "name": "logout",
-          "item": [
+          "name": "Register - Employee 2",
+          "event": [
             {
-              "name": "Logout user",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{bearerToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body should be an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response memiliki format success yang sesuai\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");\r",
+                  "    pm.expect(jsonData.data).to.have.property(\"userId\");\r",
+                  "    pm.expect(jsonData.data.role).to.eql(\"employee\");\r",
+                  "    pm.environment.set('empId2', jsonData.data.userId);\r",
+                  "});"
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
-                  "options": {
-                    "raw": {
-                      "headerFamily": "json",
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/auth/logout",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "logout"
-                  ]
-                },
-                "description": "Revoke refresh token and logout user"
-              },
-              "response": [
-                {
-                  "name": "Logout successful",
-                  "originalRequest": {
-                    "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      },
-                      {
-                        "description": "Added as a part of security scheme: bearer",
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/logout",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "logout"
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"string\",\n  \"data\": \"\"\n}"
-                },
-                {
-                  "name": "Unauthorized",
-                  "originalRequest": {
-                    "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      },
-                      {
-                        "description": "Added as a part of security scheme: bearer",
-                        "key": "Authorization",
-                        "value": "Bearer <token>"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"refreshToken\": \"refresh-token-value\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/auth/logout",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "auth",
-                        "logout"
-                      ]
-                    }
-                  },
-                  "status": "Unauthorized",
-                  "code": 401,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"Aya\",\r\n    \"email\": \"aya@example.com\",\r\n    \"password\": \"password123\",\r\n    \"role\": \"employee\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
               ]
             }
-          ]
+          },
+          "response": []
+        },
+        {
+          "name": "Register - Users Invalid Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response mengembalikan error email sudah digunakan\", function () {",
+                  "    pm.expect(pm.response.text()).to.include(\"Email sudah digunakan\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"iqbal\",\r\n  \"email\": \"adit@example.com\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"employee\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register - Owner Invalid Business Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response mengembalikan error validasi nama bisnis\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Nama bisnis wajib diisi untuk pemilik UMKM\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"iqbal\",\r\n  \"email\": \"iqbal@example.com\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"owner\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register - Owner Invalid Invitation Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response mengembalikan error kode undangan sudah digunakan\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.include(\"Kode undangan sudah digunakan\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"Bambang\",\r\n  \"email\": \"bambang@example.com\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"owner\",\r\n  \"businessName\": \"Rekipin\",\r\n  \"invitationCode\": \"INVITE123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with Invalid Payload",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 400 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('failed');\r",
+                  "    pm.expect(responseJson.message).to.be.a('string');\r",
+                  "})\r",
+                  "\r",
+                  "const repeatRequestUntilDatasetEmpty = () => {\r",
+                  "    const badLoginPayloads = pm.environment.get('badLoginPayloads');\r",
+                  " \r",
+                  "    if(badLoginPayloads && badLoginPayloads.length > 0) {\r",
+                  "        postman.setNextRequest('Login with Invalid Payload');\r",
+                  "    }\r",
+                  "}\r",
+                  " \r",
+                  "repeatRequestUntilDatasetEmpty();"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"smith@gmailcom\",\r\n    \"password\": \"[121dsad]\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with Not Found User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 404 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(404);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"smith@gmail.com\",\r\n    \"password\": \"xxx\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with Owner 1",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.data).to.be.an('object');\r",
+                  "    pm.expect(responseJson.data.accessToken).to.be.a('string');\r",
+                  "    pm.expect(responseJson.data.refreshToken).to.be.a('string');\r",
+                  "    \r",
+                  "    pm.environment.set('accessToken1', responseJson.data.accessToken);\r",
+                  "    pm.environment.set('refreshToken1', responseJson.data.refreshToken);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"adit@example.com\",\r\n  \"password\": \"secret123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with Owner 2",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.data).to.be.an('object');\r",
+                  "    pm.expect(responseJson.data.accessToken).to.be.a('string');\r",
+                  "    pm.expect(responseJson.data.refreshToken).to.be.a('string');\r",
+                  "    \r",
+                  "    pm.environment.set('accessToken2', responseJson.data.accessToken);\r",
+                  "    pm.environment.set('refreshToken2', responseJson.data.refreshToken);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"naufal@example.com\",\r\n  \"password\": \"secret123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with Employee 1",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.data).to.be.an('object');\r",
+                  "    pm.expect(responseJson.data.accessToken).to.be.a('string');\r",
+                  "    pm.expect(responseJson.data.refreshToken).to.be.a('string');\r",
+                  "    \r",
+                  "    pm.environment.set('accessToken3', responseJson.data.accessToken);\r",
+                  "    pm.environment.set('refreshToken3', responseJson.data.refreshToken);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"hira@example.com\",\r\n    \"password\": \"password123\",\r\n    \"invitationCode\": \"INVITE123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with Employee 2",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.data).to.be.an('object');\r",
+                  "    pm.expect(responseJson.data.accessToken).to.be.a('string');\r",
+                  "    pm.expect(responseJson.data.refreshToken).to.be.a('string');\r",
+                  "    \r",
+                  "    pm.environment.set('accessToken4', responseJson.data.accessToken);\r",
+                  "    pm.environment.set('refreshToken4', responseJson.data.refreshToken);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"aya@example.com\",\r\n    \"password\": \"password123\",\r\n    \"invitationCode\": \"INVITE123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Authentication with Invalid Payload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 400 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('failed');\r",
+                  "    pm.expect(responseJson.message).to.be.a('string');\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/refresh",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Authentication with Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 400 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(400);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken3}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/refresh",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Authentication with valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.data).to.be.an('object');\r",
+                  "    pm.expect(responseJson.data.accessToken).to.be.a('string');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken3}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken3}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/refresh",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Authentication with Invalid Payload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 400 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('failed');\r",
+                  "    pm.expect(responseJson.message).to.be.a('string');\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Authentication with Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 400 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(400);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken3}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken1}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Authentication 1 Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.message).to.be.a('string');\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken1}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Authentication 3 Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "}); \r",
+                  "\r",
+                  "pm.test('response body should an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body have correct property and value', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(responseJson.status).to.equal('success');\r",
+                  "    pm.expect(responseJson.message).to.be.a('string');\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken3}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken3}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "users",
+      "name": "Users",
       "item": [
         {
-          "name": "{userId}",
-          "item": [
+          "name": "Edit Owner2 with Valid Payload",
+          "event": [
             {
-              "name": "Get user by ID",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response Content-Type header should have application/json value', () => {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');",
+                  "});",
+                  "",
+                  "pm.test('response body should be an object', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data).to.be.an('object');",
+                  "    pm.expect(responseJson.data.user_id).to.be.a('string');",
+                  "    pm.environment.set('ownerId2', responseJson.data.user_id);",
+                  "});"
                 ],
-                "url": {
-                  "raw": "{{baseUrl}}/users/:userId",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "users",
-                    ":userId"
-                  ],
-                  "variable": [
-                    {
-                      "key": "userId",
-                      "value": "user-123",
-                      "description": "User ID"
-                    }
-                  ]
-                },
-                "description": "Retrieve user information by user ID"
-              },
-              "response": [
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "name": "User retrieved successfully",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/users/:userId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "users",
-                        ":userId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "userId",
-                          "value": "user-123",
-                          "description": "User ID"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Akun ditemukan\",\n  \"data\": {\n    \"id\": \"user-123\",\n    \"username\": \"John Doe\",\n    \"email\": \"johndoe@example.com\"\n  }\n}"
-                },
-                {
-                  "name": "User not found",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/users/:userId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "users",
-                        ":userId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "userId",
-                          "value": "user-123",
-                          "description": "User ID"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "Not Found",
-                  "code": 404,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"string\"\n}"
+                  "key": "token",
+                  "value": "{{accessToken2}}",
+                  "type": "string"
                 }
               ]
             },
-            {
-              "name": "Edit user by ID",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
-                  "options": {
-                    "raw": {
-                      "headerFamily": "json",
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/users/:userId",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "users",
-                    ":userId"
-                  ],
-                  "variable": [
-                    {
-                      "key": "userId",
-                      "value": "user-123",
-                      "description": "ID Pengguna"
-                    }
-                  ]
-                },
-                "description": "Memperbarui informasi pengguna berdasarkan ID pengguna"
-              },
-              "response": [
-                {
-                  "name": "User berhasil diperbarui",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/users/:userId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "users",
-                        ":userId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "userId",
-                          "value": "user-123",
-                          "description": "ID Pengguna"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"User berhasil diperbarui\",\n  \"data\": {\n    \"id\": \"user-123\",\n    \"username\": \"Aditya Rahman\",\n    \"email\": \"aditya@example.com\"\n  }\n}"
-                },
-                {
-                  "name": "User gagal diperbarui (Invariant Error) atau Payload tidak valid",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/users/:userId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "users",
-                        ":userId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "userId",
-                          "value": "user-123",
-                          "description": "ID Pengguna"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"User gagal diperbarui\"\n}"
-                },
-                {
-                  "name": "User tidak ditemukan",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"username\": \"Aditya Rahman\",\n  \"email\": \"aditya@example.com\",\n  \"password\": \"newpassword123\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/users/:userId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "users",
-                        ":userId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "userId",
-                          "value": "user-123",
-                          "description": "ID Pengguna"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "Not Found",
-                  "code": 404,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"User tidak ditemukan\"\n}"
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"Jokowi\",\n    \"email\": \"jokowi@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"owner\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/users/{{ownerId2}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "users",
+                "{{ownerId2}}"
               ]
             }
-          ]
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by Id with Invalid Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 404 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseText = pm.response.text();",
+                  "    pm.expect(responseText).to.include('Akun tidak ditemukan');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessTokenAdit}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/users/xxx",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "users",
+                "xxx"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by Id with Valid Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    const userId = pm.environment.get('userId');",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:{{port}}/users/{{ownerId1}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "users",
+                "{{ownerId1}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Avatar Invalid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Ada pesan format tidak didukung', () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text).to.include('tidak didukung');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "description": "Pilih file selain JPG/PNG/WebP (misal .pdf)",
+                  "src": "postman-cloud:///1f156654-afd3-45b0-a215-361f87d57968"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/users/{{ownerId1}}/avatar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "users",
+                "{{ownerId1}}",
+                "avatar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Avatar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Ada avatarUrl', () => {",
+                  "  const res = pm.response.json();",
+                  "  pm.expect(res.data).to.have.property('avatarUrl');",
+                  "  pm.expect(res.data.avatarUrl).to.include('supabase');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "description": "Pilih file JPG/PNG/WebP maksimal 5MB",
+                  "src": "postman-cloud:///1f151a36-51dd-48d0-b0b0-90a7de03cdb3"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/users/{{ownerId1}}/avatar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "users",
+                "{{ownerId1}}",
+                "avatar"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "businesses",
+      "name": "Businesses",
       "item": [
         {
-          "name": "{businessId}",
-          "item": [
+          "name": "Get Company by Id with Valid Id Copy",
+          "event": [
             {
-              "name": "members",
-              "item": [
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    const businessId = pm.environment.get('businessId1');",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.business_id).to.equal(businessId);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "name": "{userId}",
-                  "item": [
-                    {
-                      "name": "Delete team member by User ID",
-                      "request": {
-                        "method": "DELETE",
-                        "header": [
-                          {
-                            "key": "Accept",
-                            "value": "application/json"
-                          }
-                        ],
-                        "url": {
-                          "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
-                          "host": [
-                            "{{baseUrl}}"
-                          ],
-                          "path": [
-                            "businesses",
-                            ":businessId",
-                            "members",
-                            ":userId"
-                          ],
-                          "variable": [
-                            {
-                              "key": "businessId"
-                            },
-                            {
-                              "key": "userId",
-                              "value": "user-456",
-                              "description": "ID Pengguna yang akan dihapus"
-                            }
-                          ]
-                        },
-                        "description": "Menghapus pengguna spesifik dari daftar anggota tim"
-                      },
-                      "response": [
-                        {
-                          "name": "User berhasil dihapus dari anggota tim",
-                          "originalRequest": {
-                            "method": "DELETE",
-                            "header": [
-                              {
-                                "key": "Accept",
-                                "value": "application/json"
-                              }
-                            ],
-                            "url": {
-                              "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
-                              "host": [
-                                "{{baseUrl}}"
-                              ],
-                              "path": [
-                                "businesses",
-                                ":businessId",
-                                "members",
-                                ":userId"
-                              ],
-                              "variable": [
-                                {
-                                  "key": "userId",
-                                  "value": "user-456",
-                                  "description": "ID Pengguna yang akan dihapus"
-                                }
-                              ]
-                            }
-                          },
-                          "status": "OK",
-                          "code": 200,
-                          "_postman_previewlanguage": "json",
-                          "header": [
-                            {
-                              "key": "Content-Type",
-                              "value": "application/json"
-                            }
-                          ],
-                          "cookie": [],
-                          "body": "{\n  \"status\": \"success\",\n  \"message\": \"User berhasil dihapus dari anggota tim\"\n}"
-                        },
-                        {
-                          "name": "User gagal dihapus dari anggota tim (Invariant Error)",
-                          "originalRequest": {
-                            "method": "DELETE",
-                            "header": [
-                              {
-                                "key": "Accept",
-                                "value": "application/json"
-                              }
-                            ],
-                            "url": {
-                              "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
-                              "host": [
-                                "{{baseUrl}}"
-                              ],
-                              "path": [
-                                "businesses",
-                                ":businessId",
-                                "members",
-                                ":userId"
-                              ],
-                              "variable": [
-                                {
-                                  "key": "userId",
-                                  "value": "user-456",
-                                  "description": "ID Pengguna yang akan dihapus"
-                                }
-                              ]
-                            }
-                          },
-                          "status": "Bad Request",
-                          "code": 400,
-                          "_postman_previewlanguage": "json",
-                          "header": [
-                            {
-                              "key": "Content-Type",
-                              "value": "application/json"
-                            }
-                          ],
-                          "cookie": [],
-                          "body": "{\n  \"status\": \"fail\",\n  \"message\": \"User gagal dihapus dari anggota tim\"\n}"
-                        },
-                        {
-                          "name": "Anggota tim tidak ditemukan",
-                          "originalRequest": {
-                            "method": "DELETE",
-                            "header": [
-                              {
-                                "key": "Accept",
-                                "value": "application/json"
-                              }
-                            ],
-                            "url": {
-                              "raw": "{{baseUrl}}/businesses/:businessId/members/:userId",
-                              "host": [
-                                "{{baseUrl}}"
-                              ],
-                              "path": [
-                                "businesses",
-                                ":businessId",
-                                "members",
-                                ":userId"
-                              ],
-                              "variable": [
-                                {
-                                  "key": "userId",
-                                  "value": "user-456",
-                                  "description": "ID Pengguna yang akan dihapus"
-                                }
-                              ]
-                            }
-                          },
-                          "status": "Not Found",
-                          "code": 404,
-                          "_postman_previewlanguage": "json",
-                          "header": [
-                            {
-                              "key": "Content-Type",
-                              "value": "application/json"
-                            }
-                          ],
-                          "cookie": [],
-                          "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Anggota tim tidak ditemukan\"\n}"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "Get team members by Business ID",
-                  "request": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/businesses/:businessId/members",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "businesses",
-                        ":businessId",
-                        "members"
-                      ],
-                      "variable": [
-                        {
-                          "key": "businessId",
-                          "value": "business-123",
-                          "description": "ID Bisnis"
-                        }
-                      ]
-                    },
-                    "description": "Menampilkan daftar anggota tim berdasarkan ID bisnis"
-                  },
-                  "response": [
-                    {
-                      "name": "Anggota tim berhasil ditemukan",
-                      "originalRequest": {
-                        "method": "GET",
-                        "header": [
-                          {
-                            "key": "Accept",
-                            "value": "application/json"
-                          }
-                        ],
-                        "url": {
-                          "raw": "{{baseUrl}}/businesses/:businessId/members",
-                          "host": [
-                            "{{baseUrl}}"
-                          ],
-                          "path": [
-                            "businesses",
-                            ":businessId",
-                            "members"
-                          ],
-                          "variable": [
-                            {
-                              "key": "businessId",
-                              "value": "business-123",
-                              "description": "ID Bisnis"
-                            }
-                          ]
-                        }
-                      },
-                      "status": "OK",
-                      "code": 200,
-                      "_postman_previewlanguage": "json",
-                      "header": [
-                        {
-                          "key": "Content-Type",
-                          "value": "application/json"
-                        }
-                      ],
-                      "cookie": [],
-                      "body": "{\n  \"status\": \"success\",\n  \"message\": \"Anggota tim berhasil ditemukan\",\n  \"data\": {\n    \"teamMember\": [\n      {\n        \"username\": \"Aditya Rahman\",\n        \"role\": \"employee\"\n      },\n      {\n        \"username\": \"Aditya Rahman\",\n        \"role\": \"employee\"\n      }\n    ]\n  }\n}"
-                    },
-                    {
-                      "name": "Anggota tim tidak ditemukan",
-                      "originalRequest": {
-                        "method": "GET",
-                        "header": [
-                          {
-                            "key": "Accept",
-                            "value": "application/json"
-                          }
-                        ],
-                        "url": {
-                          "raw": "{{baseUrl}}/businesses/:businessId/members",
-                          "host": [
-                            "{{baseUrl}}"
-                          ],
-                          "path": [
-                            "businesses",
-                            ":businessId",
-                            "members"
-                          ],
-                          "variable": [
-                            {
-                              "key": "businessId",
-                              "value": "business-123",
-                              "description": "ID Bisnis"
-                            }
-                          ]
-                        }
-                      },
-                      "status": "Not Found",
-                      "code": 404,
-                      "_postman_previewlanguage": "json",
-                      "header": [
-                        {
-                          "key": "Content-Type",
-                          "value": "application/json"
-                        }
-                      ],
-                      "cookie": [],
-                      "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Anggota tim tidak ditemukan\"\n}"
-                    }
-                  ]
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
                 }
               ]
             },
-            {
-              "name": "Get business by ID",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/businesses/:businessId",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "businesses",
-                    ":businessId"
-                  ],
-                  "variable": [
-                    {
-                      "key": "businessId",
-                      "value": "business-123",
-                      "description": "ID Bisnis yang dicari"
-                    }
-                  ]
-                },
-                "description": "Mengambil informasi detail profil bisnis UMKM berdasarkan ID bisnis"
-              },
-              "response": [
-                {
-                  "name": "Business ditemukan",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/businesses/:businessId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "businesses",
-                        ":businessId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "businessId",
-                          "value": "business-123",
-                          "description": "ID Bisnis yang dicari"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Business ditemukan\",\n  \"data\": {\n    \"id\": \"business-123\",\n    \"name\": \"Wijaya Furniture\",\n    \"industry\": \"Home & Furniture\",\n    \"phone_number\": \"+62 812-3456-7890\",\n    \"address\": \"Jl. Sukapura No. 45, Bandung\",\n    \"invitation_code\": \"REKAPIN-2024\"\n  }\n}"
-                },
-                {
-                  "name": "Business tidak ditemukan",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{baseUrl}}/businesses/:businessId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "businesses",
-                        ":businessId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "businessId",
-                          "value": "business-123",
-                          "description": "ID Bisnis yang dicari"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "Not Found",
-                  "code": 404,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Business tidak ditemukan\"\n}"
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-              ]
+              }
             },
-            {
-              "name": "Edit business by ID",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
-                  "options": {
-                    "raw": {
-                      "headerFamily": "json",
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/businesses/:businessId",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "businesses",
-                    ":businessId"
-                  ],
-                  "variable": [
-                    {
-                      "key": "businessId",
-                      "value": "business-123",
-                      "description": "ID Bisnis yang akan diperbarui"
-                    }
-                  ]
-                },
-                "description": "Memperbarui informasi profil bisnis UMKM berdasarkan ID bisnis"
-              },
-              "response": [
-                {
-                  "name": "Business berhasil diperbarui",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/businesses/:businessId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "businesses",
-                        ":businessId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "businessId",
-                          "value": "business-123",
-                          "description": "ID Bisnis yang akan diperbarui"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"Business berhasil diperbarui\",\n  \"data\": {\n    \"id\": \"business-123\",\n    \"name\": \"Wijaya Furniture\",\n    \"industry\": \"Home & Furniture\"\n  }\n}"
-                },
-                {
-                  "name": "Business gagal diperbarui (Invariant Error) atau Payload tidak valid",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/businesses/:businessId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "businesses",
-                        ":businessId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "businessId",
-                          "value": "business-123",
-                          "description": "ID Bisnis yang akan diperbarui"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Business gagal diperbarui\"\n}"
-                },
-                {
-                  "name": "Business tidak ditemukan",
-                  "originalRequest": {
-                    "method": "PUT",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      },
-                      {
-                        "key": "Accept",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"Wijaya Furniture\",\n  \"industry\": \"Home & Furniture\",\n  \"phone_number\": \"+62 812-3456-7890\",\n  \"address\": \"Jl. Sukapura No. 45, Bandung\"\n}",
-                      "options": {
-                        "raw": {
-                          "headerFamily": "json",
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{baseUrl}}/businesses/:businessId",
-                      "host": [
-                        "{{baseUrl}}"
-                      ],
-                      "path": [
-                        "businesses",
-                        ":businessId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "businessId",
-                          "value": "business-123",
-                          "description": "ID Bisnis yang akan diperbarui"
-                        }
-                      ]
-                    }
-                  },
-                  "status": "Not Found",
-                  "code": 404,
-                  "_postman_previewlanguage": "json",
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"fail\",\n  \"message\": \"Business tidak ditemukan\"\n}"
-                }
+            "url": {
+              "raw": "http://localhost:{{port}}/businesses/{{businessId1}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "businesses",
+                "{{businessId1}}"
               ]
             }
-          ]
+          },
+          "response": []
+        },
+        {
+          "name": "Get Company by Id with Invalid Id Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 404 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(404);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:{{port}}/companies/xxx",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "companies",
+                "xxx"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Company with Invalid Id Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 404 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Company\",\n    \"location\": \"Bandung\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/companies/xxx",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "companies",
+                "xxx"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Company with Valid Id Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.message).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"business_name\": \"Rekapin ajah\",\n    \"industry\": \"FINTECH\",\n    \"phone_number\": \"081223214\",\n    \"address\": \"Kota Bandung\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/businesses/{{businessId1}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "businesses",
+                "{{businessId1}}"
+              ]
+            }
+          },
+          "response": []
         }
       ]
-    }
-  ],
-  "variable": [
+    },
     {
-      "key": "baseUrl",
-      "value": "http://localhost:3000"
+      "name": "Team Members",
+      "item": [
+        {
+          "name": "Get All Team Members By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.teamMembers).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:{{port}}/businesses/{{businessId1}}/members",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "businesses",
+                "{{businessId1}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Team Members By Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.teamMembers).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:{{port}}/businesses/{{businessId1}}/members",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "businesses",
+                "{{businessId1}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Team Member By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:{{port}}/businesses/{{businessId1}}/members/{{empId1}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "businesses",
+                "{{businessId1}}",
+                "members",
+                "{{empId1}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
