@@ -1,0 +1,10 @@
+# Rekapin ML / capstone (Python 3.10+ recommended)
+tensorflow>=2.15
+numpy>=1.23
+pandas>=2.0
+scikit-learn>=1.3
+Pillow>=10.0
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+httpx>=0.27
