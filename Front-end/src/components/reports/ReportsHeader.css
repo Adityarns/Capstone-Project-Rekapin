@@ -1,0 +1,148 @@
+/* ============================================================
+   REKAPIN — Reports Header Styles
+   src/components/reports/ReportsHeader.css
+   ============================================================ */
+
+.rpt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+/* ── Left ── */
+.rpt-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.rpt-header__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.rpt-header__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ── Right controls ── */
+.rpt-header__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ── Quarter selector ── */
+.rpt-quarter-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.rpt-quarter-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.rpt-quarter-chevron {
+  position: absolute;
+  right: var(--space-3);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.rpt-quarter-select {
+  padding: var(--space-2) var(--space-8);
+  padding-left: calc(var(--space-3) + 14px + var(--space-2));
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color var(--duration-normal) var(--ease-default);
+}
+
+.rpt-quarter-select:hover  { border-color: var(--color-neutral-500); }
+.rpt-quarter-select:focus  {
+  border-color: var(--color-primary-400);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10);
+}
+
+/* ── Export buttons ── */
+.rpt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--duration-normal) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.rpt-btn--outline {
+  background-color: transparent;
+  border: 1.5px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.rpt-btn--outline:hover {
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-primary);
+}
+
+.rpt-btn--primary {
+  background-color: var(--color-primary-700);
+  border: 1.5px solid var(--color-primary-700);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-primary);
+}
+
+.rpt-btn--primary:hover {
+  background-color: var(--color-primary-800);
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .rpt-header {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .rpt-header__controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

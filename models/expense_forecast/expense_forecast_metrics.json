@@ -1,0 +1,9 @@
+{
+  "task": "regression",
+  "unit": "horizon_total_spend",
+  "n_samples": 267,
+  "mae": 120.9427,
+  "rmse": 122.1973,
+  "mape_percent": 118.1563,
+  "r2": -78.7164
+}

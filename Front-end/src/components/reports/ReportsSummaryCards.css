@@ -1,0 +1,103 @@
+/* ============================================================
+   REKAPIN — Reports Summary Cards Styles
+   src/components/reports/ReportsSummaryCards.css
+   ============================================================ */
+
+.rpt-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+/* ── Card ── */
+.rpt-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: box-shadow var(--duration-normal) var(--ease-default);
+}
+
+.rpt-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Top row ── */
+.rpt-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.rpt-card__label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+}
+
+/* "On Track" badge */
+.rpt-card__on-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-500);
+  color: var(--color-neutral-0);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Value row ── */
+.rpt-card__value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.rpt-card__value {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+}
+
+/* Trend badge */
+.rpt-card__change {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  flex-shrink: 0;
+}
+
+.rpt-card__change--positive { color: var(--color-accent-600); }
+.rpt-card__change--negative { color: var(--color-error); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .rpt-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .rpt-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
