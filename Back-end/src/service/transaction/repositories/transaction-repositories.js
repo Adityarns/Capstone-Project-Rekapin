@@ -7,18 +7,18 @@ class TransactionRepositories {
   }
 
   async createTransaction({
-    transaction_title,
+    title,
     amount,
     quantity,
-    transaction_date,
-    transaction_type,
+    date,
+    type,
     description,
     userId,
     businessId,
     categoryId,
   }) {
     const transaction_id = nanoid(16);
-    const updated_at = transaction_date;
+    const updated_at = date;
     const query = {
       text: `INSERT INTO transactions
                (transaction_id, transaction_title, amount, quantity, transaction_date, transaction_type,
@@ -28,11 +28,11 @@ class TransactionRepositories {
                        transaction_type, description, user_id, business_id, category_id`,
       values: [
         transaction_id,
-        transaction_title,
+        title,
         amount,
         quantity,
-        transaction_date,
-        transaction_type,
+        date,
+        type,
         description,
         userId,
         businessId,
@@ -44,25 +44,13 @@ class TransactionRepositories {
     return results.rows[0];
   }
 
-  async createCategory({ category_name, category_type }) {
-    const transaction_categories_id = nanoid(16);
-    const query = {
-      text: `INSERT INTO transaction_categories
-               (transaction_categories_id, category_name, category_type)
-             VALUES ($1, $2, $3)
-              RETURNING transaction_categories_id, category_name, category_type`,
-      values: [transaction_categories_id, category_name, category_type],
-    };
-    const results = await this.pool.query(query);
-    return results.rows[0];
-  }
-
   async getTransactionByBusinessId(businessId) {
     const query = {
       text: `SELECT
                t.transaction_id,
                t.transaction_title,
                t.amount,
+               t.quantity,
                t.transaction_date,
                t.transaction_type,
                t.description,
@@ -99,28 +87,46 @@ class TransactionRepositories {
       values: [transactionId],
     };
     const results = await this.pool.query(query);
-    return results.rows[0] || null;
+    return results.rows[0];
   }
 
   async editTransaction({ transactionId, ...payload }) {
+    const columnMapping = {
+      title: "transaction_title",
+      amount: "amount",
+      quantity: "quantity",
+      date: "transaction_date",
+      type: "transaction_type",
+      description: "description",
+      businessId: "business_id",
+      categoryId: "category_id",
+    };
+
     const updated_at = new Date().toISOString();
     payload.updated_at = updated_at;
 
-    const fields = Object.keys(payload).filter(
-      (key) => payload[key] !== undefined,
-    );
+    const dbPayload = {};
+    for (const key in payload) {
+      if (payload[key] !== undefined) {
+        const dbKey = columnMapping[key] || key; // Gunakan mapping jika ada, jika tidak gunakan nama aslinya
+        dbPayload[dbKey] = payload[key];
+      }
+    }
+
+    const fields = Object.keys(dbPayload);
     if (fields.length === 0) return null;
 
     const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(", ");
 
     const query = {
       text: `UPDATE transactions
-             SET ${setClause}
-             WHERE transaction_id = $${fields.length + 1}
-             RETURNING transaction_id, transaction_title, amount, quantity, transaction_date,
-                       transaction_type, description, user_id, business_id, category_id`,
-      values: [...fields.map((key) => payload[key]), transactionId],
+           SET ${setClause}
+           WHERE transaction_id = $${fields.length + 1}
+           RETURNING transaction_id, transaction_title, amount, quantity, transaction_date,
+                     transaction_type, description, business_id, category_id`,
+      values: [...fields.map((key) => dbPayload[key]), transactionId],
     };
+
     const results = await this.pool.query(query);
     return results.rows[0];
   }
@@ -136,7 +142,30 @@ class TransactionRepositories {
     return results.rows[0];
   }
 
-  // Untuk validasi tipe transaksi vs kategori di controller
+  async createCategory({ category_name, category_type }) {
+    const transaction_categories_id = nanoid(16);
+    const query = {
+      text: `INSERT INTO transaction_categories
+               (transaction_categories_id, category_name, category_type)
+             VALUES ($1, $2, $3)
+              RETURNING transaction_categories_id, category_name, category_type`,
+      values: [transaction_categories_id, category_name, category_type],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0];
+  }
+
+  async getCategoriesByType(type) {
+    const query = {
+      text: `SELECT transaction_categories_id, category_name, category_type
+              FROM transaction_categories
+              WHERE category_type = $1`,
+      values: [type],
+    };
+    const results = await this.pool.query(query);
+    return results.rows;
+  }
+
   async getCategoryById(categoryId) {
     const query = {
       text: `SELECT transaction_categories_id, category_name, category_type FROM transaction_categories WHERE transaction_categories_id = $1`,

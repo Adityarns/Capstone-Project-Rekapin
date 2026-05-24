@@ -5,35 +5,62 @@ import {
   getTransactionsByBusinessId,
   editTransaction,
   deleteTransaction,
+  getTransactionById,
+  getCategoriesByType,
 } from "../controller/transaction-controller.js";
 import validate from "../../../middlewares/validator.js";
-import { categorySchema } from "../validator/transaction-validator.js";
+import {
+  transactionSchema,
+  transactionUpdateSchema,
+  categorySchema,
+} from "../validator/transaction-validator.js";
 import authenticateToken from "../../../middlewares/auth.js";
 
 const router = Router();
-router.post("/transactions", authenticateToken, addTransaction);
+
+// Categories
+router.get("/transactions/categories", authenticateToken, getCategoriesByType);
+router.post("/transactions/categories", authenticateToken, createCategory);
+
+// Scan Receipt
+// router.post(
+//   "/transactions/scan-receipt",
+//   authenticateToken,
+//   upload.single("receipt"),
+//   scanReceipt,
+// );
+
+// Transactions
 router.post(
-  "/transactions/categories",
-  validate(categorySchema),
-  createCategory,
+  "/transactions",
+  authenticateToken,
+  validate(transactionSchema),
+  addTransaction,
 );
+
 router.get(
-  "/transactions/business/:business_id",
+  "/transactions/business/:businessId",
   authenticateToken,
   getTransactionsByBusinessId,
 );
-router.put("/transactions/:transactionId", authenticateToken, editTransaction);
+
+router.get(
+  "/transactions/:transactionId",
+  authenticateToken,
+  getTransactionById,
+);
+
+router.put(
+  "/transactions/:transactionId",
+  authenticateToken,
+  validate(transactionUpdateSchema),
+  editTransaction,
+);
+
 router.delete(
   "/transactions/:transactionId",
   authenticateToken,
   deleteTransaction,
 );
-
-// router.patch(
-//   "/transactions/:transactionId/image",
-//   authenticateToken,
-//   upload.single("image"),
-//   uploadTransactionImg,
-// );
 
 export default router;

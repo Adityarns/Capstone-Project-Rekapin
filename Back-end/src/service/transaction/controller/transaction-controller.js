@@ -39,13 +39,22 @@ export const createCategory = async (req, res, next) => {
   return response(res, 201, "Kategori berhasil ditambahkan", newCategory);
 };
 
+export const getCategoriesByType = async (req, res, next) => {
+  const { type } = req.query;
+  const categories = await TransactionRepositories.getCategoriesByType(type);
+  if (!categories) {
+    return next(new NotFoundError("Kategori tidak ditemukan"));
+  }
+  return response(res, 200, "Kategori berhasil diambil", { categories });
+};
+
 export const addTransaction = async (req, res, next) => {
   const {
-    transaction_title,
+    title,
     amount,
     quantity,
-    transaction_date,
-    transaction_type,
+    date,
+    type,
     description,
     businessId,
     categoryId,
@@ -57,7 +66,7 @@ export const addTransaction = async (req, res, next) => {
     return next(new InvariantError("Kategori tidak ditemukan"));
   }
 
-  if (category.category_type !== transaction_type) {
+  if (category.category_type !== type) {
     return next(
       new InvariantError(
         `Kategori ini hanya untuk ${category.category_type === "income" ? "pemasukan" : "pengeluaran"}`,
@@ -77,11 +86,11 @@ export const addTransaction = async (req, res, next) => {
     }
   }
   const newTransaction = await TransactionRepositories.createTransaction({
-    transaction_title,
+    title,
     amount,
     quantity,
-    transaction_date,
-    transaction_type,
+    date,
+    type,
     description,
     userId,
     businessId,
