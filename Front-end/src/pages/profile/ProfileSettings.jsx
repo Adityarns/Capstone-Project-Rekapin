@@ -16,25 +16,24 @@
  *    the modal every time it opens, so lazy useState initializer
  *    inside the modal always runs fresh — no useEffect needed.
  * ============================================================
- *
- * @format
  */
 
-import { useState, useMemo } from "react"; // useRef removed
+import { useState, useMemo } from "react";   // useRef removed
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-import ProfileCard from "../../components/profile/ProfileCard";
-import BusinessInfo from "../../components/profile/BusinessInfo";
-import TeamManagement from "../../components/profile/TeamManagement";
-import NotificationsCard from "../../components/profile/NotificationsCard";
-import SecurityCard from "../../components/profile/SecurityCard";
+import ProfileCard          from "../../components/profile/ProfileCard";
+import BusinessInfo         from "../../components/profile/BusinessInfo";
+import TeamManagement       from "../../components/profile/TeamManagement";
+import NotificationsCard    from "../../components/profile/NotificationsCard";
+import SecurityCard         from "../../components/profile/SecurityCard";
 
-import EditProfileModal from "../../components/profile/EditProfileModal";
-import EditBusinessModal from "../../components/profile/EditBusinessModal";
-import InviteUserModal from "../../components/profile/InviteUserModal";
-import ChangePasswordModal from "../../components/profile/ChangePasswordModal";
-import LoginHistoryModal from "../../components/profile/LoginHistoryModal";
-import LogoutConfirmModal from "../../components/profile/LogoutConfirmModal";
+import EditProfileModal     from "../../components/profile/EditProfileModal";
+import EditBusinessModal    from "../../components/profile/EditBusinessModal";
+import InviteUserModal      from "../../components/profile/InviteUserModal";
+import ChangePasswordModal  from "../../components/profile/ChangePasswordModal";
+import LoginHistoryModal    from "../../components/profile/LoginHistoryModal";
+import LogoutConfirmModal   from "../../components/profile/LogoutConfirmModal";
 
 import {
   mockUser,
@@ -48,10 +47,10 @@ import "./ProfileSettings.css";
 /* ── Helpers ── */
 
 const INIT_PROFILE = {
-  name: mockUser.name,
-  email: mockUser.email,
-  phone: mockUser.phone,
-  initials: mockUser.initials,
+  name:      mockUser.name,
+  email:     mockUser.email,
+  phone:     mockUser.phone,
+  initials:  mockUser.initials,
   avatarSrc: mockUser.avatarSrc,
 };
 
@@ -65,12 +64,13 @@ const DEMO_ROLE = mockUser.role;
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
-  const isOwner = DEMO_ROLE === "owner";
+  const { logout } = useAuth();
+  const isOwner  = DEMO_ROLE === "owner";
 
   /* ── Current state (what the user is editing) ── */
-  const [userProfile, setUserProfile] = useState({ ...INIT_PROFILE });
-  const [business, setBusiness] = useState({ ...mockBusiness });
-  const [bizDraft, setBizDraft] = useState({ ...mockBusiness });
+  const [userProfile,   setUserProfile]   = useState({ ...INIT_PROFILE });
+  const [business,      setBusiness]      = useState({ ...mockBusiness });
+  const [bizDraft,      setBizDraft]      = useState({ ...mockBusiness });
   const [notifications, setNotifications] = useState({ ...mockNotifications });
 
   /* ── savedSnapshot: represents the last-committed state ────────
@@ -84,32 +84,30 @@ export default function ProfileSettings() {
    *  useState is always safe to read during render.
    * ─────────────────────────────────────────────────────────── */
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
-    profile: { ...INIT_PROFILE },
+    profile:  { ...INIT_PROFILE },
     business: { ...mockBusiness },
-    notifs: { ...mockNotifications },
+    notifs:   { ...mockNotifications },
   }));
 
   /* ── isDirty: pure state-to-state comparison ──
    *  No refs. No side effects. React-safe. ── */
-  const isDirty = useMemo(
-    () =>
-      !isEqual(userProfile, savedSnapshot.profile) ||
-      !isEqual(business, savedSnapshot.business) ||
-      !isEqual(notifications, savedSnapshot.notifs),
-    [userProfile, business, notifications, savedSnapshot],
-  );
+  const isDirty = useMemo(() => (
+    !isEqual(userProfile,   savedSnapshot.profile)  ||
+    !isEqual(business,      savedSnapshot.business) ||
+    !isEqual(notifications, savedSnapshot.notifs)
+  ), [userProfile, business, notifications, savedSnapshot]);
 
   /* ── Modal open/close ── */
   const [modals, setModals] = useState({
-    editProfile: false,
-    editBusiness: false,
-    invite: false,
+    editProfile:    false,
+    editBusiness:   false,
+    invite:         false,
     changePassword: false,
-    loginHistory: false,
-    logoutConfirm: false,
+    loginHistory:   false,
+    logoutConfirm:  false,
   });
 
-  const openModal = (key) => setModals((p) => ({ ...p, [key]: true }));
+  const openModal  = (key) => setModals((p) => ({ ...p, [key]: true  }));
   const closeModal = (key) => setModals((p) => ({ ...p, [key]: false }));
 
   /* ── Handlers ── */
@@ -129,9 +127,9 @@ export default function ProfileSettings() {
   const handleProfileSave = (saved) => {
     setUserProfile((prev) => ({
       ...prev,
-      name: saved.name,
-      email: saved.email,
-      phone: saved.phone,
+      name:      saved.name,
+      email:     saved.email,
+      phone:     saved.phone,
       avatarSrc: saved.avatarSrc,
     }));
   };
@@ -143,9 +141,9 @@ export default function ProfileSettings() {
   /* Save: commit current state → update savedSnapshot → isDirty = false */
   const handleSaveChanges = () => {
     setSavedSnapshot({
-      profile: { ...userProfile },
+      profile:  { ...userProfile },
       business: { ...business },
-      notifs: { ...notifications },
+      notifs:   { ...notifications },
     });
     // TODO: PATCH /users/:id  /businesses/:id  /notifications
     console.log("Saved:", { userProfile, business, notifications });
@@ -158,8 +156,9 @@ export default function ProfileSettings() {
     setNotifications({ ...savedSnapshot.notifs });
   };
 
-  const handleLogoutConfirmed = () => {
-    // TODO: authService.logoutUser()
+  /* Logout: call AuthContext.logout() → DELETE /auth/logout + clear tokens */
+  const handleLogoutConfirmed = async () => {
+    await logout();
     navigate("/login", { replace: true });
   };
 
@@ -174,6 +173,7 @@ export default function ProfileSettings() {
   return (
     <>
       <div className="profile-page">
+
         <header className="profile-page__header">
           <h1 className="profile-page__title">Profile & Settings</h1>
           <p className="profile-page__subtitle">
@@ -182,6 +182,7 @@ export default function ProfileSettings() {
         </header>
 
         <div className="profile-grid">
+
           <div className="profile-grid__left">
             <ProfileCard
               user={displayUser}
@@ -207,11 +208,12 @@ export default function ProfileSettings() {
               />
               <SecurityCard
                 onChangePassword={() => openModal("changePassword")}
-                onLoginHistory={() => openModal("loginHistory")}
-                onLogout={() => openModal("logoutConfirm")}
+                onLoginHistory={()   => openModal("loginHistory")}
+                onLogout={()         => openModal("logoutConfirm")}
               />
             </div>
           </div>
+
         </div>
 
         <div className="profile-page__actions">
@@ -222,7 +224,7 @@ export default function ProfileSettings() {
             disabled={!isDirty}
             style={{
               opacity: isDirty ? 1 : 0.45,
-              cursor: isDirty ? "pointer" : "not-allowed",
+              cursor:  isDirty ? "pointer" : "not-allowed",
             }}
           >
             Discard Changes
@@ -235,14 +237,15 @@ export default function ProfileSettings() {
             disabled={!isDirty}
             aria-disabled={!isDirty}
             style={{
-              opacity: isDirty ? 1 : 0.5,
-              cursor: isDirty ? "pointer" : "not-allowed",
+              opacity:   isDirty ? 1 : 0.5,
+              cursor:    isDirty ? "pointer" : "not-allowed",
               boxShadow: isDirty ? "var(--shadow-primary)" : "none",
             }}
           >
             {isDirty ? "Save Changes" : "No Changes"}
           </button>
         </div>
+
       </div>
 
       {/* ── Modals ── */}
