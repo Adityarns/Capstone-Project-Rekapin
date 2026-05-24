@@ -27,9 +27,21 @@ export const scanReceipt = async (req, res, next) => {
   return response(res, 200, "Struk berhasil dianalisis", extractedData);
 };
 
+export const createCategory = async (req, res, next) => {
+  const { category_name, category_type } = req.validated;
+  const newCategory = await TransactionRepositories.createCategory({
+    category_name,
+    category_type,
+  });
+  if (!newCategory) {
+    return next(new InvariantError("Gagal menambahkan kategori"));
+  }
+  return response(res, 201, "Kategori berhasil ditambahkan", newCategory);
+};
+
 export const addTransaction = async (req, res, next) => {
   const {
-    title,
+    transaction_title,
     amount,
     quantity,
     transaction_date,
@@ -38,10 +50,34 @@ export const addTransaction = async (req, res, next) => {
     businessId,
     categoryId,
   } = req.validated;
-  const userId = req.user.id;
+  const userId = req.user.user_id;
 
+  const category = await TransactionRepositories.getCategoryById(categoryId);
+  if (!category) {
+    return next(new InvariantError("Kategori tidak ditemukan"));
+  }
+
+  if (category.category_type !== transaction_type) {
+    return next(
+      new InvariantError(
+        `Kategori ini hanya untuk ${category.category_type === "income" ? "pemasukan" : "pengeluaran"}`,
+      ),
+    );
+  }
+  if (
+    category.category_name === "electricity" ||
+    category.category_name === "fuel"
+  ) {
+    if (quantity === undefined) {
+      return next(
+        new InvariantError(
+          `Kategori ${category.category_name} memerlukan field quantity`,
+        ),
+      );
+    }
+  }
   const newTransaction = await TransactionRepositories.createTransaction({
-    title,
+    transaction_title,
     amount,
     quantity,
     transaction_date,

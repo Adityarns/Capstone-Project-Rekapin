@@ -1,4 +1,5 @@
 import UserRepositories from "../repositories/users-repositories.js";
+import bcrypt from "bcrypt";
 import { uploadAvatar, deleteAvatar } from "../../supabase/supabase-service.js";
 import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
@@ -43,6 +44,37 @@ export const editUserById = async (req, res, next) => {
     return next(new InvariantError("User gagal diperbarui"));
   }
   return response(res, 201, "User berhasil diperbarui", user);
+};
+
+export const updatePassword = async (req, res, next) => {
+  const { userId } = req.params;
+  const isUserExist = await UserRepositories.getUserById(userId);
+  if (!isUserExist) {
+    return next(new NotFoundError("User tidak ditemukan"));
+  }
+
+  const { currentPassword, newPassword } = req.validated;
+
+  // Ambil hashed password dari database
+  const hashedPassword = await UserRepositories.getPasswordByUserId(userId);
+  if (!hashedPassword) {
+    return next(new InvariantError("Tidak dapat mengambil password pengguna"));
+  }
+
+  // Cocokkan password lama dengan input user
+  const isMatch = await bcrypt.compare(currentPassword, hashedPassword);
+  if (!isMatch) {
+    return next(new InvariantError("Password saat ini tidak cocok"));
+  }
+
+  // Perbarui password dengan yang baru
+  const user = await UserRepositories.updatePassword({ userId, newPassword });
+  if (!user) {
+    return next(new InvariantError("Password gagal diperbarui"));
+  }
+  return response(res, 201, "Password berhasil diperbarui", {
+    userId: user.user_id,
+  });
 };
 
 export const updateAvatar = async (req, res, next) => {

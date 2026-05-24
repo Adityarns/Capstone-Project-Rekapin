@@ -18,11 +18,9 @@ export const up = (pgm) => {
       type: "VARCHAR(50)",
       notNull: true,
     },
-    carbon_factor: {
-      type: "VARCHAR(50)",
-    },
-    carbon_unit: {
-      type: "VARCHAR(50)",
+    category_type: {
+      type: "VARCHAR(20)",
+      notNull: true,
     },
   });
 };

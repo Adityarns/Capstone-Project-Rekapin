@@ -18,4 +18,9 @@ const transactionUpdateSchema = Joi.object({
   categoryId: Joi.string().optional(),
 }).min(1);
 
-export { transactionSchema, transactionUpdateSchema };
+const categorySchema = Joi.object({
+  category_name: Joi.string().required(),
+  category_type: Joi.string().valid("income", "expense").required(),
+});
+
+export { transactionSchema, transactionUpdateSchema, categorySchema };

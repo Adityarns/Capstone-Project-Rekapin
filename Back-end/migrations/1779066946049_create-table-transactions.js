@@ -30,7 +30,7 @@ export const up = (pgm) => {
       type: "VARCHAR(50)",
       notNull: true,
     },
-    descriptions: {
+    description: {
       type: "VARCHAR(50)",
       notNull: true,
     },
@@ -55,12 +55,9 @@ export const up = (pgm) => {
     quantity: {
       type: "DOUBLE PRECISION",
     },
-    update_at: {
+    updated_at: {
       type: "VARCHAR(50)",
       notNull: true,
-    },
-    image_url: {
-      type: "TEXT",
     },
   });
 };

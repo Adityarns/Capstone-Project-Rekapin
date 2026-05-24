@@ -7,7 +7,7 @@ class TransactionRepositories {
   }
 
   async createTransaction({
-    title,
+    transaction_title,
     amount,
     quantity,
     transaction_date,
@@ -21,14 +21,14 @@ class TransactionRepositories {
     const updated_at = transaction_date;
     const query = {
       text: `INSERT INTO transactions
-               (transaction_id, title, amount, quantity, transaction_date, transaction_type,
+               (transaction_id, transaction_title, amount, quantity, transaction_date, transaction_type,
                 description, user_id, business_id, category_id, updated_at)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-             RETURNING transaction_id, title, amount, quantity, transaction_date,
+             RETURNING transaction_id, transaction_title, amount, quantity, transaction_date,
                        transaction_type, description, user_id, business_id, category_id`,
       values: [
         transaction_id,
-        title,
+        transaction_title,
         amount,
         quantity,
         transaction_date,
@@ -44,11 +44,24 @@ class TransactionRepositories {
     return results.rows[0];
   }
 
+  async createCategory({ category_name, category_type }) {
+    const transaction_categories_id = nanoid(16);
+    const query = {
+      text: `INSERT INTO transaction_categories
+               (transaction_categories_id, category_name, category_type)
+             VALUES ($1, $2, $3)
+              RETURNING transaction_categories_id, category_name, category_type`,
+      values: [transaction_categories_id, category_name, category_type],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0];
+  }
+
   async getTransactionByBusinessId(businessId) {
     const query = {
       text: `SELECT
                t.transaction_id,
-               t.title,
+               t.transaction_title,
                t.amount,
                t.transaction_date,
                t.transaction_type,
@@ -56,10 +69,10 @@ class TransactionRepositories {
                t.user_id,
                t.business_id,
                t.category_id,
-               c.name AS category_name,
-               c.type AS category_type
+               c.category_name,
+               c.category_type
              FROM transactions t
-             LEFT JOIN transaction_categories c ON t.category_id = c.id
+             LEFT JOIN transaction_categories c ON t.category_id = c.transaction_categories_id
              WHERE t.business_id = $1
              ORDER BY t.transaction_date DESC`,
       values: [businessId],
@@ -72,7 +85,7 @@ class TransactionRepositories {
     const query = {
       text: `SELECT
                 t.transaction_id,
-                t.title,
+                t.transaction_title,
                 t.amount,
                 t.quantity,
                 t.transaction_date,
@@ -104,7 +117,7 @@ class TransactionRepositories {
       text: `UPDATE transactions
              SET ${setClause}
              WHERE transaction_id = $${fields.length + 1}
-             RETURNING transaction_id, title, amount, transaction_date,
+             RETURNING transaction_id, transaction_title, amount, quantity, transaction_date,
                        transaction_type, description, user_id, business_id, category_id`,
       values: [...fields.map((key) => payload[key]), transactionId],
     };
@@ -126,7 +139,7 @@ class TransactionRepositories {
   // Untuk validasi tipe transaksi vs kategori di controller
   async getCategoryById(categoryId) {
     const query = {
-      text: `SELECT id, name, type FROM transaction_categories WHERE id = $1`,
+      text: `SELECT transaction_categories_id, category_name, category_type FROM transaction_categories WHERE transaction_categories_id = $1`,
       values: [categoryId],
     };
     const results = await this.pool.query(query);
