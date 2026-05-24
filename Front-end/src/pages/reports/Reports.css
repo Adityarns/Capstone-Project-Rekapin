@@ -1,0 +1,31 @@
+/* ============================================================
+   REKAPIN — Financial Reports Page Layout
+   src/pages/reports/Reports.css
+   ============================================================ */
+
+/* ── Page container ── */
+.rpt-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 100%;
+}
+
+/* ── Charts row: CashFlow (left, wider) + Forecast (right) ──
+ *
+ *  Proportions match design: ~55% / ~45%
+ *  align-items: stretch → both cards same height
+ * ─────────────────────────────────────────────────────────── */
+.rpt-charts-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-5);
+  align-items: stretch;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .rpt-charts-row {
+    grid-template-columns: 1fr;
+  }
+}
