@@ -1,0 +1,9 @@
+{
+  "task": "regression",
+  "unit": "receipt_total",
+  "n_samples": 137,
+  "mae": 80.3097,
+  "rmse": 208.3828,
+  "mape_percent": 420.3894,
+  "r2": -0.0914
+}
