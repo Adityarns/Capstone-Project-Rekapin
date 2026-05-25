@@ -25,6 +25,7 @@ const transactionUpdateSchema = Joi.object({
 const categorySchema = Joi.object({
   category_name: Joi.string().required(),
   category_type: Joi.string().valid("income", "expense").required(),
+  is_carbon_tracked: Joi.boolean().optional(),
 });
 
 export { transactionSchema, transactionUpdateSchema, categorySchema };

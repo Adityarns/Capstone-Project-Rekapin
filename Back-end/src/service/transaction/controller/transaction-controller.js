@@ -1,8 +1,11 @@
-import { scanReceiptWithAI } from "../../../service/Ai Models/ai-service.js";
+import {
+  scanReceiptWithAI,
+  calculateCarbonWithAI,
+} from "../../Models/ai-service.js";
 import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 import TransactionRepositories from "../repositories/transaction-repositories.js";
-// import { uploadTransactionImage } from "../../supabase/supabase-service.js";
+import CarbonRepositories from "../../carbon/repositories/carbon-repositories.js";
 
 export const scanReceipt = async (req, res, next) => {
   if (!req.file) {
@@ -21,17 +24,20 @@ export const scanReceipt = async (req, res, next) => {
   const base64Image = req.file.buffer.toString("base64");
   const mediaType = req.file.mimetype;
 
-  // Cukup ganti isi ai-service.js nanti ketika model sudah siap
   const extractedData = await scanReceiptWithAI({ base64Image, mediaType });
-
   return response(res, 200, "Struk berhasil dianalisis", extractedData);
 };
 
 export const createCategory = async (req, res, next) => {
-  const { category_name, category_type } = req.validated;
+  const {
+    category_name,
+    category_type,
+    is_carbon_tracked = false,
+  } = req.validated;
   const newCategory = await TransactionRepositories.createCategory({
     category_name,
     category_type,
+    is_carbon_tracked,
   });
   if (!newCategory) {
     return next(new InvariantError("Gagal menambahkan kategori"));
@@ -61,11 +67,13 @@ export const addTransaction = async (req, res, next) => {
   } = req.validated;
   const userId = req.user.user_id;
 
+  // ================================================
+  //  Validasi kategori vs tipe transaksi
+  // ================================================
   const category = await TransactionRepositories.getCategoryById(categoryId);
   if (!category) {
     return next(new InvariantError("Kategori tidak ditemukan"));
   }
-
   if (category.category_type !== type) {
     return next(
       new InvariantError(
@@ -73,18 +81,10 @@ export const addTransaction = async (req, res, next) => {
       ),
     );
   }
-  if (
-    category.category_name === "electricity" ||
-    category.category_name === "fuel"
-  ) {
-    if (quantity === undefined) {
-      return next(
-        new InvariantError(
-          `Kategori ${category.category_name} memerlukan field quantity`,
-        ),
-      );
-    }
-  }
+
+  // ================================================
+  //  Simpan transaksi
+  // ================================================
   const newTransaction = await TransactionRepositories.createTransaction({
     title,
     amount,
@@ -99,6 +99,34 @@ export const addTransaction = async (req, res, next) => {
 
   if (!newTransaction) {
     return next(new InvariantError("Gagal menambahkan transaksi"));
+  }
+
+  // ================================================
+  //  Kalkulasi karbon otomatis
+  //  Hanya untuk kategori yang is_carbon_tracked = true
+  //  (Electricity dan Fuel)
+  // ================================================
+  if (category.is_carbon_tracked === true) {
+    try {
+      const carbonResult = await calculateCarbonWithAI({
+        description: description || title,
+        quantity: quantity,
+      });
+
+      await CarbonRepositories.createCarbonLog({
+        businessId,
+        userId,
+        transactionId: newTransaction.transaction_id,
+        logDate: date,
+        categoryType: category.category_name,
+        quantity,
+        carbonTotal: carbonResult.estimated_emission_ton_co2 ?? 0,
+      });
+    } catch (error) {
+      // Kalau kalkulasi karbon gagal, transaksi tetap tersimpan
+      // Tidak perlu return error — carbon log bisa dihitung ulang nanti
+      console.error("Carbon calculation failed:", error.message);
+    }
   }
 
   return response(res, 201, "Transaksi berhasil ditambahkan", newTransaction);
@@ -159,46 +187,3 @@ export const deleteTransaction = async (req, res, next) => {
 
   return response(res, 200, "Transaksi berhasil dihapus", deletedTransaction);
 };
-
-// export const uploadTransactionImg = async (req, res, next) => {
-//   if (!req.file) {
-//     return next(new InvariantError("File foto tidak ditemukan"));
-//   }
-
-//   const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
-//   if (!allowedMimeTypes.includes(req.file.mimetype)) {
-//     return next(
-//       new InvariantError(
-//         "Format file tidak didukung. Gunakan JPG, PNG, atau WebP",
-//       ),
-//     );
-//   }
-
-//   const maxSizeBytes = 2 * 1024 * 1024; // 2MB
-//   if (req.file.size > maxSizeBytes) {
-//     return next(new InvariantError("Ukuran foto maksimal 2MB"));
-//   }
-
-//   const userId = req.user.user_id;
-
-//   // Upload foto baru ke Supabase
-//   const transactionUrl = await uploadTransactionImage({
-//     userId,
-//     fileBuffer: req.file.buffer,
-//     mimeType: req.file.mimetype,
-//   });
-
-//   // Simpan URL baru ke database
-//   const uploadTransaction =
-//     await TransactionRepositories.uploadTransactionImage({
-//       userId,
-//       transactionUrl,
-//     });
-//   if (!uploadTransaction) {
-//     return next(new InvariantError("Gagal memperbarui foto transaksi"));
-//   }
-
-//   return response(res, 200, "Foto transaksi berhasil diperbarui", {
-//     transactionUrl: uploadTransaction.transactionUrl,
-//   });
-// };

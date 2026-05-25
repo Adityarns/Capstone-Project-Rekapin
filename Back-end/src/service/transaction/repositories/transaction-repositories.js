@@ -142,14 +142,23 @@ class TransactionRepositories {
     return results.rows[0];
   }
 
-  async createCategory({ category_name, category_type }) {
+  async createCategory({
+    category_name,
+    category_type,
+    is_carbon_tracked = false,
+  }) {
     const transaction_categories_id = nanoid(16);
     const query = {
       text: `INSERT INTO transaction_categories
-               (transaction_categories_id, category_name, category_type)
-             VALUES ($1, $2, $3)
-              RETURNING transaction_categories_id, category_name, category_type`,
-      values: [transaction_categories_id, category_name, category_type],
+               (transaction_categories_id, category_name, category_type, is_carbon_tracked)
+             VALUES ($1, $2, $3, $4)
+              RETURNING transaction_categories_id, category_name, category_type, is_carbon_tracked`,
+      values: [
+        transaction_categories_id,
+        category_name,
+        category_type,
+        is_carbon_tracked,
+      ],
     };
     const results = await this.pool.query(query);
     return results.rows[0];
@@ -157,7 +166,7 @@ class TransactionRepositories {
 
   async getCategoriesByType(type) {
     const query = {
-      text: `SELECT transaction_categories_id, category_name, category_type
+      text: `SELECT transaction_categories_id, category_name, category_type, is_carbon_tracked
               FROM transaction_categories
               WHERE category_type = $1`,
       values: [type],
@@ -168,7 +177,7 @@ class TransactionRepositories {
 
   async getCategoryById(categoryId) {
     const query = {
-      text: `SELECT transaction_categories_id, category_name, category_type FROM transaction_categories WHERE transaction_categories_id = $1`,
+      text: `SELECT transaction_categories_id, category_name, category_type, is_carbon_tracked FROM transaction_categories WHERE transaction_categories_id = $1`,
       values: [categoryId],
     };
     const results = await this.pool.query(query);

@@ -19,8 +19,12 @@ import authenticateToken from "../../../middlewares/auth.js";
 const router = Router();
 
 // Categories
-router.get("/transactions/categories", authenticateToken, getCategoriesByType);
-router.post("/transactions/categories", authenticateToken, createCategory);
+router.get("/transactions/categories", getCategoriesByType);
+router.post(
+  "/transactions/categories",
+  validate(categorySchema),
+  createCategory,
+);
 
 // Scan Receipt
 // router.post(
