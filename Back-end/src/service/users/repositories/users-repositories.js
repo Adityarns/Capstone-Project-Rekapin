@@ -47,22 +47,32 @@ class UserRepositories {
 
   async getUserById(userId) {
     const query = {
-      text: `SELECT user_id, username, email, avatar_url
-             FROM users
-             WHERE user_id = $1`,
+      text: `SELECT u.user_id, u.username, u.email, t.role ,u.avatar_url FROM users u LEFT JOIN team_members t ON u.user_id = t.user_id WHERE u.user_id = $1`,
       values: [userId],
     };
     const results = await this.pool.query(query);
     return results.rows[0];
   }
 
-  async getPasswordByUserId(userId) {
+  async getUserById(userId) {
     const query = {
-      text: `SELECT password FROM users WHERE user_id = $1`,
+      text: `
+      SELECT 
+        u.user_id, 
+        u.username, 
+        u.email, 
+        u.avatar_url,
+        t.role 
+      FROM users u 
+      LEFT JOIN team_members t ON u.user_id = t.user_id 
+      WHERE u.user_id = $1
+    `,
       values: [userId],
     };
+
     const results = await this.pool.query(query);
-    return results.rows[0]?.password || null;
+
+    return results.rows.length > 0 ? results.rows[0] : null;
   }
 
   async editUserById({ userId, ...payload }) {

@@ -15,6 +15,7 @@ import {
   categorySchema,
 } from "../validator/transaction-validator.js";
 import authenticateToken from "../../../middlewares/auth.js";
+// import { scanReceiptWithAI } from "../../Models/ai-service.js";
 
 const router = Router();
 
@@ -31,7 +32,7 @@ router.post(
 //   "/transactions/scan-receipt",
 //   authenticateToken,
 //   upload.single("receipt"),
-//   scanReceipt,
+//   scanReceiptWithAI,
 // );
 
 // Transactions
