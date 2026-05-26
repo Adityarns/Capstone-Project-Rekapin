@@ -10,7 +10,7 @@
  * @format
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./ReceiptUpload.css";
 
 /* ── Upload Icon ── */
@@ -33,6 +33,8 @@ const IconUpload = () => (
 
 export default function ReceiptUpload() {
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -47,16 +49,33 @@ export default function ReceiptUpload() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    // TODO: handle file — integrasi API nanti
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
   };
 
   const handleClick = () => {
-    // TODO: trigger file input — integrasi API nanti
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
   };
 
   return (
     <div className="receipt-card">
       <h3 className="receipt-card__title">Receipt or Invoice</h3>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".jpg,.jpeg,.png,.pdf"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
 
       <div
         className={`receipt-dropzone ${isDragging ? "receipt-dropzone--active" : ""}`}
@@ -77,6 +96,11 @@ export default function ReceiptUpload() {
           or click to browse from your computer
         </p>
         <p className="receipt-dropzone__hint">JPG, PNG, PDF up to 10MB</p>
+        {selectedFile && (
+          <p className="receipt-dropzone__filename">
+            Selected: {selectedFile.name}
+          </p>
+        )}
       </div>
     </div>
   );

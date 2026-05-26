@@ -64,7 +64,7 @@ const DEMO_ROLE = mockUser.role;
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user, updateUser } = useAuth();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const isOwner  = DEMO_ROLE === "owner";
 
@@ -133,6 +133,13 @@ export default function ProfileSettings() {
       phone:     saved.phone,
       avatarSrc: saved.avatarSrc,
     }));
+
+    // Sync ke global auth context
+    updateUser({
+      name: saved.name,
+      email: saved.email,
+      avatarSrc: saved.avatarSrc,
+    });
   };
 
   const handleNotifChange = (key, value) => {

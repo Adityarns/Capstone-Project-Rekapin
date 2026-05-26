@@ -13,6 +13,10 @@
  * @format
  */
 
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import LogoutConfirmModal from "../profile/LogoutConfirmModal";
+
 import { useState } from "react";
 import "./Topbar.css";
 
@@ -72,10 +76,16 @@ const IconHelp = () => (
 export default function Topbar() {
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
+
   // TODO: ambil dari Supabase user session
-  const user = {
-    name: "Aditya Rahman",
-    initials: "AR",
+
+  const handleLogoutConfirmed = async () => {
+    await logout();
+    navigate("/login", { replace: true });
   };
 
   const handleSearch = (e) => {
@@ -125,15 +135,57 @@ export default function Topbar() {
         </button>
 
         {/* User Avatar */}
-        <button
-          className="topbar-avatar"
-          type="button"
-          aria-label={`User: ${user.name}`}
-          title={user.name}
-        >
-          {/* TODO: ganti dengan <img> saat user.avatarUrl tersedia */}
-          <span className="topbar-avatar-initials">{user.initials}</span>
-        </button>
+        <div className="topbar-profile">
+          <button
+            className="topbar-avatar"
+            type="button"
+            aria-label={`User: ${user?.name || "User"}`}
+            title={user?.name || "User"}
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            {user?.avatarSrc ? (
+              <img
+                src={user.avatarSrc}
+                alt={user.name}
+                className="topbar-avatar-image"
+              />
+            ) : (
+              <span className="topbar-avatar-initials">
+                {user?.initials}
+              </span>
+            )}
+          </button>
+
+          {isMenuOpen && (
+            <div className="topbar-dropdown">
+              <button
+                className="topbar-dropdown-item"
+                onClick={() => {
+                  navigate("/profile");
+                  setIsMenuOpen(false);
+                }}
+              >
+                Settings
+              </button>
+
+              <button
+                className="topbar-dropdown-item logout"
+                onClick={() => {
+                  setIsLogoutModalOpen(true);
+                  setIsMenuOpen(false);
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+
+        <LogoutConfirmModal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setIsLogoutModalOpen(false)}
+          onConfirm={handleLogoutConfirmed}
+        />
       </div>
     </div>
   );

@@ -104,7 +104,12 @@ export function AuthProvider({ children }) {
       // TODO: setelah dapat userId dari token, panggil getUserById()
       const userData = {
         email,
-        // Tambahkan field lain dari response jika tersedia
+        name: email.split("@")[0],
+
+        initials: email
+          .split("@")[0]
+          .slice(0, 2)
+          .toUpperCase(),
       };
 
       setUser(userData);
@@ -145,6 +150,22 @@ export function AuthProvider({ children }) {
     // Redirect ditangani di Sidebar.jsx setelah fungsi ini selesai
   }, []);
 
+  const updateUser = (updatedFields) => {
+  setUser((prev) => {
+    const updatedUser = {
+      ...prev,
+      ...updatedFields,
+    };
+
+    localStorage.setItem(
+      "rekapin_user",
+      JSON.stringify(updatedUser),
+    );
+
+    return updatedUser;
+  });
+};
+
   // ── Value yang di-share ke seluruh app ───────────────────────
   const value = {
     user, // data user (null jika belum login)
@@ -153,6 +174,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

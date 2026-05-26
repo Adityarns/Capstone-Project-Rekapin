@@ -165,3 +165,65 @@
   letter-spacing: var(--tracking-wide);
   user-select: none;
 }
+
+/* ----------------------------------------------------------
+   PROFILE DROPDOWN
+   ---------------------------------------------------------- */
+
+.topbar-profile {
+  position: relative;
+}
+
+.topbar-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 180px;
+  background: var(--color-bg-surface);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+
+  box-shadow: var(--shadow-lg);
+
+  padding: var(--space-2);
+
+  z-index: 100;
+}
+
+.topbar-dropdown-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+
+  padding: 12px 14px;
+
+  text-align: left;
+
+  border-radius: var(--radius-md);
+
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+
+  cursor: pointer;
+
+  color: var(--color-text-primary);
+
+  transition: var(--transition-default);
+}
+
+.topbar-dropdown-item:hover {
+  background: var(--color-neutral-100);
+}
+
+.topbar-dropdown-item.logout {
+  color: var(--color-error);
+}
+
+.topbar-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}

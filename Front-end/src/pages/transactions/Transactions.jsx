@@ -26,6 +26,7 @@ const INITIAL_FORM = {
   amount: "",
   date: "",
   category: "",
+  quantity: "",
   description: "",
 };
 
@@ -76,6 +77,7 @@ export default function Transactions() {
             amount={form.amount}
             date={form.date}
             category={form.category}
+            quantity={form.quantity}
             description={form.description}
             categories={categories}
             onChange={handleFieldChange}

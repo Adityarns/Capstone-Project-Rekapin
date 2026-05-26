@@ -44,6 +44,9 @@ export default function TransactionForm({
   categories,
   onChange,
 }) {
+  const showQuantityField =
+  type === "expense" &&
+  (category === "Electricity" || category === "Fuel");
   return (
     <div className="txn-form-card">
       {/* ── Type Switcher: Expense / Income ── */}
@@ -155,20 +158,34 @@ export default function TransactionForm({
       </div>
 
       {/* ── Transaction Quantity ── */}
-      <div className="txn-field">
-        <label className="txn-label" htmlFor="txn-quantity">
-          Quantity
-        </label>
-        <input
-          id="txn-quantity"
-          type="number"
-          className="txn-input"
-          placeholder="0"
-          min="1"
-          value={quantity}
-          onChange={(e) => onChange("quantity", e.target.value)}
-        />
-      </div>
+      {showQuantityField && (
+        <div className="txn-field">
+          <label className="txn-label" htmlFor="txn-quantity">
+            Quantity
+          </label>
+
+          <input
+            id="txn-quantity"
+            type="number"
+            className="txn-input"
+            placeholder={
+              category === "Electricity"
+                ? "Enter kWh"
+                : "Enter liters"
+            }
+            min="0"
+            value={quantity}
+            onChange={(e) => onChange("quantity", e.target.value)}
+            required
+          />
+
+          <span className="txn-helper-text">
+            {category === "Electricity"
+              ? "Input electricity usage in kWh"
+              : "Input fuel usage in liters"}
+          </span>
+        </div>
+      )}
 
       {/* ── Description ── */}
       <div className="txn-field">
