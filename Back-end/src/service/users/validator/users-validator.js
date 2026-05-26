@@ -5,3 +5,8 @@ export const userUpdatePayloadSchema = Joi.object({
   email: Joi.string().email().max(255),
   password: Joi.string().min(8),
 });
+
+export const userChangePasswordPayloadSchema = Joi.object({
+  currentPassword: Joi.string().min(8).required(),
+  newPassword: Joi.string().min(8).required(),
+});

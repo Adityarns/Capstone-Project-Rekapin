@@ -3,9 +3,13 @@ import {
   editUserById,
   getUserById,
   updateAvatar,
+  updatePassword,
 } from "../controller/users-controller.js";
 import validate from "../../../middlewares/validator.js";
-import { userUpdatePayloadSchema } from "../validator/users-validator.js";
+import {
+  userUpdatePayloadSchema,
+  userChangePasswordPayloadSchema,
+} from "../validator/users-validator.js";
 import authenticateToken from "../../../middlewares/auth.js";
 import multer from "multer";
 
@@ -28,6 +32,13 @@ router.patch(
   authenticateToken,
   upload.single("avatar"),
   updateAvatar,
+);
+
+router.patch(
+  "/users/:userId/password",
+  authenticateToken,
+  validate(userChangePasswordPayloadSchema),
+  updatePassword,
 );
 
 export default router;

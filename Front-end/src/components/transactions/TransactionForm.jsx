@@ -39,6 +39,7 @@ export default function TransactionForm({
   amount,
   date,
   category,
+  quantity,
   description,
   categories,
   onChange,
@@ -151,6 +152,22 @@ export default function TransactionForm({
             <IconChevronDown />
           </span>
         </div>
+      </div>
+
+      {/* ── Transaction Quantity ── */}
+      <div className="txn-field">
+        <label className="txn-label" htmlFor="txn-quantity">
+          Quantity
+        </label>
+        <input
+          id="txn-quantity"
+          type="number"
+          className="txn-input"
+          placeholder="0"
+          min="1"
+          value={quantity}
+          onChange={(e) => onChange("quantity", e.target.value)}
+        />
       </div>
 
       {/* ── Description ── */}

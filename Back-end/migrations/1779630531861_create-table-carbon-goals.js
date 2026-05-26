@@ -9,23 +9,38 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("transaction_categories", {
-    transaction_categories_id: {
-      type: "VARCHAR(16)",
+  pgm.createTable("carbon_goals", {
+    carbon_goal_id: {
+      type: "varchar(16)",
       primaryKey: true,
     },
-    category_name: {
+    business_id: {
+      type: "varchar(16)",
+      notNull: true,
+      references: "businesses",
+      onDelete: "cascade",
+    },
+    target_carbon_reduction: {
+      type: "DOUBLE PRECISION",
+      notNull: true,
+    },
+    period_start: {
       type: "VARCHAR(50)",
       notNull: true,
     },
-    category_type: {
-      type: "VARCHAR(20)",
+    period_end: {
+      type: "VARCHAR(50)",
       notNull: true,
     },
-    is_carbon_tracked: {
+    is_active: {
       type: "BOOLEAN",
       notNull: true,
-      default: false,
+      default: true,
+    },
+    created_at: {
+      type: "timestamp",
+      notNull: true,
+      default: pgm.func("current_timestamp"),
     },
   });
 };
@@ -36,5 +51,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("transaction_categories");
+  pgm.dropTable("carbon_goals");
 };

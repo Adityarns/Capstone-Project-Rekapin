@@ -1635,6 +1635,77 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {\r",
+                  "    pm.expect(pm.response).to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response Content-Type header should have application/json value', () => {\r",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.includes('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('response body should be an object', () => {\r",
+                  "    const responseJson = pm.response.json();\r",
+                  "    pm.expect(responseJson).to.be.an('object');\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"currentPassword\": \"secret123\", \n    \"newPassword\": \"upinipin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/users/{{ownerId1}}/password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "users",
+                "{{ownerId1}}",
+                "password"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -2024,6 +2095,877 @@
                 "{{businessId1}}",
                 "members",
                 "{{empId1}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transaction",
+      "item": [
+        {
+          "name": "Add Transaction Electricity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                  "    pm.environment.set('transaction1', responseJson.data.transaction_id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Bayar token listrik\",\n    \"amount\": 300000,\n    \"quantity\": 5,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"membayar token listrik\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat1}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Transaction Fuel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                  "    pm.environment.set('transaction2', responseJson.data.transaction_id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Membeli bensin\",\n    \"amount\": 40000,\n    \"quantity\": 4,\n    \"date\": \"2026-05-23\",\n    \"type\": \"expense\",\n    \"description\": \"membeli bensin pertalite 4 liter\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat2}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Transaction Utilities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                  "    pm.environment.set('transaction3', responseJson.data.transaction_id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Beli Gas tabung\",\n    \"amount\": 30000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"membeli gas tabung hijau 5kg\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat3}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Transaction Sales",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                  "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Penjualan Cimol bojot\",\n    \"amount\": 1000000,\n    \"date\": \"2026-06-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari penjualan cimol bojot\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat4}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Transaction By BusinessId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.transactions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions/business/{{businessId1}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions",
+                "business",
+                "{{businessId1}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions/{{transaction1}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions",
+                "{{transaction1}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Transaction Sales Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                  "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Penjualan Cimol bojot\",\n    \"amount\": 1500000,\n    \"date\": \"2026-06-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari penjualan cimol bojot\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions/{{transaction3}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions",
+                "{{transaction3}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Transaction Sales Copy 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions/{{transaction4}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions",
+                "{{transaction4}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Transaction Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"category_name\": \"Utilities\",\n    \"category_type\": \"expense\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/transactions/categories",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "transactions",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Carbon",
+      "item": [
+        {
+          "name": "Get Carbon Logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/carbon/{{businessId1}}/logs",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "carbon",
+                "{{businessId1}}",
+                "logs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Carbon Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/carbon/{{businessId1}}/summary",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "carbon",
+                "{{businessId1}}",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Carbon Goal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/carbon/{{businessId1}}/goal",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "carbon",
+                "{{businessId1}}",
+                "goal"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Carbon Goal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 201 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"businessId\": \"{{businessId1}}\",\r\n  \"targetTco2e\": 2.0,\r\n  \"periodStart\": \"2026-05-01\",\r\n  \"periodEnd\": \"2026-05-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/carbon/goal",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "carbon",
+                "goal"
               ]
             }
           },

@@ -56,6 +56,15 @@ class UserRepositories {
     return results.rows[0];
   }
 
+  async getPasswordByUserId(userId) {
+    const query = {
+      text: `SELECT password FROM users WHERE user_id = $1`,
+      values: [userId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0]?.password || null;
+  }
+
   async editUserById({ userId, ...payload }) {
     const updated_at = new Date().toISOString();
     payload.updated_at = updated_at;
@@ -84,6 +93,21 @@ class UserRepositories {
     };
     const results = await this.pool.query(query);
     return results.rows[0]?.avatar_url || null;
+  }
+
+  async updatePassword({ userId, newPassword }) {
+    const updated_at = new Date().toISOString();
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const query = {
+      text: `UPDATE users
+             SET password = $1, updated_at = $2
+              WHERE user_id = $3
+              RETURNING user_id, username, email, avatar_url`,
+      values: [hashedPassword, updated_at, userId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0] || null;
   }
 
   async updateAvatar({ userId, avatarUrl }) {
