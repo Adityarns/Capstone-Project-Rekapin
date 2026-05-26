@@ -6,8 +6,10 @@
  * @format
  */
 
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import LogoutConfirmModal from "../profile/LogoutConfirmModal";
 import "./Sidebar.css";
 
 /* ── Icons (inline SVG, zero dependency) ─────────────────────── */
@@ -99,6 +101,8 @@ export default function Sidebar() {
   const navigate       = useNavigate();
   const { logout }     = useAuth();
 
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
   /* Call AuthContext logout() → authService.logoutUser() →
    * DELETE /auth/logout + tokenStorage.clearAll()
    * Then redirect. Works even if the API call fails (finally block
@@ -176,7 +180,8 @@ export default function Sidebar() {
             <button
               className="sidebar-nav-item sidebar-logout-btn"
               type="button"
-              onClick={handleLogout}
+              //onClick={handleLogout}
+              onClick={() => setIsLogoutModalOpen(true)}
             >
               <span className="sidebar-nav-icon" aria-hidden="true">
                 <IconLogout />
@@ -186,6 +191,13 @@ export default function Sidebar() {
           </li>
         </ul>
       </div>
+
+      {/* ── Logout Confirmation Modal ── */}
+      <LogoutConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+      />
 
     </nav>
   );

@@ -65,6 +65,7 @@ const DEMO_ROLE = mockUser.role;
 export default function ProfileSettings() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const isOwner  = DEMO_ROLE === "owner";
 
   /* ── Current state (what the user is editing) ── */

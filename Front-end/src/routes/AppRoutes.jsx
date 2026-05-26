@@ -41,10 +41,10 @@ function LoadingScreen() {
 
 /* ── Guards ── */
 //function ProtectedRoute({ children }) {
-//const { isAuthenticated, isLoading } = useAuth();
-//if (isLoading) return <LoadingScreen />;
-//if (!isAuthenticated) return <Navigate to="/login" replace />;
-//return children;
+  //const { isAuthenticated, isLoading } = useAuth();
+  //if (isLoading) return <LoadingScreen />;
+  //if (!isAuthenticated) return <Navigate to="/login" replace />;
+  //return children;
 //}
 
 function ProtectedRoute({ children }) {
@@ -52,10 +52,10 @@ function ProtectedRoute({ children }) {
 }
 
 //function PublicRoute({ children }) {
-//const { isAuthenticated, isLoading } = useAuth();
-//if (isLoading) return null;
-//if (isAuthenticated) return <Navigate to="/dashboard" replace />;
-//return children;
+  //const { isAuthenticated, isLoading } = useAuth();
+  //if (isLoading) return null;
+  //if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  //return children;
 //}
 
 function PublicRoute({ children }) {

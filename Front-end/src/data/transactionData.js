@@ -16,6 +16,8 @@ export const expenseCategories = [
   "Salary",
   "Transportation",
   "Inventory",
+  "Electricity",
+  "Fuel",
   "Other Expense",
 ];
 
