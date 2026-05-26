@@ -18,6 +18,7 @@
  */
 
 import { api, tokenStorage } from "./api";
+import { jwtDecode } from "jwt-decode";
 
 // ── REGISTER ──────────────────────────────────────────────────
 // POST /auth/register
@@ -86,7 +87,13 @@ export async function loginUser({ email, password, invitationCode }) {
   // Ini prinsip separation of concerns.
   tokenStorage.setTokens(accessToken, refreshToken);
 
-  return response.data;
+  // ── Decode JWT untuk ambil user_id ──
+  const decoded = jwtDecode(accessToken);
+
+  return {
+    ...response.data,
+    userId: decoded.user_id,
+  };
 }
 
 // ── LOGOUT ───────────────────────────────────────────────────

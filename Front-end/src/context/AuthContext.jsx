@@ -31,6 +31,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  getUserById,
   isSessionActive,
 } from "../services/authService";
 import { tokenStorage } from "../services/api";
@@ -97,17 +98,22 @@ export function AuthProvider({ children }) {
     try {
       // loginUser() di authService.js yang handle fetch + simpan token
       const tokenData = await loginUser({ email, password, invitationCode });
+      const profile = await getUserById(tokenData.userId);
 
       // ── Setelah dapat token, simpan info user minimal ──────
       // Idealnya kita decode JWT atau GET /users/:id
       // Untuk sekarang kita simpan email sebagai identitas awal.
       // TODO: setelah dapat userId dari token, panggil getUserById()
       const userData = {
-        email,
-        name: email.split("@")[0],
+        userId: profile.user_id,
+        name: profile.username,
+        email: profile.email,
+        avatarSrc: profile.avatar_url,
 
-        initials: email
-          .split("@")[0]
+        initials: profile.username
+          ?.split(" ")
+          .map((w) => w[0])
+          .join("")
           .slice(0, 2)
           .toUpperCase(),
       };
