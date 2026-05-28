@@ -106,27 +106,22 @@ export async function loginUser({ email, password, invitationCode }) {
 // Setelah logout berhasil (atau gagal sekalipun), kita clear
 // semua token lokal agar user pasti ter-logout dari sisi frontend.
 
+// ── AMANKAN STRUKTUR PENGIRIMAN TOKEN LOGOUT ──────────────────
 export async function logoutUser() {
-  const refreshToken = tokenStorage.getRefresh();
-
   try {
-    await api.delete("/auth/logout", {
-      data: { refreshToken },
-    });
-  } catch (err) {
-    // Jika request gagal (misal token sudah invalid di server),
-    // tetap lanjutkan clear token lokal. User harus bisa logout
-    // bahkan saat offline atau token sudah expired.
-    console.warn(
-      "Logout API error (token mungkin sudah invalid):",
-      err.message,
-    );
+    const refreshToken = tokenStorage.getRefresh() || "";
+
+    // Kirim langsung objek bodi sebagai parameter kedua sesuai spesifikasi api.js Anda
+    const response = await api.delete("/auth/logout", { refreshToken });
+
+    return response?.data;
+  } catch (error) {
+    console.error("Logout error di sisi service:", error);
   } finally {
-    // finally = selalu dijalankan, sukses maupun gagal
     tokenStorage.clearAll();
+    localStorage.removeItem("rekapin_user");
   }
 }
-
 // ── GET USER PROFILE ──────────────────────────────────────────
 // GET /users/:userId
 //

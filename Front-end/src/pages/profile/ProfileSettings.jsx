@@ -53,11 +53,11 @@ export default function ProfileSettings() {
   const navigate = useNavigate();
   const { businessId } = useParams();
   const { logout, user, updateUser } = useAuth();
-  console.log("USER DATA:", user);
+
   const DEMO_ROLE = user?.role || "owner";
   const isOwner = DEMO_ROLE === "owner";
 
-  // 1. Tambahkan state pembantu untuk merekam jejak data user sebelumnya
+  // State pembantu melacak rekam jejak user
   const [prevUser, setPrevUser] = useState(user);
 
   /* ── Current state ── */
@@ -72,11 +72,11 @@ export default function ProfileSettings() {
     notifs: { ...mockNotifications },
   }));
 
+  // Sinkronisasi data di fase rendering (Anti-cascading)
   if (user !== prevUser) {
-    setPrevUser(user); // Perbarui rekam jejak
+    setPrevUser(user);
     const freshProfile = INIT_PROFILE(user);
 
-    // Jalankan pembaruan state secara langsung sebelum DOM ditempel
     setUserProfile(freshProfile);
     setSavedSnapshot((prev) => ({
       ...prev,
@@ -113,32 +113,25 @@ export default function ProfileSettings() {
   };
 
   const handleBizSave = async (saved) => {
-
-  try {
-      // 1. Validasi Keamanan Parameter URL
+    try {
       if (!businessId) {
         console.error("Business ID tidak ditemukan dari URL parameter");
         return;
       }
 
-      // 2. Integrasikan Fungsi Update API dari Teman Anda (Gunakan businessId hasil useParams)
       if (typeof updateBusiness === "function") {
         await updateBusiness(businessId, saved);
       } else {
-        // Jika fungsi updateBusiness diimpor terpisah dari businessService:
-        // await businessService.updateBusinessById(businessId, saved);
         console.log("Menembak API PUT /businesses/" + businessId, saved);
       }
 
-      // 3. Perbarui State Lokal & Tutup Modal
       setBusiness({ ...saved });
       closeModal("editBusiness");
-      
       console.log("Business updated successfully with ID:", businessId);
     } catch (err) {
       console.error("Failed to update business profile:", err);
     }
-
+  }; // <── DI SINI SEKARANG TUTUP KURUNG KURA-KURA YANG BENAR!
 
   const handleProfileSave = async (saved) => {
     try {
@@ -211,14 +204,11 @@ export default function ProfileSettings() {
     ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
     : "Owner";
 
-  // Ambil nama bisnis riil dari objek user global (AuthContext)
-  // Gunakan fallback 'business.name' jika data belum selesai dimuat
   const currentBusinessName =
     user?.business_name || user?.businessName || business.name;
 
   const displayUser = {
     ...userProfile,
-    // Sekarang teks ini sepenuhnya dinamis dari database!
     businessRole: `${currentRole} at ${currentBusinessName}`,
   };
 
