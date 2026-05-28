@@ -108,6 +108,7 @@ export function AuthProvider({ children }) {
 
       const userData = {
         userId: profile.user_id,
+        businessId: profile.business_id,
         name: profile.username,
         email: profile.email,
         role: profile.role,
