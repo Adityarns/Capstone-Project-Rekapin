@@ -7,6 +7,7 @@ import {
   deleteTransaction,
   getTransactionById,
   getCategoriesByType,
+  scanTransactionReceipt,
 } from "../controller/transaction-controller.js";
 import validate from "../../../middlewares/validator.js";
 import {
@@ -15,9 +16,14 @@ import {
   categorySchema,
 } from "../validator/transaction-validator.js";
 import authenticateToken from "../../../middlewares/auth.js";
-// import { scanReceiptWithAI } from "../../Models/ai-service.js";
+import multer from "multer";
 
 const router = Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});
 
 // Categories
 router.get("/transactions/categories", getCategoriesByType);
@@ -28,12 +34,12 @@ router.post(
 );
 
 // Scan Receipt
-// router.post(
-//   "/transactions/scan-receipt",
-//   authenticateToken,
-//   upload.single("receipt"),
-//   scanReceiptWithAI,
-// );
+router.post(
+  "/transactions/scan",
+  authenticateToken,
+  upload.single("receipt"),
+  scanTransactionReceipt,
+);
 
 // Transactions
 router.post(

@@ -1,23 +1,52 @@
 import CarbonRepositories from "../repositories/carbon-repositories.js";
-import { calculateCarbonWithAI } from "../../../service/Models//ai-service.js";
+import { calculateCarbonWithAI } from "../../Models/ai-service.js";
 import response from "../../../utils/response.js";
-import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
+import { NotFoundError } from "../../../exceptions/index.js";
+import { GREEN_INSIGHTS_BANK } from "../../carbon/insights/insights.js";
 
 // ============================================================
 //  GET CARBON SUMMARY
-//  Untuk tampilan utama halaman Carbon Tracking:
-//  - Total carbon footprint
-//  - Progress terhadap goal
-//  - Persentase perubahan dari bulan lalu
+//  Untuk tampilan utama halaman Carbon Tracking
 // ============================================================
 export const getCarbonSummary = async (req, res, next) => {
   const { businessId } = req.params;
 
   const summary = await CarbonRepositories.getCarbonSummary(businessId);
-  if (!summary) {
-    return next(new NotFoundError("Ringkasan karbon tidak ditemukan"));
-  } 
-  return response(res, 200, "Carbon summary berhasil diambil", summary);
+  const insights = [];
+
+  // Ambil kategori penyumbang emisi tertinggi bulan ini dari data breakdown Anda
+  if (summary.breakdown && summary.breakdown.length > 0) {
+    const topCategory = summary.breakdown[0].category; // e.g., "Electricity" atau "Fuel"
+
+    // Cek apakah performa bulan ini lebih buruk atau lebih baik dari bulan lalu
+    // Jika change_percent positif (> 0) artinya emisi naik (worse)
+    // Jika change_percent negatif (<= 0) artinya emisi turun/stabil (better)
+    const status = summary.change_percent > 0 ? "worse" : "better";
+
+    // Ambil teks yang sesuai dari bank data berdasarkan kategori tertinggi dan statusnya
+    if (GREEN_INSIGHTS_BANK[topCategory]) {
+      insights.push({
+        icon: topCategory === "Electricity" ? "lightning" : "truck",
+        title: GREEN_INSIGHTS_BANK[topCategory][status].title,
+        description: GREEN_INSIGHTS_BANK[topCategory][status].description,
+      });
+    }
+  }
+
+  // Selalu sisipkan 1 tips umum (General) sebagai variasi pelengkap di UI
+  insights.push({
+    icon: "recycle",
+    title: GREEN_INSIGHTS_BANK.General.title,
+    description: GREEN_INSIGHTS_BANK.General.description,
+  });
+
+  // ============================================================
+  // GABUNGKAN KE OUTPUT DATA SUMMARY
+  // ============================================================
+  return response(res, 200, "Carbon summary berhasil diambil", {
+    ...summary,
+    insights, // <--- Frontend tinggal nge-loop array insights ini untuk komponen Green Insights
+  });
 };
 
 // ============================================================
@@ -28,55 +57,14 @@ export const getCarbonLogs = async (req, res, next) => {
   const { businessId } = req.params;
 
   const logs = await CarbonRepositories.getCarbonLogsByBusinessId(businessId);
-  if (!logs) {
-    return next(new NotFoundError("Log karbon tidak ditemukan"));
-  }
+
   return response(res, 200, "Carbon logs berhasil diambil", { logs });
 };
 
 // ============================================================
-//  SET CARBON GOAL
-//  Owner set target karbon untuk periode tertentu
-//  Contoh: target 2.0 tons CO2e untuk Q3 2026
-// ============================================================
-export const setCarbonGoal = async (req, res, next) => {
-  const { businessId, targetTco2e, periodStart, periodEnd } = req.validated;
-
-  if (new Date(periodEnd) <= new Date(periodStart)) {
-    return next(
-      new InvariantError("Tanggal akhir harus setelah tanggal mulai"),
-    );
-  }
-
-  const goal = await CarbonRepositories.createCarbonGoal({
-    businessId,
-    targetTco2e,
-    periodStart,
-    periodEnd,
-  });
-
-  return response(res, 201, "Target karbon berhasil disimpan", goal);
-};
-
-// ============================================================
-//  GET ACTIVE CARBON GOAL
-//  Ambil target karbon yang sedang aktif
-// ============================================================
-export const getActiveCarbonGoal = async (req, res, next) => {
-  const { businessId } = req.params;
-
-  const goal = await CarbonRepositories.getActiveCarbonGoal(businessId);
-  if (!goal) {
-    return next(new NotFoundError("Belum ada target karbon yang aktif"));
-  }
-
-  return response(res, 200, "Target karbon ditemukan", goal);
-};
-
-// ============================================================
-//  CALCULATE CARBON (Internal — dipanggil dari addTransaction)
-//  Tidak diekspos sebagai endpoint — hanya dipakai di controller
-//  transaksi setelah transaksi berhasil disimpan
+//  CALCULATE AND LOG CARBON (Internal)
+//  Dipanggil dari addTransaction setelah transaksi tersimpan
+//  Tidak diekspos sebagai endpoint
 // ============================================================
 export const calculateAndLogCarbon = async ({
   businessId,
@@ -88,13 +76,11 @@ export const calculateAndLogCarbon = async ({
   transactionDate,
 }) => {
   try {
-    // Kirim ke Python API
     const carbonResult = await calculateCarbonWithAI({
       description,
       quantity,
     });
 
-    // Simpan hasil ke carbon_logs
     const carbonLog = await CarbonRepositories.createCarbonLog({
       businessId,
       userId,
@@ -108,7 +94,6 @@ export const calculateAndLogCarbon = async ({
     return carbonLog;
   } catch (error) {
     // Jangan gagalkan transaksi hanya karena carbon log gagal
-    // Cukup log errornya saja
     console.error("Carbon calculation failed:", error.message);
     return null;
   }

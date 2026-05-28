@@ -7,27 +7,6 @@ import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 import TransactionRepositories from "../repositories/transaction-repositories.js";
 import CarbonRepositories from "../../carbon/repositories/carbon-repositories.js";
 
-export const scanReceipt = async (req, res, next) => {
-  if (!req.file) {
-    return next(new InvariantError("File struk tidak ditemukan"));
-  }
-
-  const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
-  if (!allowedMimeTypes.includes(req.file.mimetype)) {
-    return next(
-      new InvariantError(
-        "Format file tidak didukung. Gunakan JPG, PNG, atau WebP",
-      ),
-    );
-  }
-
-  const base64Image = req.file.buffer.toString("base64");
-  const mediaType = req.file.mimetype;
-
-  const extractedData = await scanReceiptWithAI({ base64Image, mediaType });
-  return response(res, 200, "Struk berhasil dianalisis", extractedData);
-};
-
 export const createCategory = async (req, res, next) => {
   const {
     category_name,
@@ -186,4 +165,25 @@ export const deleteTransaction = async (req, res, next) => {
   }
 
   return response(res, 200, "Transaksi berhasil dihapus", deletedTransaction);
+};
+
+export const scanTransactionReceipt = async (req, res, next) => {
+  try {
+    // 1. Pastikan file dikirim dari Postman
+    if (!req.file) {
+      return next(new InvariantError("File struk (receipt) tidak ditemukan"));
+    }
+
+    // 2. Konversi Buffer biner dari Multer ke format teks Base64
+    const base64Image = req.file.buffer.toString("base64");
+    const mediaType = req.file.mimetype; // Mengekstrak "image/jpeg" atau "image/png"
+
+    // 3. Panggil fungsi AI Service dengan parameter objek yang sesuai
+    const aiResult = await scanReceiptWithAI({ base64Image, mediaType });
+
+    // 4. Kembalikan hasil ekstraksi AI ke Postman
+    return response(res, 200, "Struk berhasil dipindai oleh AI", aiResult);
+  } catch (error) {
+    next(error);
+  }
 };

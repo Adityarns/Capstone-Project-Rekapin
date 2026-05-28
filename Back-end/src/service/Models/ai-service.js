@@ -31,7 +31,6 @@ export const scanReceiptWithAI = async ({ base64Image, mediaType }) => {
 
   const result = await response.json();
 
-  // Sesuaikan output dengan yang dibutuhkan frontend
   return {
     title: result.transaction?.title ?? null,
     amount: result.predicted_total ?? null,
