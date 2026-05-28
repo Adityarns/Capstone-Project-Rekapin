@@ -54,6 +54,9 @@ async function _fetch(endpoint, options = {}) {
     ...options,
   };
 
+  if (options.body instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
   // ── Otomatis tambahkan Bearer token jika tersedia ──
   // Setiap request (kecuali login/register) butuh ini.
   // Backend cek: Authorization: Bearer <accessToken>
