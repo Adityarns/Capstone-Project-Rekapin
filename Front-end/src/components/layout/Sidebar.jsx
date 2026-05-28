@@ -10,6 +10,7 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import LogoutConfirmModal from "../profile/LogoutConfirmModal";
+import LogoIcon from "../../assets/logo/Logo.png";
 import "./Sidebar.css";
 
 /* ── Icons (inline SVG, zero dependency) ─────────────────────── */
@@ -117,8 +118,16 @@ export default function Sidebar() {
 
       {/* ── Logo ── */}
       <div className="sidebar-logo">
-        <p className="sidebar-logo-text">Rekapin</p>
-        <p className="sidebar-logo-sub">MSME INTELLIGENCE</p>
+        <img
+          src={LogoIcon}
+          alt=""
+          className="sidebar-logo-icon"
+          aria-hidden="true"
+        />
+        <div className="sidebar-logo-text-group">
+          <p className="sidebar-logo-text">Rekapin</p>
+          <p className="sidebar-logo-sub">MSME INTELLIGENCE</p>
+        </div>
       </div>
 
       {/* ── CTA ── */}

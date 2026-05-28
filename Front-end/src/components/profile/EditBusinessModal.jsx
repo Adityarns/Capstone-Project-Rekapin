@@ -18,11 +18,13 @@ const IconChevronDown = () => (
 
 export default function EditBusinessModal({ isOpen, onClose, form, onChange, onSave }) {
   const handleSave = () => {
-    // TODO: PUT /businesses/:id
-    console.log("Save business:", form);
-    onSave(form);
-    onClose();
-  };
+  console.log("Save business:", form);
+
+  if (!form) return;
+
+  onSave(form);
+  onClose();
+};
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Business Info">

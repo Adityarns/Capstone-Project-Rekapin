@@ -21,6 +21,7 @@
 import { useState, useMemo } from "react";   // useRef removed
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { updateBusiness } from "../../services/businessService";
 
 import ProfileCard          from "../../components/profile/ProfileCard";
 import BusinessInfo         from "../../components/profile/BusinessInfo";
@@ -77,6 +78,7 @@ const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 export default function ProfileSettings() {
   const navigate = useNavigate();
   const { logout, user, updateUser } = useAuth();
+  console.log("USER DATA:", user);
   const DEMO_ROLE = user?.role || "owner";
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const isOwner  = DEMO_ROLE === "owner";
@@ -135,10 +137,19 @@ export default function ProfileSettings() {
     openModal("editBusiness");
   };
 
-  const handleBizSave = (saved) => {
+  const handleBizSave = async (saved) => {
+  try {
+    await updateBusiness(user.businessId, saved);
+
     setBusiness({ ...saved });
+
     closeModal("editBusiness");
-  };
+
+    console.log("Business updated successfully");
+  } catch (err) {
+    console.error("Failed update business:", err);
+  }
+};
 
   /* Profile save — does NOT commit to savedSnapshot yet.
    * User still needs to press "Save Changes" to persist. */
