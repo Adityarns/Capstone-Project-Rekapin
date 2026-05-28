@@ -130,10 +130,26 @@ export async function apiRequest(endpoint, options = {}) {
 
 export const api = {
   get: (url, opts) => apiRequest(url, { method: "GET", ...opts }),
+
   post: (url, body) =>
-    apiRequest(url, { method: "POST", body: JSON.stringify(body) }),
+    apiRequest(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
   put: (url, body) =>
-    apiRequest(url, { method: "PUT", body: JSON.stringify(body) }),
+    apiRequest(url, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+
+  patch: (url, body, opts = {}) =>
+    apiRequest(url, {
+      method: "PATCH",
+      body,
+      ...opts,
+    }),
+
   delete: (url, body) =>
     apiRequest(url, {
       method: "DELETE",

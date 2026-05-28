@@ -42,34 +42,50 @@ import {
   mockNotifications,
 } from "../../data/profileData";
 
+import {
+  updateUserProfile,
+  uploadUserAvatar,
+} from "../../services/authService";
 import "./ProfileSettings.css";
 
 /* ── Helpers ── */
 
-const INIT_PROFILE = {
-  name:      mockUser.name,
-  email:     mockUser.email,
-  phone:     mockUser.phone,
-  initials:  mockUser.initials,
-  avatarSrc: mockUser.avatarSrc,
-};
+//const INIT_PROFILE = {
+  //name:      mockUser.name,
+  //email:     mockUser.email,
+  //phone:     mockUser.phone,
+  //initials:  mockUser.initials,
+  //avatarSrc: mockUser.avatarSrc,
+//};
+
+const INIT_PROFILE = (user) => ({
+  name:      user?.name    || "",
+  email:     user?.email   || "",
+  phone:     user?.phone   || "",
+  initials:  user?.initials  || "",
+  avatarSrc: user?.avatarSrc || "",
+});
 
 /* Stable shallow comparison via JSON — safe for plain data objects */
 const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 /* Change to "employee" to preview employee role UI */
-const DEMO_ROLE = mockUser.role;
+//const DEMO_ROLE = mockUser.role;
 
 /* ══════════════════════════════════════════════════════════ */
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
   const { logout, user, updateUser } = useAuth();
+  const DEMO_ROLE = user?.role || "owner";
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const isOwner  = DEMO_ROLE === "owner";
 
   /* ── Current state (what the user is editing) ── */
-  const [userProfile,   setUserProfile]   = useState({ ...INIT_PROFILE });
+  //const [userProfile,   setUserProfile]   = useState({ ...INIT_PROFILE });
+  const [userProfile, setUserProfile] = useState(
+    INIT_PROFILE(user)
+  );
   const [business,      setBusiness]      = useState({ ...mockBusiness });
   const [bizDraft,      setBizDraft]      = useState({ ...mockBusiness });
   const [notifications, setNotifications] = useState({ ...mockNotifications });
@@ -85,7 +101,8 @@ export default function ProfileSettings() {
    *  useState is always safe to read during render.
    * ─────────────────────────────────────────────────────────── */
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
-    profile:  { ...INIT_PROFILE },
+    //profile:  { ...INIT_PROFILE },
+    profile: { ...INIT_PROFILE(user) },
     business: { ...mockBusiness },
     notifs:   { ...mockNotifications },
   }));
@@ -125,21 +142,47 @@ export default function ProfileSettings() {
 
   /* Profile save — does NOT commit to savedSnapshot yet.
    * User still needs to press "Save Changes" to persist. */
-  const handleProfileSave = (saved) => {
-    setUserProfile((prev) => ({
-      ...prev,
-      name:      saved.name,
-      email:     saved.email,
-      phone:     saved.phone,
-      avatarSrc: saved.avatarSrc,
-    }));
+  const handleProfileSave = async (saved) => {
+    try {
+      let avatarUrl = user?.avatarSrc;
 
-    // Sync ke global auth context
-    updateUser({
-      name: saved.name,
-      email: saved.email,
-      avatarSrc: saved.avatarSrc,
-    });
+      // upload avatar jika ada file baru
+      if (saved.avatarFile) {
+        const avatarResponse = await uploadUserAvatar(
+          user.userId,
+          saved.avatarFile
+        );
+
+        avatarUrl = avatarResponse.avatarUrl;
+      }
+
+      // update data user ke backend
+      await updateUserProfile(user.userId, {
+        name: saved.name,
+        email: saved.email,
+        role: user.role,
+      });
+
+      // update state lokal
+      setUserProfile((prev) => ({
+        ...prev,
+        name: saved.name,
+        email: saved.email,
+        phone: saved.phone,
+        avatarSrc: avatarUrl,
+      }));
+
+      // sync auth context
+      updateUser({
+        name: saved.name,
+        email: saved.email,
+        avatarSrc: avatarUrl,
+      });
+
+      console.log("Profile updated successfully");
+    } catch (err) {
+      console.error("Failed update profile:", err);
+    }
   };
 
   const handleNotifChange = (key, value) => {

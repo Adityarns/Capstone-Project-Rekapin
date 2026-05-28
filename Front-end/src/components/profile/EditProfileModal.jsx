@@ -60,6 +60,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSave }) {
   }));
 
   const [avatarPreview, setPreview] = useState(() => user?.avatarSrc ?? null);
+  const [avatarFile, setAvatarFile] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -68,12 +69,19 @@ export default function EditProfileModal({ isOpen, onClose, user, onSave }) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
+    reader.onloadend = () => {
+      setPreview(reader.result);
+      setAvatarFile(file);
+    };
     reader.readAsDataURL(file);
   };
 
   const handleSave = () => {
-    onSave({ ...draft, avatarSrc: avatarPreview });
+    onSave({
+      ...draft,
+      avatarSrc: avatarPreview,
+      avatarFile,
+    });
     onClose();
   };
 

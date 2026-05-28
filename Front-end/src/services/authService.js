@@ -144,3 +144,31 @@ export async function getUserById(userId) {
 export function isSessionActive() {
   return !!tokenStorage.getAccess();
 }
+
+// ── UPDATE USER PROFILE ──────────────────────────────────────
+// PUT /users/:id
+
+export async function updateUserProfile(userId, payload) {
+  const response = await api.put(`/users/${userId}`, {
+    username: payload.name,
+    email: payload.email,
+    role: payload.role,
+  });
+
+  return response.data;
+}
+
+export async function uploadUserAvatar(userId, file) {
+  const formData = new FormData();
+
+  // HARUS "avatar"
+  // karena backend pakai upload.single("avatar")
+  formData.append("avatar", file);
+
+  const response = await api.patch(
+    `/users/${userId}/avatar`,
+    formData
+  );
+
+  return response.data;
+}

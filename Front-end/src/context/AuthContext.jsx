@@ -99,6 +99,7 @@ export function AuthProvider({ children }) {
       // loginUser() di authService.js yang handle fetch + simpan token
       const tokenData = await loginUser({ email, password, invitationCode });
       const profile = await getUserById(tokenData.userId);
+      console.log("PROFILE FROM API:", profile);
 
       // ── Setelah dapat token, simpan info user minimal ──────
       // Idealnya kita decode JWT atau GET /users/:id
@@ -108,6 +109,7 @@ export function AuthProvider({ children }) {
         userId: profile.user_id,
         name: profile.username,
         email: profile.email,
+        role: profile.role,
         avatarSrc: profile.avatar_url,
 
         initials: profile.username
