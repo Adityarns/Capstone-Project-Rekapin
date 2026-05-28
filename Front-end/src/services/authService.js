@@ -167,10 +167,7 @@ export async function uploadUserAvatar(userId, file) {
   // karena backend pakai upload.single("avatar")
   formData.append("avatar", file);
 
-  const response = await api.patch(
-    `/users/${userId}/avatar`,
-    formData
-  );
+  const response = await api.patch(`/users/${userId}/avatar`, formData);
 
   return response.data;
 }

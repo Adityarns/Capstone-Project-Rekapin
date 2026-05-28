@@ -58,18 +58,26 @@ class FinancialReportService {
         ),
       ]);
 
+    // Memastikan pemetaan properti d.type berjalan mulus dari database
     const currentRevenue = currentData
       .filter((d) => d.type === "income")
-      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+      .reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
+
     const currentExpense = currentData
       .filter((d) => d.type === "expense")
-      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+      .reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
+
     const prevRevenue = prevData
       .filter((d) => d.type === "income")
-      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+      .reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
+
     const prevExpense = prevData
       .filter((d) => d.type === "expense")
-      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+      .reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
+      
+    // Hitung Net Income secara presisi
+    const currentNetIncome = currentRevenue - currentExpense;
+    const prevNetIncome = prevRevenue - prevExpense;
 
     return {
       summary: {
@@ -78,21 +86,21 @@ class FinancialReportService {
           currentRevenue,
           prevRevenue,
         ),
-        net_income: currentRevenue - currentExpense,
+        net_income: currentNetIncome,
         net_income_variance_percent: calculateVariance(
-          currentRevenue - currentExpense,
-          prevRevenue - prevExpense,
+          currentNetIncome,
+          prevNetIncome,
         ),
         carbon_footprint_tons: parseFloat(
-          (parseFloat(currentCarbon.total_carbon) / 1000).toFixed(6),
+          (parseFloat(currentCarbon?.total_carbon || 0) / 1000).toFixed(6),
         ),
         carbon_variance_percent: calculateVariance(
-          parseFloat(currentCarbon.total_carbon),
-          parseFloat(prevCarbon.total_carbon),
+          parseFloat(currentCarbon?.total_carbon || 0),
+          parseFloat(prevCarbon?.total_carbon || 0),
         ),
         is_carbon_on_track:
-          parseFloat(currentCarbon.total_carbon) <=
-          parseFloat(prevCarbon.total_carbon),
+          parseFloat(currentCarbon?.total_carbon || 0) <=
+          parseFloat(prevCarbon?.total_carbon || 0),
       },
       cash_flow: cashFlow.map((cf) => ({
         month: cf.month_name,
@@ -135,10 +143,19 @@ class FinancialReportService {
       const rent = getAmount(data, "Rent") || getAmount(data, "Beban Sewa");
       const util =
         getAmount(data, "Utilities") || getAmount(data, "Beban Utilitas");
+
+      // Ekstraksi nilai untuk kategori baru: Transportation
+      const trans =
+        getAmount(data, "Transportation") ||
+        getAmount(data, "Beban Transportasi");
+
       const totalExp = data
         .filter((d) => d.type === "expense")
         .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
-      const other = totalExp - (cogs + sal + rent + util);
+
+      // Mengurangi total pengeluaran dengan beban transportasi agar data other_expenses tidak dobel
+      const other = totalExp - (cogs + sal + rent + util + trans);
+
       return {
         rev,
         cogs,
@@ -146,9 +163,10 @@ class FinancialReportService {
         sal,
         rent,
         util,
+        trans,
         other,
-        totalOp: sal + rent + util + other,
-        net: rev - cogs - (sal + rent + util + other),
+        totalOp: sal + rent + util + trans + other,
+        net: rev - cogs - (sal + rent + util + trans + other),
       };
     };
 
@@ -191,6 +209,12 @@ class FinancialReportService {
             current: c.util,
             previous: p.util,
             variance: calculateVariance(c.util, p.util),
+          },
+          // Memasukkan metrik transportasi baru ke dalam skema respons objek laba rugi
+          transportation: {
+            current: c.trans,
+            previous: p.trans,
+            variance: calculateVariance(c.trans, p.trans),
           },
           other_expenses: {
             current: c.other,

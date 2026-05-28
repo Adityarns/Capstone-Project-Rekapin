@@ -79,36 +79,52 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   const { email, password, invitationCode } = req.validated;
 
+  // 1. Validasi kredensial pengguna
   const userId = await UserRepositories.verifyUserCredential(email, password);
   if (!userId) {
     return next(new NotFoundError("Kredensial yang Anda berikan salah"));
   }
-  
+
+  // Variabel penampung tunggal yang sah
+  let targetBusinessId = null;
+
+  // 2. LOGIKA JALUR KODE UNDANGAN (EMPLOYEE)
   if (invitationCode) {
     const business =
       await BusinessRepositories.findByInvitationCode(invitationCode);
-    console.log("Business found:", business); // CEK INI
+    console.log("Business found:", business);
 
     if (!business) {
       return next(new InvariantError("Kode undangan tidak valid"));
     }
 
+    // MEMPERBAIKI VARIABEL: Gunakan targetBusinessId
+    targetBusinessId = business.business_id;
+
     const isMember = await TeamMemberRepositories.isMember({
       businessId: business.business_id,
       userId,
     });
-    console.log("Already member:", isMember); // CEK INI
+    console.log("Already member:", isMember);
 
     if (!isMember) {
-      const added = await TeamMemberRepositories.addTeamMember({
+      await TeamMemberRepositories.addTeamMember({
         businessId: business.business_id,
         userId,
         role: "employee",
       });
-      console.log("Add result:", added); // CEK INI
+    }
+  } else {
+    // 3. LOGIKA JALUR LOGIN BIASA (OWNER / USER LAMA)
+    // Mencari ID bisnis yang terikat dengan user ini secara otomatis
+    const userBusiness =
+      await BusinessRepositories.findBusinessIdByUserId(userId);
+    if (userBusiness) {
+      targetBusinessId = userBusiness.business_id;
     }
   }
 
+  // 4. Manajemen pembuatan Token JWT
   const accessToken = TokenManager.generateAccessToken({ user_id: userId });
   const refreshToken = TokenManager.generateRefreshToken({ user_id: userId });
   const { exp } = TokenManager.verifyRefreshToken(refreshToken);
@@ -119,9 +135,22 @@ export const login = async (req, res, next) => {
     expiresAt: new Date(exp * 1000),
   });
 
+  // 5. Ambil detail profil user untuk disuplai ke AuthContext Frontend
+  const userProfile = await UserRepositories.getUserById(userId);
+
+  // 6. ── RESPON PENYELARAS UTAMA (BEBAS UNDEFINED) ────────────────────────────
   return response(res, 200, "Authentication berhasil ditambahkan", {
     accessToken,
     refreshToken,
+    user: {
+      user_id: userId, // Samakan dengan console log frontend (user_id)
+      username: userProfile?.username || "Aditya",
+      email: userProfile?.email || email,
+      role: invitationCode ? "employee" : userProfile?.role || "owner",
+      business_id: targetBusinessId, // <-- Nilai dijamin terisi string ID asli dari DB
+      business_name: userProfile?.business_name || null, // <-- Bisa null jika tidak ada bisnis terkait
+      avatar_url: userProfile?.avatar_url || null, // <-- Bisa null jika tidak ada avatar
+    },
   });
 };
 

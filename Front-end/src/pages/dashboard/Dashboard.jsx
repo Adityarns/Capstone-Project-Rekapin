@@ -19,10 +19,28 @@ import AiInsightCard from "../../components/dashboard/AiInsightCard";
 import SustainabilityCard from "../../components/dashboard/SustainabilityCard";
 import QuickTipCard from "../../components/dashboard/QuickTipCard";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 import "./Dashboard.css";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { businessId } = useParams(); // Membaca URL saat ini
+  const { user, isLoading } = useAuth(); // Ambil data user global
+
+  useEffect(() => {
+    // ── KONDISI PENJAGA UTAMA ────────────────────────────────
+    // Jangan lakukan navigasi apa pun jika sesi masih memuat (loading)
+    if (isLoading || !user) return;
+
+    // Jika URL saat ini bertuliskan 'undefined' DAN data bisnis asli sudah siap dari API
+    if ((!businessId || businessId === "undefined") && user.business_id) {
+      // Paksa rute URL untuk memperbarui dirinya ke ID bisnis yang sah!
+      navigate(`/dashboard/${user.business_id}`, { replace: true });
+    }
+  }, [businessId, user, isLoading, navigate]);
   const { totalIncome, totalExpense, netCashFlow, carbonFootprint } =
     summaryData;
 
