@@ -107,6 +107,7 @@ export function AuthProvider({ children }) {
       // TODO: setelah dapat userId dari token, panggil getUserById()
       const userData = {
         userId: profile.user_id,
+        businessId: profile.business_id,
         name: profile.username,
         email: profile.email,
         role: profile.role,
