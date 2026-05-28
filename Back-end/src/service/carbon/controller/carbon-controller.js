@@ -16,7 +16,7 @@ export const getCarbonSummary = async (req, res, next) => {
 
   // Ambil kategori penyumbang emisi tertinggi bulan ini dari data breakdown Anda
   if (summary.breakdown && summary.breakdown.length > 0) {
-    const topCategory = summary.breakdown[0].category; // e.g., "Electricity" atau "Fuel"
+    const topCategory = summary.breakdown[0].category; // e.g., "Electricity" atau "Transportation"
 
     // Cek apakah performa bulan ini lebih buruk atau lebih baik dari bulan lalu
     // Jika change_percent positif (> 0) artinya emisi naik (worse)
@@ -26,7 +26,7 @@ export const getCarbonSummary = async (req, res, next) => {
     // Ambil teks yang sesuai dari bank data berdasarkan kategori tertinggi dan statusnya
     if (GREEN_INSIGHTS_BANK[topCategory]) {
       insights.push({
-        icon: topCategory === "Electricity" ? "lightning" : "truck",
+        icon: topCategory === "Electricity" ? "lightning" : "Transportation",
         title: GREEN_INSIGHTS_BANK[topCategory][status].title,
         description: GREEN_INSIGHTS_BANK[topCategory][status].description,
       });

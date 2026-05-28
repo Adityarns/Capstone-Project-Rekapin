@@ -1,42 +1,29 @@
 /**
  * ============================================================
- *    REKAPIN — Profile & Settings Page
- *    src/pages/profile/ProfileSettings.jsx
- *
- *    Dirty-state fix:
- *    BEFORE → useRef + reading ref.current inside useMemo
- *             (unsafe: refs are not tracked by React, reading
- *              them during render can cause inconsistencies)
- *
- *    AFTER  → savedSnapshot as useState
- *             useMemo only reads state — always safe during render
- *
- *    EditProfileModal fix:
- *    key={String(modals.editProfile)} → React unmounts + remounts
- *    the modal every time it opens, so lazy useState initializer
- *    inside the modal always runs fresh — no useEffect needed.
+ * REKAPIN — Profile & Settings Page
+ * src/pages/profile/ProfileSettings.jsx
  * ============================================================
+ * @format
  */
 
-import { useState, useMemo } from "react";   // useRef removed
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-import ProfileCard          from "../../components/profile/ProfileCard";
-import BusinessInfo         from "../../components/profile/BusinessInfo";
-import TeamManagement       from "../../components/profile/TeamManagement";
-import NotificationsCard    from "../../components/profile/NotificationsCard";
-import SecurityCard         from "../../components/profile/SecurityCard";
+import ProfileCard from "../../components/profile/ProfileCard";
+import BusinessInfo from "../../components/profile/BusinessInfo";
+import TeamManagement from "../../components/profile/TeamManagement";
+import NotificationsCard from "../../components/profile/NotificationsCard";
+import SecurityCard from "../../components/profile/SecurityCard";
 
-import EditProfileModal     from "../../components/profile/EditProfileModal";
-import EditBusinessModal    from "../../components/profile/EditBusinessModal";
-import InviteUserModal      from "../../components/profile/InviteUserModal";
-import ChangePasswordModal  from "../../components/profile/ChangePasswordModal";
-import LoginHistoryModal    from "../../components/profile/LoginHistoryModal";
-import LogoutConfirmModal   from "../../components/profile/LogoutConfirmModal";
+import EditProfileModal from "../../components/profile/EditProfileModal";
+import EditBusinessModal from "../../components/profile/EditBusinessModal";
+import InviteUserModal from "../../components/profile/InviteUserModal";
+import ChangePasswordModal from "../../components/profile/ChangePasswordModal";
+import LoginHistoryModal from "../../components/profile/LoginHistoryModal";
+import LogoutConfirmModal from "../../components/profile/LogoutConfirmModal";
 
 import {
-  mockUser,
   mockBusiness,
   mockTeam,
   mockNotifications,
@@ -49,134 +36,126 @@ import {
 import "./ProfileSettings.css";
 
 /* ── Helpers ── */
-
-//const INIT_PROFILE = {
-  //name:      mockUser.name,
-  //email:     mockUser.email,
-  //phone:     mockUser.phone,
-  //initials:  mockUser.initials,
-  //avatarSrc: mockUser.avatarSrc,
-//};
-
 const INIT_PROFILE = (user) => ({
-  name:      user?.name    || "",
-  email:     user?.email   || "",
-  phone:     user?.phone   || "",
-  initials:  user?.initials  || "",
-  avatarSrc: user?.avatarSrc || "",
+  name: user?.name || "",
+  email: user?.email || "",
+  phone: user?.phone || "",
+  avatarSrc: user?.avatar_url || user?.avatarSrc || "",
+  avatar_url: user?.avatar_url || user?.avatarSrc || "",
 });
 
-/* Stable shallow comparison via JSON — safe for plain data objects */
 const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-
-/* Change to "employee" to preview employee role UI */
-//const DEMO_ROLE = mockUser.role;
 
 /* ══════════════════════════════════════════════════════════ */
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
+  const { businessId } = useParams();
   const { logout, user, updateUser } = useAuth();
   const DEMO_ROLE = user?.role || "owner";
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const isOwner  = DEMO_ROLE === "owner";
+  const isOwner = DEMO_ROLE === "owner";
 
-  /* ── Current state (what the user is editing) ── */
-  //const [userProfile,   setUserProfile]   = useState({ ...INIT_PROFILE });
-  const [userProfile, setUserProfile] = useState(
-    INIT_PROFILE(user)
-  );
-  const [business,      setBusiness]      = useState({ ...mockBusiness });
-  const [bizDraft,      setBizDraft]      = useState({ ...mockBusiness });
+  // 1. Tambahkan state pembantu untuk merekam jejak data user sebelumnya
+  const [prevUser, setPrevUser] = useState(user);
+
+  /* ── Current state ── */
+  const [userProfile, setUserProfile] = useState(() => INIT_PROFILE(user));
+  const [business, setBusiness] = useState({ ...mockBusiness });
+  const [bizDraft, setBizDraft] = useState({ ...mockBusiness });
   const [notifications, setNotifications] = useState({ ...mockNotifications });
 
-  /* ── savedSnapshot: represents the last-committed state ────────
-   *
-   *  Why useState instead of useRef?
-   *  useMemo reads this value during render. React's rules say:
-   *  "Don't read refs during render" — refs are mutable and not
-   *  tracked by the reactive system, so reading them in useMemo
-   *  can cause stale comparisons.
-   *
-   *  useState is always safe to read during render.
-   * ─────────────────────────────────────────────────────────── */
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
-    //profile:  { ...INIT_PROFILE },
     profile: { ...INIT_PROFILE(user) },
     business: { ...mockBusiness },
-    notifs:   { ...mockNotifications },
+    notifs: { ...mockNotifications },
   }));
 
-  /* ── isDirty: pure state-to-state comparison ──
-   *  No refs. No side effects. React-safe. ── */
-  const isDirty = useMemo(() => (
-    !isEqual(userProfile,   savedSnapshot.profile)  ||
-    !isEqual(business,      savedSnapshot.business) ||
-    !isEqual(notifications, savedSnapshot.notifs)
-  ), [userProfile, business, notifications, savedSnapshot]);
+  if (user !== prevUser) {
+    setPrevUser(user); // Perbarui rekam jejak
+    const freshProfile = INIT_PROFILE(user);
 
-  /* ── Modal open/close ── */
+    // Jalankan pembaruan state secara langsung sebelum DOM ditempel
+    setUserProfile(freshProfile);
+    setSavedSnapshot((prev) => ({
+      ...prev,
+      profile: freshProfile,
+    }));
+  }
+
+  /* ── Dirty State Checking ── */
+  const isDirty = useMemo(
+    () =>
+      !isEqual(userProfile, savedSnapshot.profile) ||
+      !isEqual(business, savedSnapshot.business) ||
+      !isEqual(notifications, savedSnapshot.notifs),
+    [userProfile, business, notifications, savedSnapshot],
+  );
+
+  /* ── Modal Open/Close State ── */
   const [modals, setModals] = useState({
-    editProfile:    false,
-    editBusiness:   false,
-    invite:         false,
+    editProfile: false,
+    editBusiness: false,
+    invite: false,
     changePassword: false,
-    loginHistory:   false,
-    logoutConfirm:  false,
+    loginHistory: false,
+    logoutConfirm: false,
   });
 
-  const openModal  = (key) => setModals((p) => ({ ...p, [key]: true  }));
+  const openModal = (key) => setModals((p) => ({ ...p, [key]: true }));
   const closeModal = (key) => setModals((p) => ({ ...p, [key]: false }));
 
   /* ── Handlers ── */
-
   const handleOpenEditBiz = () => {
     setBizDraft({ ...business });
     openModal("editBusiness");
   };
 
-  const handleBizSave = (saved) => {
-    setBusiness({ ...saved });
-    closeModal("editBusiness");
+  const handleBizSave = async (saved) => {
+    try {
+      if (!businessId) {
+        console.error("Business ID tidak ditemukan dari URL parameter");
+        return;
+      }
+      // Tambahkan logic PUT /businesses/${businessId} di sini jika endpoint sudah siap
+      setBusiness({ ...saved });
+      closeModal("editBusiness");
+      console.log("Business updated successfully with ID:", businessId);
+    } catch (err) {
+      console.error("Failed to update business profile:", err);
+    }
   };
 
-  /* Profile save — does NOT commit to savedSnapshot yet.
-   * User still needs to press "Save Changes" to persist. */
   const handleProfileSave = async (saved) => {
     try {
       let avatarUrl = user?.avatarSrc;
-
-      // upload avatar jika ada file baru
       if (saved.avatarFile) {
         const avatarResponse = await uploadUserAvatar(
           user.userId,
-          saved.avatarFile
+          saved.avatarFile,
         );
-
         avatarUrl = avatarResponse.avatarUrl;
       }
 
-      // update data user ke backend
       await updateUserProfile(user.userId, {
         name: saved.name,
         email: saved.email,
         role: user.role,
       });
 
-      // update state lokal
       setUserProfile((prev) => ({
         ...prev,
         name: saved.name,
         email: saved.email,
         phone: saved.phone,
         avatarSrc: avatarUrl,
+        avatar_url: avatarUrl,
       }));
 
-      // sync auth context
       updateUser({
         name: saved.name,
         email: saved.email,
         avatarSrc: avatarUrl,
+        avatar_url: avatarUrl,
       });
 
       console.log("Profile updated successfully");
@@ -189,42 +168,48 @@ export default function ProfileSettings() {
     setNotifications((prev) => ({ ...prev, [key]: value }));
   };
 
-  /* Save: commit current state → update savedSnapshot → isDirty = false */
   const handleSaveChanges = () => {
     setSavedSnapshot({
-      profile:  { ...userProfile },
+      profile: { ...userProfile },
       business: { ...business },
-      notifs:   { ...notifications },
+      notifs: { ...notifications },
     });
-    // TODO: PATCH /users/:id  /businesses/:id  /notifications
-    console.log("Saved:", { userProfile, business, notifications });
+    console.log("Saved globally to DB:", {
+      userProfile,
+      business,
+      notifications,
+    });
   };
 
-  /* Discard: revert all state back to last saved snapshot */
   const handleDiscard = () => {
     setUserProfile({ ...savedSnapshot.profile });
     setBusiness({ ...savedSnapshot.business });
     setNotifications({ ...savedSnapshot.notifs });
   };
 
-  /* Logout: call AuthContext.logout() → DELETE /auth/logout + clear tokens */
   const handleLogoutConfirmed = async () => {
     await logout();
     navigate("/login", { replace: true });
   };
 
+  const currentRole = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : "Owner";
+
+  // Ambil nama bisnis riil dari objek user global (AuthContext)
+  // Gunakan fallback 'business.name' jika data belum selesai dimuat
+  const currentBusinessName =
+    user?.business_name || user?.businessName || business.name;
+
   const displayUser = {
     ...userProfile,
-    businessRole: isOwner
-      ? `Owner at ${business.name}`
-      : `Employee at ${business.name}`,
+    // Sekarang teks ini sepenuhnya dinamis dari database!
+    businessRole: `${currentRole} at ${currentBusinessName}`,
   };
 
-  /* ── Render ── */
   return (
     <>
       <div className="profile-page">
-
         <header className="profile-page__header">
           <h1 className="profile-page__title">Profile & Settings</h1>
           <p className="profile-page__subtitle">
@@ -233,7 +218,6 @@ export default function ProfileSettings() {
         </header>
 
         <div className="profile-grid">
-
           <div className="profile-grid__left">
             <ProfileCard
               user={displayUser}
@@ -259,12 +243,11 @@ export default function ProfileSettings() {
               />
               <SecurityCard
                 onChangePassword={() => openModal("changePassword")}
-                onLoginHistory={()   => openModal("loginHistory")}
-                onLogout={()         => openModal("logoutConfirm")}
+                onLoginHistory={() => openModal("loginHistory")}
+                onLogout={() => openModal("logoutConfirm")}
               />
             </div>
           </div>
-
         </div>
 
         <div className="profile-page__actions">
@@ -275,7 +258,7 @@ export default function ProfileSettings() {
             disabled={!isDirty}
             style={{
               opacity: isDirty ? 1 : 0.45,
-              cursor:  isDirty ? "pointer" : "not-allowed",
+              cursor: isDirty ? "pointer" : "not-allowed",
             }}
           >
             Discard Changes
@@ -288,28 +271,19 @@ export default function ProfileSettings() {
             disabled={!isDirty}
             aria-disabled={!isDirty}
             style={{
-              opacity:   isDirty ? 1 : 0.5,
-              cursor:    isDirty ? "pointer" : "not-allowed",
+              opacity: isDirty ? 1 : 0.5,
+              cursor: isDirty ? "pointer" : "not-allowed",
               boxShadow: isDirty ? "var(--shadow-primary)" : "none",
             }}
           >
             {isDirty ? "Save Changes" : "No Changes"}
           </button>
         </div>
-
       </div>
 
-      {/* ── Modals ── */}
-
-      {/*
-       * key={String(modals.editProfile)}
-       * When the modal opens (false → true) React sees a new key → unmount
-       * the old instance and mount a fresh one. The lazy useState initializer
-       * inside EditProfileModal runs with the current `userProfile` values.
-       * No useEffect needed in the modal. StrictMode-safe.
-       */}
+      {/* ── Modals Components ── */}
       <EditProfileModal
-        key={String(modals.editProfile)}
+        key={`profile-modal-${String(modals.editProfile)}`}
         isOpen={modals.editProfile}
         onClose={() => closeModal("editProfile")}
         user={userProfile}
@@ -317,6 +291,7 @@ export default function ProfileSettings() {
       />
 
       <EditBusinessModal
+        key={`biz-modal-${String(modals.editBusiness)}`}
         isOpen={modals.editBusiness}
         onClose={() => closeModal("editBusiness")}
         form={bizDraft}

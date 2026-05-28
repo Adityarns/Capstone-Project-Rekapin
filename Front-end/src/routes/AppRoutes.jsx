@@ -41,10 +41,10 @@ function LoadingScreen() {
 
 /* ── Guards ── */
 //function ProtectedRoute({ children }) {
-  //const { isAuthenticated, isLoading } = useAuth();
-  //if (isLoading) return <LoadingScreen />;
-  //if (!isAuthenticated) return <Navigate to="/login" replace />;
-  //return children;
+//const { isAuthenticated, isLoading } = useAuth();
+//if (isLoading) return <LoadingScreen />;
+//if (!isAuthenticated) return <Navigate to="/login" replace />;
+//return children;
 //}
 
 function ProtectedRoute({ children }) {
@@ -52,10 +52,10 @@ function ProtectedRoute({ children }) {
 }
 
 //function PublicRoute({ children }) {
-  //const { isAuthenticated, isLoading } = useAuth();
-  //if (isLoading) return null;
-  //if (isAuthenticated) return <Navigate to="/dashboard" replace />;
-  //return children;
+//const { isAuthenticated, isLoading } = useAuth();
+//if (isLoading) return null;
+//if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+//return children;
 //}
 
 function PublicRoute({ children }) {
@@ -99,12 +99,12 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/transactions" element={<Transactions />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/carbon" element={<CarbonTracking />} />
-        <Route path="/profile" element={<ProfileSettings />} />
-        <Route path="/support" element={<Team />} />
+        <Route path="/dashboard/:businessId" element={<Dashboard />} />
+        <Route path="/transactions/:businessId" element={<Transactions />} />
+        <Route path="/reports/:businessId" element={<Reports />} />
+        <Route path="/carbon/:businessId" element={<CarbonTracking />} />
+        <Route path="/profile/:businessId" element={<ProfileSettings />} />
+        <Route path="/support/:businessId" element={<Team />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

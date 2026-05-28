@@ -96,36 +96,31 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async ({ email, password, invitationCode }) => {
     try {
-      // loginUser() di authService.js yang handle fetch + simpan token
-      const tokenData = await loginUser({ email, password, invitationCode });
-      const profile = await getUserById(tokenData.userId);
-      console.log("PROFILE FROM API:", profile);
+      // 1. Hanya panggil satu endpoint ini saja
+      const loginResponse = await loginUser({
+        email,
+        password,
+        invitationCode,
+      });
 
-      // ── Setelah dapat token, simpan info user minimal ──────
-      // Idealnya kita decode JWT atau GET /users/:id
-      // Untuk sekarang kita simpan email sebagai identitas awal.
-      // TODO: setelah dapat userId dari token, panggil getUserById()
+      // 2. Ambil data user yang sudah dirakit lengkap oleh backend saat login
+      const profile = loginResponse.user;
+
       const userData = {
         userId: profile.user_id,
         name: profile.username,
         email: profile.email,
         role: profile.role,
         avatarSrc: profile.avatar_url,
-
-        initials: profile.username
-          ?.split(" ")
-          .map((w) => w[0])
-          .join("")
-          .slice(0, 2)
-          .toUpperCase(),
+        business_id: profile.business_id,
+        business_name: profile.business_name,
+        avatar_url: profile.avatar_url,
       };
 
       setUser(userData);
       localStorage.setItem("rekapin_user", JSON.stringify(userData));
-
       return { success: true };
     } catch (error) {
-      // Kembalikan pesan error dari backend ke komponen
       return { success: false, message: error.message };
     }
   }, []);
@@ -159,20 +154,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const updateUser = (updatedFields) => {
-  setUser((prev) => {
-    const updatedUser = {
-      ...prev,
-      ...updatedFields,
-    };
+    setUser((prev) => {
+      const updatedUser = {
+        ...prev,
+        ...updatedFields,
+      };
 
-    localStorage.setItem(
-      "rekapin_user",
-      JSON.stringify(updatedUser),
-    );
+      localStorage.setItem("rekapin_user", JSON.stringify(updatedUser));
 
-    return updatedUser;
-  });
-};
+      return updatedUser;
+    });
+  };
 
   // ── Value yang di-share ke seluruh app ───────────────────────
   const value = {

@@ -61,6 +61,18 @@ class BusinessRepositories {
     return result.rows[0];
   }
 
+  async findBusinessIdByUserId(userId) {
+    const query = {
+      text: `SELECT business_id FROM businesses WHERE owner_id = $1
+             UNION
+             SELECT business_id FROM team_members WHERE user_id = $1
+             LIMIT 1`,
+      values: [userId],
+    };
+    const result = await this.pool.query(query);
+    return result.rows[0]; // Mengembalikan objek { business_id: "..." } atau undefined
+  }
+
   async verifyBusinessAccess(userId, businessId) {
     const query = {
       text: `SELECT 1 FROM businesses 

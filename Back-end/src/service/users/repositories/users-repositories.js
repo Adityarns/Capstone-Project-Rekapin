@@ -62,9 +62,12 @@ class UserRepositories {
         u.username, 
         u.email, 
         u.avatar_url,
+        t.business_id,
+        b.business_name,
         t.role 
       FROM users u 
       LEFT JOIN team_members t ON u.user_id = t.user_id 
+      LEFT JOIN businesses b ON t.business_id = b.business_id
       WHERE u.user_id = $1
     `,
       values: [userId],
