@@ -10,29 +10,32 @@
  */
 
 import "./Login.css";
-
-const ColorSwatch = () => (
-  <div className="login-swatch-card" aria-hidden="true">
-    <div className="login-swatch-row swatch-maroon" />
-    <div className="login-swatch-row swatch-sage" />
-    <div className="login-swatch-row swatch-beige" />
-    <div className="login-swatch-row swatch-offwhite" />
-  </div>
-);
+import LogoIcon    from "../../assets/logo/Logo.png";
+import LogoTulisan from "../../assets/logo/LogoTulisan.png";
 
 export default function AuthLayout({ children }) {
   return (
     <div className="login-page">
+
       {/* LEFT — Branding, tidak pernah scroll */}
       <aside className="login-left" aria-label="Branding">
-        <span className="login-brand">Rekapin</span>
+
+        {/* Top-left: mini brand — icon kecil + nama */}
+        <div className="login-brand">
+          <img src={LogoIcon} alt="" className="login-brand-icon" aria-hidden="true" />
+          <span className="login-brand-text">Rekapin</span>
+        </div>
+
         <div className="login-left-content">
-          <ColorSwatch />
+          {/* Center: full logo dengan tulisan */}
+          <img
+            src={LogoTulisan}
+            alt="Rekapin"
+            className="auth-panel-logo"
+          />
           <div className="login-left-copy">
             <h1 className="login-left-heading">
-              Grow your MSME
-              <br />
-              sustainably
+              Grow your MSME<br />sustainably
             </h1>
             <p className="login-left-subtext">
               Institutional-grade financial insights and carbon tracking
@@ -51,8 +54,11 @@ export default function AuthLayout({ children }) {
           - Card panjang (Register) → margin collapse ke 0,
             card dimulai dari atas, panel scroll
         */}
-        <div className="login-right-inner">{children}</div>
+        <div className="login-right-inner">
+          {children}
+        </div>
       </main>
+
     </div>
   );
 }

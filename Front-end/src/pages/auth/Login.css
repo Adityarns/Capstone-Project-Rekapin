@@ -1,13 +1,10 @@
-/**
- * ============================================================
- *    REKAPIN — Login & Auth Page Styles
- *    src/pages/auth/Login.css
- * 
- *    Digunakan oleh: Login.jsx, AuthLayout.jsx (Register juga)
- *    ============================================================
- *
- * @format
- */
+/* ============================================================
+   REKAPIN — Login & Auth Page Styles
+   src/pages/auth/Login.css
+
+   Digunakan oleh: Login.jsx, AuthLayout.jsx (Register juga)
+   ============================================================ */
+
 
 /* ----------------------------------------------------------
    PAGE LAYOUT — Split 50/50, locked to viewport
@@ -47,6 +44,7 @@
   overflow: hidden;
 }
 
+
 /* ----------------------------------------------------------
    LEFT PANEL — Branding (tidak pernah scroll)
 
@@ -72,7 +70,7 @@
 }
 
 .login-left::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: radial-gradient(
@@ -84,14 +82,29 @@
 }
 
 .login-brand {
+  /* Now a row: small icon + "Rekapin" text */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.login-brand-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.login-brand-text {
   font-family: var(--font-display);
   font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   color: var(--color-primary-800);
   letter-spacing: var(--tracking-tight);
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
+  line-height: 1;
 }
 
 .login-left-content {
@@ -118,18 +131,10 @@
   height: 72px;
 }
 
-.swatch-maroon {
-  background-color: var(--color-primary-700);
-}
-.swatch-sage {
-  background-color: var(--color-accent-500);
-}
-.swatch-beige {
-  background-color: var(--color-neutral-300);
-}
-.swatch-offwhite {
-  background-color: var(--color-neutral-100);
-}
+.swatch-maroon   { background-color: var(--color-primary-700); }
+.swatch-sage     { background-color: var(--color-accent-500); }
+.swatch-beige    { background-color: var(--color-neutral-300); }
+.swatch-offwhite { background-color: var(--color-neutral-100); }
 
 .login-left-copy {
   display: flex;
@@ -153,6 +158,7 @@
   max-width: 340px;
   margin: 0 auto;
 }
+
 
 /* ----------------------------------------------------------
    RIGHT PANEL — HANYA panel ini yang scroll
@@ -203,6 +209,7 @@
   padding: var(--space-4) 0;
 }
 
+
 /* ── Auth Card ── */
 .login-card {
   background-color: var(--color-bg-surface);
@@ -235,6 +242,7 @@
   color: var(--color-text-secondary);
   line-height: var(--leading-normal);
 }
+
 
 /* ----------------------------------------------------------
    TAB SWITCHER
@@ -273,6 +281,7 @@
   color: var(--color-text-primary);
   background-color: rgba(255, 255, 255, 0.5);
 }
+
 
 /* ----------------------------------------------------------
    FORM
@@ -349,20 +358,14 @@
   font-weight: var(--weight-regular);
 }
 
-.form-input:hover {
-  border-color: var(--color-border-strong);
-}
+.form-input:hover  { border-color: var(--color-border-strong); }
 
 .form-input:focus {
   border-color: var(--color-primary-400);
-  box-shadow:
-    0 0 0 3px rgba(192, 57, 43, 0.1),
-    var(--shadow-inset);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10), var(--shadow-inset);
 }
 
-.form-input--password {
-  padding-right: var(--space-10);
-}
+.form-input--password { padding-right: var(--space-10); }
 
 .input-toggle-password {
   position: absolute;
@@ -382,9 +385,7 @@
   line-height: 1;
 }
 
-.input-toggle-password:hover {
-  color: var(--color-text-secondary);
-}
+.input-toggle-password:hover { color: var(--color-text-secondary); }
 
 .form-row-meta {
   display: flex;
@@ -424,7 +425,7 @@
 }
 
 .checkbox-custom::after {
-  content: "";
+  content: '';
   display: block;
   width: 9px;
   height: 5px;
@@ -440,9 +441,7 @@
   border-color: var(--color-primary-500);
 }
 
-.checkbox-input:checked + .checkbox-custom::after {
-  opacity: 1;
-}
+.checkbox-input:checked + .checkbox-custom::after { opacity: 1; }
 
 .checkbox-input:focus-visible + .checkbox-custom {
   outline: 2px solid var(--color-primary-400);
@@ -468,18 +467,15 @@
   font-family: var(--font-sans);
 }
 
-.link-subtle:hover {
-  color: var(--color-primary-500);
-}
+.link-subtle:hover { color: var(--color-primary-500); }
 
 .link-subtle--bold {
   font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
 }
 
-.link-subtle--bold:hover {
-  color: var(--color-primary-500);
-}
+.link-subtle--bold:hover { color: var(--color-primary-500); }
+
 
 /* ----------------------------------------------------------
    PRIMARY BUTTON
@@ -500,10 +496,9 @@
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition:
-    background-color var(--duration-normal) var(--ease-default),
-    box-shadow var(--duration-normal) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default);
+  transition: background-color var(--duration-normal) var(--ease-default),
+              box-shadow var(--duration-normal) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
   box-shadow: var(--shadow-primary);
   letter-spacing: var(--tracking-wide);
   line-height: 1;
@@ -529,18 +524,19 @@
   line-height: var(--leading-relaxed);
 }
 
+
 /* ----------------------------------------------------------
    FORM FEEDBACK STATES (shared: Login + Register)
    ---------------------------------------------------------- */
 
 .form-input--error {
   border-color: var(--color-error) !important;
-  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10) !important;
 }
 
 .form-input--success {
   border-color: var(--color-success) !important;
-  box-shadow: 0 0 0 3px rgba(74, 140, 74, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(74, 140, 74, 0.10) !important;
 }
 
 .form-error {
@@ -569,24 +565,22 @@
   line-height: var(--leading-normal);
 }
 
+
 /* ----------------------------------------------------------
    CUSTOM SCROLLBAR — hanya di panel kanan
    Tipis, warm-toned, tidak mengganggu visual
    ---------------------------------------------------------- */
 
-.login-right::-webkit-scrollbar {
-  width: 4px;
-}
-.login-right::-webkit-scrollbar-track {
-  background: transparent;
-}
-.login-right::-webkit-scrollbar-thumb {
+.login-right::-webkit-scrollbar        { width: 4px; }
+.login-right::-webkit-scrollbar-track  { background: transparent; }
+.login-right::-webkit-scrollbar-thumb  {
   background-color: var(--color-neutral-300);
   border-radius: var(--radius-full);
 }
 .login-right::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-neutral-400);
 }
+
 
 /* ----------------------------------------------------------
    RESPONSIVE
@@ -622,24 +616,16 @@
     flex-wrap: wrap;
   }
 
-  .login-swatch-card {
-    width: 140px;
-  }
-  .login-swatch-row {
-    height: 40px;
-  }
+  .login-swatch-card { width: 140px; }
+  .login-swatch-row  { height: 40px; }
 
   .login-left-copy {
     text-align: left;
     max-width: 240px;
   }
 
-  .login-left-heading {
-    font-size: var(--text-2xl);
-  }
-  .login-left-subtext {
-    display: none;
-  }
+  .login-left-heading { font-size: var(--text-2xl); }
+  .login-left-subtext { display: none; }
 
   .login-right {
     height: auto;
@@ -653,9 +639,7 @@
     padding: var(--space-2) 0 var(--space-8);
   }
 
-  .login-card {
-    padding: var(--space-6) var(--space-5);
-  }
+  .login-card { padding: var(--space-6) var(--space-5); }
 }
 
 @media (max-width: 480px) {
@@ -664,24 +648,78 @@
     padding: var(--space-5);
   }
 
-  .login-left-content {
-    gap: var(--space-4);
-  }
-  .login-swatch-card {
-    width: 100px;
-  }
-  .login-swatch-row {
-    height: 30px;
-  }
+  .login-left-content { gap: var(--space-4); }
+  .login-swatch-card  { width: 100px; }
+  .login-swatch-row   { height: 30px; }
 
-  .login-left-copy {
-    max-width: 200px;
-  }
-  .login-left-heading {
-    font-size: var(--text-xl);
-  }
+  .login-left-copy    { max-width: 200px; }
+  .login-left-heading { font-size: var(--text-xl); }
 
-  .login-right {
-    padding: var(--space-4) var(--space-3);
+  .login-right        { padding: var(--space-4) var(--space-3); }
+}
+
+
+/* ----------------------------------------------------------
+   API FEEDBACK BANNERS
+   Tambahan untuk koneksi API — error dan success banner
+   yang muncul di atas form saat ada respons dari backend.
+   ---------------------------------------------------------- */
+
+.login-api-error {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-error-light);
+  border: 1px solid var(--color-primary-200);
+  border-radius: var(--radius-lg);
+  color: var(--color-primary-700);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+}
+
+.login-api-success {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-accent-100);
+  border: 1px solid var(--color-accent-300);
+  border-radius: var(--radius-lg);
+  color: var(--color-accent-700);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+}
+
+/* Disabled state pada submit button saat loading */
+.btn-primary-full:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ----------------------------------------------------------
+   AUTH PANEL LOGO
+   Mengganti color swatch lama. Logo PNG dengan black bg
+   ditampilkan dalam container rounded dengan shadow.
+   ---------------------------------------------------------- */
+
+.auth-panel-logo {
+  /* PNG has transparent background — render clean on pink panel */
+  width: 420px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  /* No border-radius or shadow needed — transparent bg */
+}
+
+/* Mobile: logo lebih kecil supaya tidak mendominasi */
+@media (max-width: 768px) {
+  .auth-panel-logo {
+    width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-panel-logo {
+    width: 160px;
   }
 }

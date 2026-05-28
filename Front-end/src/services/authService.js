@@ -110,7 +110,9 @@ export async function logoutUser() {
   const refreshToken = tokenStorage.getRefresh();
 
   try {
-    await api.delete("/auth/logout", { refreshToken });
+    await api.delete("/auth/logout", {
+      data: { refreshToken },
+    });
   } catch (err) {
     // Jika request gagal (misal token sudah invalid di server),
     // tetap lanjutkan clear token lokal. User harus bisa logout

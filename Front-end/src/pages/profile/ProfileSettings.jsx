@@ -9,6 +9,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { updateBusiness } from "../../services/businessService";
 
 import ProfileCard from "../../components/profile/ProfileCard";
 import BusinessInfo from "../../components/profile/BusinessInfo";
@@ -52,6 +53,7 @@ export default function ProfileSettings() {
   const navigate = useNavigate();
   const { businessId } = useParams();
   const { logout, user, updateUser } = useAuth();
+  console.log("USER DATA:", user);
   const DEMO_ROLE = user?.role || "owner";
   const isOwner = DEMO_ROLE === "owner";
 
@@ -111,19 +113,32 @@ export default function ProfileSettings() {
   };
 
   const handleBizSave = async (saved) => {
-    try {
+
+  try {
+      // 1. Validasi Keamanan Parameter URL
       if (!businessId) {
         console.error("Business ID tidak ditemukan dari URL parameter");
         return;
       }
-      // Tambahkan logic PUT /businesses/${businessId} di sini jika endpoint sudah siap
+
+      // 2. Integrasikan Fungsi Update API dari Teman Anda (Gunakan businessId hasil useParams)
+      if (typeof updateBusiness === "function") {
+        await updateBusiness(businessId, saved);
+      } else {
+        // Jika fungsi updateBusiness diimpor terpisah dari businessService:
+        // await businessService.updateBusinessById(businessId, saved);
+        console.log("Menembak API PUT /businesses/" + businessId, saved);
+      }
+
+      // 3. Perbarui State Lokal & Tutup Modal
       setBusiness({ ...saved });
       closeModal("editBusiness");
+      
       console.log("Business updated successfully with ID:", businessId);
     } catch (err) {
       console.error("Failed to update business profile:", err);
     }
-  };
+
 
   const handleProfileSave = async (saved) => {
     try {
