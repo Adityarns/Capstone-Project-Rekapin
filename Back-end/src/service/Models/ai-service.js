@@ -70,18 +70,65 @@ export const calculateCarbonWithAI = async ({ description, quantity }) => {
 //     Return: prediksi pengeluaran ke depan
 // ============================================================
 export const forecastExpenseWithAI = async ({ dailyTotals }) => {
-  const response = await fetch(`${ML_API_URL}/ml/forecast`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      daily_totals: dailyTotals,
-    }),
-  });
+  try {
+    const { businessId } = req.params;
 
-  if (!response.ok) {
-    throw new Error(`Forecast model error: ${response.statusText}`);
+    if (!businessId) {
+      return response(
+        res,
+        400,
+        "Business ID wajib disertakan dalam URL parameter",
+        null,
+      );
+    }
+
+    // 1. Tarik riwayat pengeluaran agregat harian selama 30 hari ke belakang dari database PostgreSQL
+    const rawHistory =
+      await FinancialReportRepositories.getDailyExpensesLast30Days(businessId);
+
+    // 2. Ekstrak data hasil kueri menjadi array beralas angka float murni sesuai destrukturisasi { dailyTotals }
+    let dailyTotals = rawHistory.map((row) => parseFloat(row.total_amount));
+
+    // Fallback otomatis jika bisnis baru mendaftar dan belum memiliki riwayat transaksi sama sekali
+    if (dailyTotals.length === 0) {
+      dailyTotals = [0.0];
+    }
+
+    // 3. Panggil fungsi dari ai-service.js milik Anda menggunakan pencocokan properti objek: { dailyTotals }
+    const aiResult = await forecastExpenseWithAI({ dailyTotals });
+
+    // 4. Susun struktur data respons balik yang rapi dan informatif untuk di-render di UI Frontend Rekapin
+    const formattedData = {
+      businessId,
+      historicalDaysAnalyzed: rawHistory.length,
+      forecast: {
+        predictedSpendNextHorizon: aiResult.predicted_spend_next_horizon, // Total pengeluaran 30 hari ke depan (Rupiah)
+        predictedDailyAvg: aiResult.predicted_daily_avg, // Rata-rata pengeluaran harian (Rupiah)
+        horizonDays: aiResult.horizon_days, // 30
+        windowDays: aiResult.window_days, // 30
+        confidenceNote: aiResult.confidence_note, // Catatan akurasi
+      },
+    };
+
+    return response(
+      res,
+      200,
+      "AI Expense Forecast berhasil dihitung menggunakan model Bidirectional LSTM",
+      formattedData,
+    );
+  } catch (error) {
+    // Penanganan taktis jika peladen Python FastAPI belum diaktifkan
+    if (
+      error.message.includes("fetch") ||
+      error.message.includes("ECONNREFUSED")
+    ) {
+      return response(
+        res,
+        502,
+        "AI Engine server sedang offline, pastikan backend Python Anda sudah berjalan di port 5000",
+        null,
+      );
+    }
+    next(error);
   }
-
-  const result = await response.json();
-  return result;
 };
