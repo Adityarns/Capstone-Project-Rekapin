@@ -1713,7 +1713,7 @@
       "name": "Businesses",
       "item": [
         {
-          "name": "Get Company by Id with Valid Id Copy",
+          "name": "Get Company by Id with Valid Id",
           "event": [
             {
               "listen": "test",
@@ -1777,7 +1777,7 @@
           "response": []
         },
         {
-          "name": "Get Company by Id with Invalid Id Copy",
+          "name": "Get Company by Id with Invalid Id",
           "event": [
             {
               "listen": "test",
@@ -1813,7 +1813,7 @@
           "response": []
         },
         {
-          "name": "Update Company with Invalid Id Copy",
+          "name": "Update Company with Invalid Id",
           "event": [
             {
               "listen": "test",
@@ -1861,7 +1861,7 @@
           "response": []
         },
         {
-          "name": "Update Company with Valid Id Copy",
+          "name": "Update Company with Valid Id",
           "event": [
             {
               "listen": "test",
@@ -2106,268 +2106,1063 @@
       "name": "Transaction",
       "item": [
         {
-          "name": "Add Transaction Electricity",
-          "event": [
+          "name": "Expense Transactions",
+          "item": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('it should response 201 status code', () => {",
-                  "    pm.expect(pm.response).to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test('response body should have correct property and value', () => {",
-                  "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.status).to.equal('success');",
-                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
-                  "    pm.environment.set('transaction1', responseJson.data.transaction_id);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+              "name": "Add Transaction Electricity 1",
+              "event": [
                 {
-                  "key": "token",
-                  "value": "{{accessToken1}}",
-                  "type": "string"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Bayar token listrik\",\n    \"amount\": 300000,\n    \"quantity\": 5,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"membayar token listrik\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat1}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:{{port}}/transactions",
-              "protocol": "http",
-              "host": [
-                "localhost"
               ],
-              "port": "{{port}}",
-              "path": [
-                "transactions"
-              ]
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Bayar token listrik\",\n    \"amount\": 400000,\n    \"quantity\": 6,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"membayar token listrik\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryElectricity}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Electricity 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction1', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Bayar token listrik\",\n    \"amount\": 200000,\n    \"quantity\": 2,\n    \"date\": \"2026-04-24\",\n    \"type\": \"expense\",\n    \"description\": \"membayar token listrik\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryElectricity}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Transportations 1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Membeli bensin\",\n    \"amount\": 25000,\n    \"quantity\": 2.5,\n    \"date\": \"2026-04-23\",\n    \"type\": \"expense\",\n    \"description\": \"membeli bensin pertalite 4 liter\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryTransportation}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Transportations 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Membeli bensin\",\n    \"amount\": 40000,\n    \"quantity\": 4,\n    \"date\": \"2026-05-23\",\n    \"type\": \"expense\",\n    \"description\": \"membeli bensin pertalite 4 liter\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryTransportation}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Utilities 1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Beli Gas tabung\",\n    \"amount\": 30000,\n    \"date\": \"2026-04-24\",\n    \"type\": \"expense\",\n    \"description\": \"membeli gas tabung hijau 5kg\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryUtilities}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Utilities 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Beli Gas tabung\",\n    \"amount\": 30000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"membeli gas tabung hijau 5kg\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryUtilities}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Operations 1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Beli Gas tabung\",\n    \"amount\": 50000,\n    \"date\": \"2026-04-24\",\n    \"type\": \"expense\",\n    \"description\": \"membeli gas tabung hijau 5kg\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryOperations}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Operations 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"jasa angkut barang\",\n    \"amount\": 20000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"Menyewa beberapa mobil untuk mengangkut barang\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryOperations}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
-          "name": "Add Transaction Fuel",
-          "event": [
+          "name": "Income Transactions",
+          "item": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('it should response 201 status code', () => {",
-                  "    pm.expect(pm.response).to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test('response body should have correct property and value', () => {",
-                  "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.status).to.equal('success');",
-                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
-                  "    pm.environment.set('transaction2', responseJson.data.transaction_id);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+              "name": "Add Transaction Sales 1",
+              "event": [
                 {
-                  "key": "token",
-                  "value": "{{accessToken1}}",
-                  "type": "string"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Membeli bensin\",\n    \"amount\": 40000,\n    \"quantity\": 4,\n    \"date\": \"2026-05-23\",\n    \"type\": \"expense\",\n    \"description\": \"membeli bensin pertalite 4 liter\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat2}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:{{port}}/transactions",
-              "protocol": "http",
-              "host": [
-                "localhost"
               ],
-              "port": "{{port}}",
-              "path": [
-                "transactions"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add Transaction Utilities",
-          "event": [
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Penjualan Cimol bojot\",\n    \"amount\": 1000000,\n    \"date\": \"2026-04-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari penjualan cimol bojot\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categorySales}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('it should response 201 status code', () => {",
-                  "    pm.expect(pm.response).to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test('response body should have correct property and value', () => {",
-                  "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.status).to.equal('success');",
-                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
-                  "    pm.environment.set('transaction3', responseJson.data.transaction_id);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+              "name": "Add Transaction Service 1",
+              "event": [
                 {
-                  "key": "token",
-                  "value": "{{accessToken1}}",
-                  "type": "string"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Beli Gas tabung\",\n    \"amount\": 30000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"expense\",\n    \"description\": \"membeli gas tabung hijau 5kg\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat3}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:{{port}}/transactions",
-              "protocol": "http",
-              "host": [
-                "localhost"
               ],
-              "port": "{{port}}",
-              "path": [
-                "transactions"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add Transaction Sales",
-          "event": [
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Apa kek ini kaga tau\",\n    \"amount\": 50000,\n    \"date\": \"2026-04-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari langit\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryService}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('it should response 201 status code', () => {",
-                  "    pm.expect(pm.response).to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test('response body should have correct property and value', () => {",
-                  "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.status).to.equal('success');",
-                  "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
-                  "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+              "name": "Add Transaction Investmen 1",
+              "event": [
                 {
-                  "key": "token",
-                  "value": "{{accessToken1}}",
-                  "type": "string"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Penjualan Cimol bojot\",\n    \"amount\": 1000000,\n    \"date\": \"2026-06-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari penjualan cimol bojot\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{transactionCat4}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:{{port}}/transactions",
-              "protocol": "http",
-              "host": [
-                "localhost"
               ],
-              "port": "{{port}}",
-              "path": [
-                "transactions"
-              ]
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Saham naik\",\n    \"amount\": 200000,\n    \"date\": \"2026-04-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari naruh saham di bca\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryInvestmen}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Subscription 1",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Subscriber youtube\",\n    \"amount\": 300000,\n    \"date\": \"2026-04-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari Subscriber youtube\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categorySubscription}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Sales 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Penjualan Cimol bojot\",\n    \"amount\": 1500000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari penjualan cimol bojot\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categorySales}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Service 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Apalah ini\",\n    \"amount\": 75000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari langit\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryService}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Investmen 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Pendapatan dari saham\",\n    \"amount\": 100000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari saham naik\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categoryInvestmen}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Transaction Subscription 2",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('it should response 201 status code', () => {",
+                      "    pm.expect(pm.response).to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('response body should have correct property and value', () => {",
+                      "    const responseJson = pm.response.json();",
+                      "    pm.expect(responseJson.status).to.equal('success');",
+                      "    pm.expect(responseJson.data.transaction_id).to.be.a('string');",
+                      "    pm.environment.set('transaction4', responseJson.data.transaction_id);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title\": \"Pendapatan dari Subscriber\",\n    \"amount\": 30000,\n    \"date\": \"2026-05-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari Subscriber youtube\",\n    \"businessId\": \"{{businessId1}}\",\n    \"categoryId\": \"{{categorySubscription}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:{{port}}/transactions",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "{{port}}",
+                  "path": [
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
           "name": "Get All Transaction By BusinessId",
@@ -2509,7 +3304,7 @@
           "response": []
         },
         {
-          "name": "Add Transaction Sales Copy",
+          "name": "Edit Transaction Electricity",
           "event": [
             {
               "listen": "test",
@@ -2553,7 +3348,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"Penjualan Cimol bojot\",\n    \"amount\": 1500000,\n    \"date\": \"2026-06-24\",\n    \"type\": \"income\",\n    \"description\": \"pendapatan dari penjualan cimol bojot\"\n}",
+              "raw": "{\n    \"title\": \"Bayar token listrik\",\n    \"amount\": 250000,\n    \"quantity\": 2.5,\n    \"date\": \"2026-04-24\",\n    \"type\": \"expense\",\n    \"description\": \"membayar token listrik\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2561,7 +3356,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:{{port}}/transactions/{{transaction3}}",
+              "raw": "http://localhost:{{port}}/transactions/{{transaction1}}",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -2569,7 +3364,7 @@
               "port": "{{port}}",
               "path": [
                 "transactions",
-                "{{transaction3}}"
+                "{{transaction1}}"
               ]
             }
           },
@@ -2834,9 +3629,14 @@
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
         {
-          "name": "Get Carbon Goal",
+          "name": "Get Report Summary",
           "event": [
             {
               "listen": "test",
@@ -2890,30 +3690,30 @@
               }
             },
             "url": {
-              "raw": "http://localhost:{{port}}/carbon/{{businessId1}}/goal",
+              "raw": "http://localhost:{{port}}/reports/{{businessId1}}/financial-summary",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "{{port}}",
               "path": [
-                "carbon",
+                "reports",
                 "{{businessId1}}",
-                "goal"
+                "financial-summary"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Add Carbon Goal",
+          "name": "Get Report Forecast",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('it should response 201 status code', () => {",
-                  "    pm.expect(pm.response).to.have.status(201);",
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
                   "});",
                   "",
                   "pm.test('response body should have correct property and value', () => {",
@@ -2928,6 +3728,9 @@
               }
             }
           ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "auth": {
               "type": "bearer",
@@ -2939,7 +3742,7 @@
                 }
               ]
             },
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
@@ -2949,7 +3752,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"businessId\": \"{{businessId1}}\",\r\n  \"targetTco2e\": 2.0,\r\n  \"periodStart\": \"2026-05-01\",\r\n  \"periodEnd\": \"2026-05-30\"\r\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2957,15 +3760,86 @@
               }
             },
             "url": {
-              "raw": "http://localhost:{{port}}/carbon/goal",
+              "raw": "http://localhost:{{port}}/reports/{{businessId1}}/revenue-forecast",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "{{port}}",
               "path": [
-                "carbon",
-                "goal"
+                "reports",
+                "{{businessId1}}",
+                "revenue-forecast"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Report Income Revenue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('it should response 200 status code', () => {",
+                  "    pm.expect(pm.response).to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('response body should have correct property and value', () => {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.status).to.equal('success');",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:{{port}}/reports/{{businessId1}}/income-statement",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "reports",
+                "{{businessId1}}",
+                "income-statement"
               ]
             }
           },

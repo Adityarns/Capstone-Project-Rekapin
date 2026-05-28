@@ -11,16 +11,16 @@ export const GREEN_INSIGHTS_BANK = {
         "Luar biasa! Konsumsi listrik Anda menurun. Tetap pertahankan kebiasaan mematikan perangkat elektronik dalam mode standby dan maksimalkan pencahayaan alami di area operasional bisnis pada siang hari.",
     },
   },
-  Fuel: {
+  Transportation: {
     worse: {
-      title: "Konsolidasi Rute Distribusi Bahan Bakar",
+      title: "Konsolidasi Rute Distribusi Transportasi",
       description:
-        "Emisi dari bahan bakar kendaraan operasional Anda melonjak. Pertimbangkan untuk menggabungkan jadwal pengiriman logistik vendor menjadi dua kali seminggu untuk menghemat konsumsi BBM fosil.",
+        "Emisi dari sektor transportasi kendaraan operasional Anda melonjak. Pertimbangkan untuk menggabungkan jadwal pengiriman logistik vendor menjadi dua kali seminggu untuk menghemat konsumsi BBM.",
     },
     better: {
       title: "Efisiensi Mobilitas Operasional Sukses",
       description:
-        "Penggunaan bahan bakar Anda bulan ini lebih efisien dari bulan lalu. Pertahankan momentum hijau ini dengan rutin melakukan servis berkala pada armada kendaraan bisnis agar pembakaran mesin tetap optimal.",
+        "Penggunaan transportasi Anda bulan ini lebih efisien dari bulan lalu. Pertahankan momentum hijau ini dengan rutin melakukan servis berkala pada armada kendaraan bisnis.",
     },
   },
   General: {

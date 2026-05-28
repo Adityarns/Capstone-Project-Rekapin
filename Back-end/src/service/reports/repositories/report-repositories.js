@@ -13,9 +13,8 @@ class FinancialReportRepositories {
   async getFinancialDataByPeriod(businessId, startDate, endDate) {
     const query = {
       text: `SELECT 
-               t.transaction_type,
-               c.category_name AS category_name,
-               COALESCE(SUM(t.amount), 0) AS total_amount
+               t.transaction_type AS type, c.category_name AS category_name,
+               COALESCE(SUM(CAST(t.amount AS NUMERIC)), 0) AS total_amount
              FROM transactions t
              JOIN transaction_categories c ON t.category_id = c.transaction_categories_id
              WHERE t.business_id = $1 

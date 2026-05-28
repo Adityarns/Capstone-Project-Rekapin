@@ -80,7 +80,7 @@ export default function Login() {
     setIsSubmitting(false);
 
     if (result.success) {
-      navigate("/dashboard", { replace: true });
+      navigate(`/dashboard/${result.businessId}`, { replace: true });
     } else {
       setApiError(result.message || "Login gagal. Periksa email dan password.");
     }
