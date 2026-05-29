@@ -243,7 +243,6 @@ class FinancialReportService {
   async generateExcelReport({ businessId, quarter, year }) {
     const { start, end } = getQuarterDateRange(quarter, year);
 
-    // 1. Tarik Data CUKUP 2 SAJA (Profil dan Detail Transaksi) agar lebih aman
     const [profile, detailedTransactions] = await Promise.all([
       FinancialReportRepositories.getBusinessProfileForReport(businessId),
       FinancialReportRepositories.getDetailedTransactionsByPeriod(
@@ -253,114 +252,132 @@ class FinancialReportService {
       ),
     ]);
 
-    console.log("\n=== RADAR JARVIS ===");
-    console.log("1. Business ID dari Postman :", businessId);
-    console.log("2. Waktu Start Pencarian    :", start);
-    console.log("3. Waktu End Pencarian      :", end);
-    console.log("4. Total Transaksi Ketemu   :", detailedTransactions.length);
-    if (detailedTransactions.length > 0) {
-      console.log("5. Contoh Data Pertama      :", detailedTransactions[0]);
-    }
-    console.log("====================\n");
-    // ──────────────────────────────────────────────────────────────
-
-    if (!profile) {
-      throw new Error("Data profil bisnis tidak ditemukan di database.");
-    }
     if (!profile) {
       throw new Error("Data profil bisnis tidak ditemukan di database.");
     }
 
-    // 2. Kalkulasi Laba Rugi LANGSUNG dari detailedTransactions (Anti-Zonk)
+    // 1. Logika Pengelompokan Akuntansi
     let totalIncome = 0;
     let totalExpense = 0;
-    detailedTransactions.forEach((trx) => {
-      // Pastikan membaca dari trx.type dan trx.amount
-      if (trx.type === "income") totalIncome += parseFloat(trx.amount || 0);
-      if (trx.type === "expense") totalExpense += parseFloat(trx.amount || 0);
-    });
-    const netIncome = totalIncome - totalExpense;
+    const expenseDetails = {};
 
-    // 3. Inisialisasi Buku Kerja
+    detailedTransactions.forEach((trx) => {
+      const type = (trx.type || "").toString().trim().toLowerCase();
+      const amount = parseFloat(trx.amount || 0);
+      const cat = trx.category || "Uncategorized";
+
+      if (type === "income") {
+        totalIncome += amount;
+      }
+      if (type === "expense") {
+        totalExpense += amount;
+        expenseDetails[cat] = (expenseDetails[cat] || 0) + amount;
+      }
+    });
+
+    const netProfit = totalIncome - totalExpense;
+
+    // 2. Inisialisasi Buku Kerja Excel
     const workbook = new excelJS.Workbook();
     workbook.creator = "Rekapin System";
+    const sheet1 = workbook.addWorksheet("Financial Statement");
 
-    // ─── LEMBAR 1: LAPORAN LABA RUGI ─────────────
-    const sheet1 = workbook.addWorksheet("Laba Rugi");
-
-    // ATUR LEBAR KOLOM DULU (Tanpa mendefinisikan header agar Baris 1 tidak tertimpa)
-    sheet1.getColumn(1).width = 40;
+    sheet1.getColumn(1).width = 45;
     sheet1.getColumn(2).width = 25;
 
-    // Header Surat
-    sheet1.mergeCells("A1:B1");
+    // Format angka: Positif biasa, Negatif pakai kurung ( )
+    const accountingFormat = "#,##0;(#,##0)";
+
+    // Header Laporan
     sheet1.getCell("A1").value = profile.business_name.toUpperCase();
     sheet1.getCell("A1").font = { size: 14, bold: true };
-
-    sheet1.mergeCells("A2:B2");
     sheet1.getCell("A2").value =
-      `Laporan Laba Rugi - Periode ${quarter} ${year}`;
+      `Financial Statement - Quarter ${quarter} ${year}`;
+    sheet1.addRow([]);
 
-    sheet1.mergeCells("A3:B3");
-    sheet1.getCell("A3").value = profile.address || "Alamat tidak tersedia";
+    // --- BAGIAN 1: INCOME STATEMENT ---
+    const title1 = sheet1.addRow(["1. Income statement"]);
+    title1.font = { bold: true };
+    sheet1.addRow([]);
 
-    sheet1.addRow([]); // Baris 4 kosong sebagai jarak
+    const incomeRow = sheet1.addRow(["Fees Earned", totalIncome]);
+    incomeRow.font = { bold: true };
+    incomeRow.getCell(2).numFmt = accountingFormat;
 
-    // Baris 5: Header Tabel Manual
-    sheet1.getCell("A5").value = "Keterangan Akun";
-    sheet1.getCell("B5").value = "Nominal (Rp)";
-    sheet1.getRow(5).font = { bold: true };
-    sheet1.getRow(5).fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FFE0E0E0" },
-    };
+    // Di Income Statement, rincian beban tidak lagi dijabarkan, langsung totalnya (dibikin minus)
+    const totalExpRow1 = sheet1.addRow(["Total Expense", -totalExpense]);
+    totalExpRow1.font = { bold: true };
+    totalExpRow1.getCell(2).numFmt = accountingFormat;
 
-    // Baris 6, 7, 8: Data
-    sheet1.addRow(["Total Pendapatan (Revenue)", totalIncome]);
-    sheet1.addRow(["Total Beban (Expense)", totalExpense]);
-
-    const netRow = sheet1.addRow(["LABA BERSIH (NET INCOME)", netIncome]);
+    const netRow = sheet1.addRow(["Nett Profit", netProfit]);
     netRow.font = { bold: true };
-
-    // Format Rupiah
-    sheet1.getColumn(2).numFmt = '"Rp"#,##0.00;[Red]\-"Rp"#,##0.00';
-
-    // ─── LEMBAR 2: RINCIAN TRANSAKSI ───────────
-    const sheet2 = workbook.addWorksheet("Rincian Transaksi");
-
-    // Untuk sheet 2 aman menggunakan columns karena memang tabel dari baris 1
-    sheet2.columns = [
-      { header: "Tanggal", key: "date", width: 15 },
-      { header: "Tipe", key: "type", width: 15 },
-      { header: "Kategori", key: "category", width: 25 },
-      { header: "Deskripsi", key: "description", width: 40 },
-      { header: "Nominal (Rp)", key: "amount", width: 20 },
-    ];
-
-    sheet2.getRow(1).font = { bold: true };
-    sheet2.getRow(1).fill = {
+    netRow.fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FF4CAF50" },
+      fgColor: { argb: "FFD9D9D9" },
     };
-    sheet2.getRow(1).font = { color: { argb: "FFFFFFFF" }, bold: true };
+    netRow.getCell(2).numFmt = accountingFormat;
 
-    detailedTransactions.forEach((trx) => {
-      sheet2.addRow({
-        date: trx.date,
-        type: trx.type.toUpperCase(),
-        category: trx.category || "Uncategorized",
-        description: trx.description || "-",
-        amount: parseFloat(trx.amount || 0),
-      });
-    });
+    sheet1.addRow([]);
+    sheet1.addRow([]);
 
-    sheet2.getColumn(5).numFmt = '"Rp"#,##0.00;[Red]\-"Rp"#,##0.00';
+    // --- BAGIAN 2: EXPENSE STATEMENT (BARU) ---
+    const title2 = sheet1.addRow(["2. Expense Statement"]);
+    title2.font = { bold: true };
+    sheet1.addRow([]);
 
-    // 4. Return Buffer
+    sheet1.addRow(["Category", "Amount"]).font = { italic: true, bold: true };
+
+    // Looping rincian beban (ditampilkan sebagai angka positif karena ini laporan rincian)
+    for (const [category, amount] of Object.entries(expenseDetails)) {
+      const row = sheet1.addRow([`     ${category}`, amount]);
+      row.getCell(2).numFmt = accountingFormat;
+    }
+
+    const totalExpRow2 = sheet1.addRow([
+      "Total Operating Expenses",
+      totalExpense,
+    ]);
+    totalExpRow2.font = { bold: true };
+    totalExpRow2.getCell(2).numFmt = accountingFormat;
+
+    sheet1.addRow([]);
+    sheet1.addRow([]);
+
+    // --- BAGIAN 3: STATEMENT OF CHANGES EQUITY ---
+    const title3 = sheet1.addRow(["3. Statement of Changes Equity"]);
+    title3.font = { bold: true };
+    sheet1.addRow([]);
+
+    const beginningEquity = 0;
+    const paidInCapital = 500000000;
+    const drawing = -5000000;
+    const endingEquity = beginningEquity + paidInCapital + drawing + netProfit;
+
+    sheet1
+      .addRow(["Beginning of the year :", beginningEquity])
+      .getCell(2).numFmt = accountingFormat;
+    sheet1.addRow([]);
+
+    sheet1.addRow(["Change during years in Owners Equity :"]).font = {
+      italic: true,
+    };
+    sheet1
+      .addRow(["     +/+ Paid in Capital", paidInCapital])
+      .getCell(2).numFmt = accountingFormat;
+    sheet1.addRow(["     -/- Drawing", drawing]).getCell(2).numFmt =
+      accountingFormat;
+    sheet1
+      .addRow(["     +/+ Income from Operations", netProfit])
+      .getCell(2).numFmt = accountingFormat;
+
+    sheet1.addRow([]);
+    const endRow = sheet1.addRow(["Ending of Year :", endingEquity]);
+    endRow.font = { bold: true };
+    endRow.getCell(2).numFmt = accountingFormat;
+
     const buffer = await workbook.xlsx.writeBuffer();
-    const fileName = `Rekapin_${profile.business_name.replace(/\s+/g, "_")}_${quarter}_${year}.xlsx`;
+    const fileName = `Rekapin_Statement_${profile.business_name.replace(/\s+/g, "_")}_${quarter}_${year}.xlsx`;
 
     return { buffer, fileName };
   }
@@ -368,7 +385,6 @@ class FinancialReportService {
   async generatePDFReport({ businessId, quarter, year }) {
     const { start, end } = getQuarterDateRange(quarter, year);
 
-    // 1. Tarik Data Profil dan Transaksi
     const [profile, detailedTransactions] = await Promise.all([
       FinancialReportRepositories.getBusinessProfileForReport(businessId),
       FinancialReportRepositories.getDetailedTransactionsByPeriod(
@@ -382,49 +398,71 @@ class FinancialReportService {
       throw new Error("Data profil bisnis tidak ditemukan di database.");
     }
 
-    // 2. Kalkulasi Laba Rugi
     let totalIncome = 0;
     let totalExpense = 0;
-    
+    const expenseDetails = {};
+
     detailedTransactions.forEach((trx) => {
       const type = (trx.type || "").toString().trim().toLowerCase();
-      if (type === "income") totalIncome += parseFloat(trx.amount || 0);
-      if (type === "expense") totalExpense += parseFloat(trx.amount || 0);
-    });
-    
-    const netIncome = totalIncome - totalExpense;
+      const amount = parseFloat(trx.amount || 0);
+      const cat = trx.category || "Uncategorized";
 
-    // 3. Render HTML menggunakan EJS
-    // Sesuaikan path ini jika struktur folder Anda berbeda
-    const templatePath = path.join(process.cwd(), "src", "templates", "report-template.ejs");
-    
+      if (type === "income") totalIncome += amount;
+      if (type === "expense") {
+        totalExpense += amount;
+        expenseDetails[cat] = (expenseDetails[cat] || 0) + amount;
+      }
+    });
+
+    const netProfit = totalIncome - totalExpense;
+
+    const beginningEquity = 0;
+    const paidInCapital = 500000000;
+    const drawing = -5000000;
+    const endingEquity = beginningEquity + paidInCapital + drawing + netProfit;
+
+    const formatNumber = (num) => {
+      return Number(num).toLocaleString("id-ID", { minimumFractionDigits: 0 });
+    };
+
+    const templatePath = path.join(
+      process.cwd(),
+      "src",
+      "templates",
+      "report-template.ejs",
+    );
+
     const htmlContent = await ejs.renderFile(templatePath, {
       profile,
       quarter,
       year,
       totalIncome,
       totalExpense,
-      netIncome
+      netProfit,
+      expenseDetails,
+      beginningEquity,
+      paidInCapital,
+      drawing,
+      endingEquity,
+      formatNumber,
     });
 
-    // 4. Konversi HTML menjadi PDF menggunakan Puppeteer
-    const browser = await puppeteer.launch({ 
+    const browser = await puppeteer.launch({
       headless: "new",
-      args: ['--no-sandbox', '--disable-setuid-sandbox'] // Mencegah crash di beberapa environment OS
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
-    
+
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
-    
-    const pdfBuffer = await page.pdf({ 
-      format: "A4", 
+
+    const pdfBuffer = await page.pdf({
+      format: "A4",
       printBackground: true,
-      margin: { top: "20mm", bottom: "20mm", left: "20mm", right: "20mm" }
+      margin: { top: "20mm", bottom: "20mm", left: "20mm", right: "20mm" },
     });
 
     await browser.close();
 
-    // 5. Rumuskan nama fail
     const fileName = `Rekapin_${profile.business_name.replace(/\s+/g, "_")}_${quarter}_${year}.pdf`;
 
     return { buffer: pdfBuffer, fileName };
