@@ -108,6 +108,15 @@ class UserRepositories {
     return results.rows[0]?.avatar_url || null;
   }
 
+  async getPasswordByUserId(userId) {
+    const query = {
+      text: `SELECT password FROM users WHERE user_id = $1`,
+      values: [userId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0]?.password || null;
+  }
+
   async updatePassword({ userId, newPassword }) {
     const updated_at = new Date().toISOString();
     const hashedPassword = await bcrypt.hash(newPassword, 10);
