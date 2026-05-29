@@ -135,8 +135,14 @@ const IconUsersEmpty = () => (
 /*  Sub-components                                             */
 /* ─────────────────────────────────────────────────────────── */
 
-function MemberAvatar({ initials }) {
-  return (
+function MemberAvatar({ initials, avatarUrl }) {
+  return avatarUrl ? (
+    <img
+      src={avatarUrl}
+      alt="avatar"
+      className="team-avatar"
+    />
+  ) : (
     <div className="team-avatar" aria-hidden="true">
       <span>{initials}</span>
     </div>
@@ -171,7 +177,10 @@ function MemberRow({ member, isOwner, isMenuOpen, onToggleMenu, onRemove }) {
 
   return (
     <li className="team-member">
-      <MemberAvatar initials={member.initials} />
+      <MemberAvatar
+        initials={member.initials}
+        avatarUrl={member.avatarUrl}
+      />
 
       <div className="team-member__info">
         <p className="team-member__name">{member.name}</p>
@@ -258,9 +267,10 @@ function EmptyTeam({ isOwner, onInvite }) {
 /*  Main Component                                             */
 /* ─────────────────────────────────────────────────────────── */
 
-export default function TeamManagement({ team, isOwner, onInvite }) {
+export default function TeamManagement({ team = [], invitationCode, isOwner, onInvite }) {
   /* Local members state — allows Remove without an API call yet */
-  const [members, setMembers] = useState([...team.members]);
+  const members = team || [];
+  console.log("TEAM MEMBERS:", members);
 
   /* Track which member's dropdown is open. null = none. */
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -289,9 +299,6 @@ export default function TeamManagement({ team, isOwner, onInvite }) {
 
   /* Remove member from local state */
   const handleRemove = (memberId) => {
-    setMembers((prev) => prev.filter((m) => m.id !== memberId));
-    setOpenMenuId(null);
-    // TODO: DELETE /team/members/:memberId
     console.log("Remove member:", memberId);
   };
 
@@ -299,8 +306,7 @@ export default function TeamManagement({ team, isOwner, onInvite }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard
-      .writeText(team.invitationCode)
+  navigator.clipboard.writeText(invitationCode)
       .catch(() => {})
       .finally(() => {
         setCopied(true);
@@ -337,7 +343,7 @@ export default function TeamManagement({ team, isOwner, onInvite }) {
         <div className="team-invite-code">
           <div className="team-invite-code__left">
             <p className="team-invite-code__label">Team Invitation Code</p>
-            <p className="team-invite-code__value">{team.invitationCode}</p>
+            <p className="team-invite-code__value">{invitationCode}</p>
           </div>
           <button
             type="button"

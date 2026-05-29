@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { updateBusiness, getBusinessById } from "../../services/businessService";
 import { useEffect } from "react";
+import { getTeamMembers } from "../../services/teamService";
 
 import ProfileCard from "../../components/profile/ProfileCard";
 import BusinessInfo from "../../components/profile/BusinessInfo";
@@ -27,7 +28,6 @@ import LogoutConfirmModal from "../../components/profile/LogoutConfirmModal";
 
 import {
   mockBusiness,
-  mockTeam,
   mockNotifications,
 } from "../../data/profileData";
 
@@ -65,6 +65,7 @@ export default function ProfileSettings() {
   const [userProfile, setUserProfile] = useState(() => INIT_PROFILE(user));
   const [business, setBusiness] = useState({ ...mockBusiness });
   const [bizDraft, setBizDraft] = useState({ ...mockBusiness });
+  const [teamMembers, setTeamMembers] = useState([]);
   const [notifications, setNotifications] = useState({ ...mockNotifications });
 
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
@@ -220,6 +221,31 @@ export default function ProfileSettings() {
 
         const data = await getBusinessById(businessId);
 
+        const members = await getTeamMembers(businessId);
+        console.log("RAW MEMBERS:", members);
+        console.log(
+          "MEMBER PERTAMA:",
+          JSON.stringify(members[0], null, 2)
+        );
+
+        setTeamMembers(
+          members.map((member, index) => ({
+            id: index,
+            name: member.username,
+            email: "-",
+            role:
+              member.role === "owner"
+                ? "Owner"
+                : "Employee",
+            initials: member.username
+              ?.split(" ")
+              .map((word) => word[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase(),
+          }))
+        );
+
         console.log("BUSINESS API:", data);
 
         if (!data) {
@@ -231,7 +257,8 @@ export default function ProfileSettings() {
           name: data.business_name,
           industry: data.industry,
           phone: data.phone_number,
-          address: data.address,  
+          address: data.address,
+          invitationCode: data.invitation_code,
         });
 
         setBizDraft({
@@ -239,6 +266,7 @@ export default function ProfileSettings() {
           industry: data.industry,
           phone: data.phone_number,
           address: data.address,
+          invitationCode: data.invitation_code,
         });
       } catch (err) {
         console.error("Failed load business:", err);
@@ -273,7 +301,8 @@ export default function ProfileSettings() {
 
           <div className="profile-grid__right">
             <TeamManagement
-              team={mockTeam}
+              team={teamMembers}
+              invitationCode={business.invitationCode}
               isOwner={isOwner}
               onInvite={() => openModal("invite")}
             />
