@@ -46,6 +46,19 @@ class TeamMemberRepositories {
     const results = await this.pool.query(query);
     return results.rows[0];
   }
+
+  async createInvitation({ businessId, email, role, inviteCode, expiredAt }) {
+    const id = nanoid(16);
+    const query = {
+      text: `INSERT INTO team_invitations 
+             (invitation_id, business_id, email, role, invitation_code, expired_at) 
+             VALUES ($1, $2, $3, $4, $5, $6) 
+             RETURNING *`,
+      values: [id, businessId, email, role, inviteCode, expiredAt],
+    };
+    const result = await this.pool.query(query);
+    return result.rows[0];
+  }
 }
 
 export default new TeamMemberRepositories();

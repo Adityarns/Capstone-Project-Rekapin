@@ -6,6 +6,8 @@ import {
 import teamMembersRepositories from "../repositories/team-members-repositories.js";
 import authRepositories from "../../auth/repositories/auth-repositories.js";
 import response from "../../../utils/response.js";
+import crypto from "crypto";
+import EmailService from "../email/email-service.js";
 import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
 
 export const addTeamMember = async (req, res, next) => {
@@ -20,6 +22,51 @@ export const addTeamMember = async (req, res, next) => {
     return next(new InvariantError("Gagal menambahkan anggota tim"));
   }
   return response(res, 201, "Anggota tim berhasil ditambahkan", teamMember);
+};
+
+export const inviteTeamMember = async (req, res, next) => {
+  try {
+    const { businessId } = req.params;
+    const { email } = req.body;
+
+    if (!email) {
+      return next(new InvariantError("Alamat email wajib diisi"));
+    }
+
+    const role = "employee";
+
+    const businessProfile =
+      await businessesRepositories.getBusinessProfileById (businessId);
+    if (!businessProfile) {
+      return next(new NotFoundError("Bisnis tidak ditemukan"));
+    }
+
+    const inviteCode = businessProfile.invitation_code;
+    const expiredAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await teamMembersRepositories.createInvitation({
+      businessId,
+      email,
+      role,
+      inviteCode,
+      expiredAt,
+    });
+
+    await EmailService.sendTeamInvitation(
+      email,
+      inviteCode,
+      role,
+      businessProfile.business_name,
+    );
+
+    // 9. Berikan Respons Sukses ke Frontend
+    return response(res, 201, `Email undangan berhasil dikirim ke ${email}`, {
+      email,
+      role,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const getTeamMembersById = async (req, res, next) => {

@@ -86,6 +86,15 @@ class BusinessRepositories {
     const result = await this.pool.query(query);
     return result.rows.length > 0;
   }
+
+  async getBusinessProfileById(businessId) {
+    const query = {
+      text: `SELECT business_name, invitation_code FROM businesses WHERE business_id = $1`,
+      values: [businessId],
+    };
+    const result = await this.pool.query(query);
+    return result.rows[0];
+  }
 }
 
 export default new BusinessRepositories();
