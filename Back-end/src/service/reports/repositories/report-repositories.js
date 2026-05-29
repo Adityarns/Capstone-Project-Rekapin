@@ -86,6 +86,51 @@ class FinancialReportRepositories {
     const result = await this.pool.query(query);
     return result.rows[0];
   }
+
+  // ============================================================
+  // 5. PROFIL BISNIS (UNTUK KOP SURAT LAPORAN EXCEL & PDF)
+  // Mengambil nama dan detail bisnis untuk header dokumen resmi
+  // ============================================================
+  async getBusinessProfileForReport(businessId) {
+    const query = {
+      text: `SELECT 
+               b.business_name, 
+               u.username, 
+               b.address, 
+               b.phone_number 
+             FROM businesses b
+             JOIN users u ON b.owner_id = u.user_id
+             WHERE b.business_id = $1`,
+      values: [businessId],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows[0]; // Mengembalikan satu objek profil bisnis
+  }
+
+  // ============================================================
+  // 6. RINCIAN TRANSAKSI MENTAH (UNTUK LAMPIRAN AUDIT EXCEL)
+  // Mengambil seluruh log transaksi secara detail dalam periode tertentu
+  // ============================================================
+  async getDetailedTransactionsByPeriod(businessId, startDate, endDate) {
+    const query = {
+      text: `SELECT 
+               DATE(t.transaction_date::timestamptz) AS date,
+               t.transaction_type AS type, 
+               c.category_name AS category, 
+               t.amount, 
+               t.description
+             FROM transactions t
+             LEFT JOIN transaction_categories c ON t.category_id = c.transaction_categories_id
+             WHERE t.business_id = $1
+               AND t.transaction_date::timestamptz BETWEEN $2::timestamptz AND $3::timestamptz
+             ORDER BY t.transaction_date::timestamptz ASC`,
+      values: [businessId, startDate, endDate],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows; // Mengembalikan array daftar transaksi lengkap
+  }
 }
 
 export default new FinancialReportRepositories();
