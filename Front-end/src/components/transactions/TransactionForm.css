@@ -124,10 +124,12 @@
 .txn-input[type="number"]::-webkit-inner-spin-button,
 .txn-input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 .txn-input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* ── Amount input with "Rp" prefix ── */
@@ -257,4 +259,11 @@
   box-shadow:
     0 0 0 3px rgba(192, 57, 43, 0.1),
     var(--shadow-inset);
+}
+
+.txn-helper-text{
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-secondary);
+  line-height: 1;
 }

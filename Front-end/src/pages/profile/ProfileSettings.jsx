@@ -9,7 +9,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { updateBusiness } from "../../services/businessService";
+import { updateBusiness, getBusinessById } from "../../services/businessService";
+import { useEffect } from "react";
 
 import ProfileCard from "../../components/profile/ProfileCard";
 import BusinessInfo from "../../components/profile/BusinessInfo";
@@ -131,7 +132,7 @@ export default function ProfileSettings() {
     } catch (err) {
       console.error("Failed to update business profile:", err);
     }
-  }; // <── DI SINI SEKARANG TUTUP KURUNG KURA-KURA YANG BENAR!
+  }; 
 
   const handleProfileSave = async (saved) => {
     try {
@@ -211,6 +212,41 @@ export default function ProfileSettings() {
     ...userProfile,
     businessRole: `${currentRole} at ${currentBusinessName}`,
   };
+
+  useEffect(() => {
+    const loadBusiness = async () => {
+      try {
+        if (!businessId) return;
+
+        const data = await getBusinessById(businessId);
+
+        console.log("BUSINESS API:", data);
+
+        if (!data) {
+          console.error("Data business kosong");
+          return;
+        }
+
+        setBusiness({
+          name: data.business_name,
+          industry: data.industry,
+          phone: data.phone_number,
+          address: data.address,  
+        });
+
+        setBizDraft({
+          name: data.business_name,
+          industry: data.industry,
+          phone: data.phone_number,
+          address: data.address,
+        });
+      } catch (err) {
+        console.error("Failed load business:", err);
+      }
+    };
+
+    loadBusiness();
+  }, [businessId]);
 
   return (
     <>

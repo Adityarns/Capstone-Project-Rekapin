@@ -13,3 +13,11 @@ export async function updateBusiness(businessId, payload) {
 
   return response.data.data;
 }
+
+export async function getBusinessById(businessId) {
+  const response = await api.get(`/businesses/${businessId}`);
+
+  console.log("FULL RESPONSE:", response.data);
+
+  return response.data;
+}
