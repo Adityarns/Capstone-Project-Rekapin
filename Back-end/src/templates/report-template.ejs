@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Laporan Laba Rugi Rekapin</title>
+    <style>
+      body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        border-bottom: 3px solid #4caf50;
+        padding-bottom: 15px;
+      }
+      .header h1 {
+        margin: 0;
+        color: #2e7d32;
+        font-size: 28px;
+        text-transform: uppercase;
+      }
+      .header p {
+        margin: 5px 0;
+        color: #555;
+        font-size: 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px 15px;
+        text-align: left;
+      }
+      th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+        color: #333;
+      }
+      .amount {
+        text-align: right;
+      }
+      .total-row {
+        font-weight: bold;
+        background-color: #e8f5e9;
+      }
+      .net-income {
+        font-size: 16px;
+        color: #fff;
+        background-color: #4caf50;
+      }
+      .footer {
+        margin-top: 50px;
+        font-size: 10px;
+        color: #888;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1><%= profile.business_name %></h1>
+      <p>Laporan Laba Rugi - Periode <%= quarter %> <%= year %></p>
+      <p><%= profile.address || 'Alamat tidak tersedia' %></p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Keterangan Akun</th>
+          <th class="amount">Nominal (Rp)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Total Pendapatan (Revenue)</td>
+          <td class="amount">
+            Rp <%= new Intl.NumberFormat('id-ID').format(totalIncome) %>
+          </td>
+        </tr>
+        <tr>
+          <td>Total Beban (Expense)</td>
+          <td class="amount">
+            Rp <%= new Intl.NumberFormat('id-ID').format(totalExpense) %>
+          </td>
+        </tr>
+        <tr class="total-row">
+          <td>LABA BERSIH (NET INCOME)</td>
+          <td class="amount net-income">
+            Rp <%= new Intl.NumberFormat('id-ID').format(netIncome) %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>
+        Dokumen ini dicetak secara otomatis oleh Sistem Rekapin pada <%= new
+        Date().toLocaleDateString('id-ID') %>
+      </p>
+    </div>
+  </body>
+</html>

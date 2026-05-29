@@ -1,0 +1,245 @@
+/* ============================================================
+   REKAPIN — Carbon Stats Cards Styles
+   src/components/carbon/CarbonStatsCards.css
+   ============================================================ */
+
+/* ── Grid: 3 equal columns ── */
+.ct-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+/* ── Base card ── */
+.ct-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: box-shadow var(--duration-normal) var(--ease-default);
+}
+
+.ct-card:hover { box-shadow: var(--shadow-md); }
+
+/* ── Label ── */
+.ct-card__label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+}
+
+/* ── Top row (label + icon) ── */
+.ct-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ct-card__eco-icon {
+  display: flex;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-100);
+  color: var(--color-accent-600);
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Value ── */
+.ct-card__value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.ct-card__value {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+}
+
+.ct-card__unit {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+/* ── Meta row (trend + period) ── */
+.ct-card__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.ct-card__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+.ct-card__trend--good { color: var(--color-accent-600); }
+.ct-card__trend--bad  { color: var(--color-error); }
+
+.ct-card__meta-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ── Card 2: Progress ── */
+.ct-card__score-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.ct-card__score-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.ct-card__score-label--excellent { color: var(--color-accent-600); }
+.ct-card__score-label--good      { color: var(--color-accent-500); }
+.ct-card__score-label--fair      { color: var(--color-warning); }
+
+/* Progress bar */
+.ct-progress-wrap { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.ct-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background-color: var(--color-neutral-200);
+  border-radius: var(--radius-full);
+  overflow: visible;
+}
+
+.ct-progress-fill {
+  height: 100%;
+  background-color: var(--color-accent-500);
+  border-radius: var(--radius-full);
+  transition: width 0.8s var(--ease-out);
+}
+
+/* Target marker — a small vertical tick above the bar */
+.ct-progress-target {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 16px;
+  background-color: var(--color-primary-600);
+  border-radius: var(--radius-full);
+  transform: translateX(-50%);
+}
+
+.ct-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+}
+
+.ct-card__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+/* ── Card 3: Breakdown ── */
+.ct-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.ct-breakdown-item { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.ct-breakdown-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.ct-breakdown-item__label-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ct-breakdown-item__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.ct-breakdown-item__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.ct-breakdown-item__note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--weight-regular);
+}
+
+.ct-breakdown-item__values {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.ct-breakdown-item__pct {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+}
+
+.ct-breakdown-item__val {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.ct-breakdown-bar {
+  width: 100%;
+  height: 6px;
+  background-color: var(--color-neutral-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.ct-breakdown-bar__fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s var(--ease-out);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .ct-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .ct-card--breakdown { grid-column: 1 / -1; }
+}
+
+@media (max-width: 560px) {
+  .ct-cards-grid { grid-template-columns: 1fr; }
+  .ct-card--breakdown { grid-column: auto; }
+}

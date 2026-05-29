@@ -3,6 +3,8 @@ import {
   getFinancialSummary,
   getRevenueForecast,
   getIncomeStatement,
+  exportReportExcel,
+  exportReportPDF,
 } from "../controller/report-controller.js";
 import authenticateToken from "../../../middlewares/auth.js"; // Sesuaikan middleware pelindung token Anda
 
@@ -23,5 +25,8 @@ router.get(
   authenticateToken,
   getIncomeStatement,
 );
+
+router.get("/reports/:businessId/export/excel", exportReportExcel);
+router.get("/reports/:businessId/export/pdf", exportReportPDF);
 
 export default router;

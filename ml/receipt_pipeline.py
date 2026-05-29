@@ -3,12 +3,13 @@ End-to-end receipt flow for Rekapin:
 
   struk (gambar) → structured transaction → ledger / forecast + carbon (jika teks BBM)
 
-Hybrid ``parse_receipt``: entity JSON → box TOTAL regex → MobileNet regression.
+Hybrid ``parse_receipt``: entity JSON → box SROIE → EasyOCR → MobileNet regression.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -30,6 +31,33 @@ from ml.sroie_loader import (
     repo_root,
     resolve_sroie_root,
 )
+
+_ITEM_LINE_RE = re.compile(
+    r"^(?P<name>[A-Za-z0-9\-\s\.\&\/]{2,}?)\s+(?:(?P<qty>\d+)\s*[xX])?\s*(?P<price>\d+(?:\.\d{1,2})?)$"
+)
+_CATEGORY_KEYWORDS = {
+    "fuel": ("pertalite", "pertamax", "ron90", "ron 90", "ron92", "ron 92", "ron95", "ron 95", "spbu", "petrol"),
+    "groceries": ("mart", "grocery", "supermarket", "milk", "bread", "rice", "sugar", "egg", "buah", "sayur"),
+    "food": (
+        "restaurant",
+        "cafe",
+        "coffee",
+        "tea",
+        "meal",
+        "nasi",
+        "makan",
+        "ayam",
+        "burger",
+        "pizza",
+        "chicken",
+        "chop",
+        "lemon",
+        "rootbeer",
+        "peanut",
+    ),
+    "health": ("pharmacy", "apotek", "clinic", "hospital", "medicine", "vitamin"),
+    "transport": ("taxi", "bus", "train", "tol", "parking", "grab", "gojek"),
+}
 
 
 def ingest_user_receipt(
@@ -115,14 +143,20 @@ def parse_receipt(
     use_trained_weights: bool = True,
     line_items_text: Optional[str] = None,
     volume_liter: Optional[float] = None,
+    ocr_item_top_ratio: float = 0.30,
+    ocr_item_bottom_ratio: float = 0.74,
+    ocr_total_top_ratio: float = 0.55,
+    ocr_total_bottom_ratio: float = 0.96,
 ) -> Dict[str, Any]:
     """
     Hasil terstruktur untuk Model 2 (karbon) dan Model 3 (forecast).
 
-    Prioritas total: entity JSON → box TOTAL regex → MobileNet.
+    Prioritas total: entity JSON → box SROIE → EasyOCR → MobileNet.
 
-    Returns keys: ``amount``, ``date``, ``merchant``, ``address``, ``image_path``,
-    ``line_items_text``, ``source_total`` ('entity' | 'box' | 'model' | combinations).
+    Returns keys: ``amount``, ``currency`` (``MYR`` | ``IDR``), ``date``, ``merchant``,
+    ``line_items_text``, ``source_total`` ('entity' | 'box' | 'ocr' | 'model').
+
+    MobileNet hanya untuk MYR (latihan SROIE). Struk IDR memakai OCR/regex; model dilewati.
     """
     image_path = Path(image_path)
     stem = normalize_stem(image_path.name)
@@ -134,28 +168,101 @@ def parse_receipt(
     date_val: Optional[pd.Timestamp] = None
     address = ""
     box_lines: List[str] = []
+    ocr_lines: List[str] = []
+    ocr_confidence: Optional[float] = None
+    currency: Optional[str] = None
 
     if entity:
         merchant = str(entity.get("company") or "")
         address = str(entity.get("address") or "")
         raw_total = str(entity.get("total") or "").strip()
         if raw_total:
-            cleaned = pd.Series([raw_total]).str.replace(r"[^\d\.]", "", regex=True)[0]
-            amount = pd.to_numeric(cleaned, errors="coerce")
-            if pd.notna(amount):
-                amount = float(amount)
+            from ml.receipt_currency import detect_currency_from_text, parse_money_amount
+
+            hint = detect_currency_from_text(
+                f"{raw_total} {merchant} {address} {entity.get('company', '')}"
+            )
+            parsed = parse_money_amount(raw_total, hint)
+            if parsed is not None:
+                amount = float(parsed)
                 source_total = "entity"
+                if hint:
+                    currency = hint
         if entity.get("date"):
             date_val = pd.to_datetime(entity["date"], errors="coerce", dayfirst=True)
 
     if amount is None:
         box_lines = load_box_lines_for_stem(stem)
-        box_total = extract_total_from_box_lines(box_lines) if box_lines else None
+        if box_lines and currency is None:
+            from ml.receipt_currency import detect_currency_from_lines
+
+            currency = detect_currency_from_lines(box_lines)
+        box_total = extract_total_from_box_lines(box_lines, currency) if box_lines else None
         if box_total is not None:
             amount = float(box_total)
             source_total = "box"
 
-    if amount is None and use_trained_weights:
+    if amount is None:
+        from ml.receipt_ocr import (
+            extract_date_from_lines,
+            extract_merchant_from_lines,
+            last_ocr_confidence,
+            lines_to_line_items_text,
+            ocr_receipt_lines,
+            ocr_receipt_sections,
+        )
+
+        sections = ocr_receipt_sections(
+            image_path,
+            item_top_ratio=ocr_item_top_ratio,
+            item_bottom_ratio=ocr_item_bottom_ratio,
+            total_top_ratio=ocr_total_top_ratio,
+            total_bottom_ratio=ocr_total_bottom_ratio,
+        )
+        ocr_lines = sections.get("full", []) or ocr_receipt_lines(image_path)
+        ocr_item_lines = sections.get("items", [])
+        ocr_total_lines = sections.get("totals", [])
+        ocr_confidence = last_ocr_confidence()
+        if ocr_lines:
+            from ml.receipt_currency import detect_currency_from_lines
+
+            if currency is None:
+                currency = detect_currency_from_lines(ocr_lines)
+            total_candidates = ocr_total_lines or ocr_lines
+            ocr_total = extract_total_from_box_lines(total_candidates, currency)
+            if ocr_total is None and total_candidates is not ocr_lines:
+                # fallback to full OCR lines if totals crop misses the block
+                ocr_total = extract_total_from_box_lines(ocr_lines, currency)
+            if ocr_total is not None:
+                amount = float(ocr_total)
+                source_total = "ocr"
+            if not merchant:
+                merchant = extract_merchant_from_lines(ocr_lines)
+            if date_val is None or pd.isna(date_val):
+                ocr_date = extract_date_from_lines(ocr_lines)
+                if ocr_date is not None and pd.notna(ocr_date):
+                    date_val = ocr_date
+            if not line_items_text:
+                item_lines = ocr_item_lines or ocr_lines
+                line_items_text = lines_to_line_items_text(item_lines, currency)
+            if not box_lines:
+                box_lines = ocr_lines
+
+    all_lines = box_lines or ocr_lines
+    if currency is None and all_lines:
+        from ml.receipt_currency import detect_currency_from_lines
+
+        currency = detect_currency_from_lines(all_lines)
+
+    from ml.receipt_currency import CURRENCY_IDR, CURRENCY_MYR
+
+    if currency is None:
+        currency = CURRENCY_MYR
+
+    # Model dilatih SROIE (MYR); jangan dipakai untuk struk Rupiah
+    use_model = use_trained_weights and currency != CURRENCY_IDR
+
+    if amount is None and use_model:
         weights = repo_root() / "models" / "receipt_total" / "receipt_total_mobilenet.weights.h5"
         if weights.is_file():
             from ml.receipt_total_model import predict_total
@@ -187,8 +294,94 @@ def parse_receipt(
         "volume_liter": volume_liter,
         "fuel_class_hint": fuel_hint,
         "source_total": source_total,
+        "ocr_confidence": ocr_confidence,
+        "currency": currency,
     }
     return out
+
+
+def _parse_description_items_from_text(
+    text: str,
+    currency: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Best-effort parser for receipt line items from OCR text."""
+    if not text:
+        return []
+    lines = [ln.strip() for ln in re.split(r"[;\n\r]+", text) if ln.strip()]
+    out: List[Dict[str, Any]] = []
+
+    for ln in lines:
+        from ml.receipt_ocr import _normalize_ocr_item_line
+        from ml.receipt_currency import CURRENCY_IDR, parse_money_amount
+
+        cleaned = _normalize_ocr_item_line(ln, currency)
+        m = _ITEM_LINE_RE.match(cleaned)
+        if not m:
+            tail = re.search(
+                r"(?:Rp\.?\s*)?(?P<price>[\d.,]+)\s*$" if currency == CURRENCY_IDR else r"(?P<price>\d+(?:\.\d{1,2}))\s*$",
+                cleaned,
+                re.I,
+            )
+            if tail:
+                name = cleaned[: tail.start()].strip(" -:")
+                if name:
+                    price = parse_money_amount(tail.group("price"), currency) or float(
+                        tail.group("price").replace(",", "")
+                    )
+                    out.append({"name": name, "qty": 1, "price": float(price)})
+            continue
+        name = m.group("name").strip(" -:")
+        qty = int(m.group("qty")) if m.group("qty") else 1
+        price = float(m.group("price"))
+        out.append({"name": name, "qty": qty, "price": price})
+    return out
+
+
+def _suggest_category(text: str, merchant: str, fuel_hint: Optional[str]) -> str:
+    corpus = f"{merchant} {text}".lower()
+    if fuel_hint:
+        return "fuel"
+    for category, words in _CATEGORY_KEYWORDS.items():
+        if any(w in corpus for w in words):
+            return category
+    return "others"
+
+
+def build_receipt_history_payload(tx: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Convert parsed receipt to domain payload expected by website storage.
+
+    Fields:
+      title, amount, transaction_date, category_suggestion, transaction_type, description
+    """
+    raw_text = str(tx.get("line_items_text") or "").strip()
+    currency = tx.get("currency") or "MYR"
+    description_items = _parse_description_items_from_text(raw_text, currency)
+    date_iso = tx.get("date")
+    if date_iso:
+        try:
+            date_iso = pd.to_datetime(date_iso).strftime("%Y-%m-%d")
+        except Exception:
+            date_iso = str(date_iso)[:10]
+    else:
+        date_iso = pd.Timestamp.now().strftime("%Y-%m-%d")
+    category = _suggest_category(
+        raw_text,
+        str(tx.get("merchant") or ""),
+        tx.get("fuel_class_hint"),
+    )
+    return {
+        "title": str(tx.get("merchant") or "").strip() or "Unknown Merchant",
+        "amount": float(tx.get("amount")) if tx.get("amount") is not None else None,
+        "currency": currency,
+        "transaction_date": date_iso,
+        "category_suggestion": category,
+        "transaction_type": "expense",
+        "description": {
+            "description_text": raw_text,
+            "description_items": description_items,
+        },
+    }
 
 
 def append_transaction_to_history(

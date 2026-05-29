@@ -1,0 +1,61 @@
+/* ============================================================
+   REKAPIN — Carbon Header Styles
+   src/components/carbon/CarbonHeader.css
+   ============================================================ */
+
+.ct-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.ct-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ct-header__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.ct-header__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.ct-header__right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Verified Eco-Friendly badge */
+.ct-header__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-500);
+  color: var(--color-neutral-0);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  box-shadow: var(--shadow-accent);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .ct-header { flex-direction: column; }
+  .ct-header__badge { align-self: flex-start; }
+  .ct-header__title { font-size: var(--text-2xl); }
+}
