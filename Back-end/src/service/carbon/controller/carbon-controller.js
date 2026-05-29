@@ -1,5 +1,5 @@
 import CarbonRepositories from "../repositories/carbon-repositories.js";
-import { calculateCarbonWithAI } from "../../Models/ai-service.js";
+import { calculateCarbonWithAI } from "../../models/ai-service.js";
 import response from "../../../utils/response.js";
 import { NotFoundError } from "../../../exceptions/index.js";
 import { GREEN_INSIGHTS_BANK } from "../../carbon/insights/insights.js";

@@ -1,7 +1,7 @@
 import {
   scanReceiptWithAI,
   calculateCarbonWithAI,
-} from "../../Models/ai-service.js";
+} from "../../models/ai-service.js";
 import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 import TransactionRepositories from "../repositories/transaction-repositories.js";

@@ -55,6 +55,24 @@ class FinancialReportRepositories {
   // 3. TOTAL CARBON FOOTPRINT PERIODE TERPILIH
   // Mengambil total emisi karbon untuk disinkronkan ke Summary Card
   // ============================================================
+  async getDailyExpensesLast30Days(businessId) {
+    const query = {
+      text: `SELECT 
+               DATE(t.transaction_date::timestamptz) AS transaction_date,
+               COALESCE(SUM(CAST(t.amount AS NUMERIC)), 0) AS total_amount
+             FROM transactions t
+             WHERE t.business_id = $1 
+               AND t.transaction_type = 'expense'
+               AND t.transaction_date::timestamptz >= CURRENT_DATE - INTERVAL '30 days'
+             GROUP BY DATE(t.transaction_date::timestamptz)
+             ORDER BY transaction_date ASC`,
+      values: [businessId],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows;
+  }
+
   async getCarbonTotalByPeriod(businessId, startDate, endDate) {
     const query = {
       text: `SELECT 

@@ -328,34 +328,139 @@ def build_bbox_lines_dataframe(
     return build_bbox_lines_dataframe_merged(img_dir)
 
 
-_TOTAL_LINE_RE = re.compile(
-    r"(?:^|\b)(?:total|grand\s*total|amount\s*due|jumlah)\b[\s:]*([\d,]+\.?\d*)",
+_SUBTOTAL_SKIP_RE = re.compile(
+    r"total\s*sales|sub\s*total|service\s*tax|rounding|item\s*count|"
+    r"qty\s*description|total\s*\(rm\)|total\s*\(rp\)|ppn|pajak|pb1|"
+    r"dpp|purchase|trxid|customer\s*saved|layanan|telp|sms|kontak",
     re.I,
 )
 
 
-def extract_total_from_box_lines(lines: List[str]) -> Optional[float]:
-    """Fallback total from box OCR lines (scan for TOTAL keyword)."""
-    candidates: List[float] = []
-    for line in lines:
-        m = _TOTAL_LINE_RE.search(line.replace(" ", ""))
-        if not m:
-            m = _TOTAL_LINE_RE.search(line)
-        if m:
-            val = pd.to_numeric(m.group(1).replace(",", ""), errors="coerce")
-            if pd.notna(val):
-                candidates.append(float(val))
-    if not candidates:
-        for line in lines:
-            nums = re.findall(r"[\d,]+\.\d{2}", line)
-            for n in nums:
-                val = pd.to_numeric(n.replace(",", ""), errors="coerce")
-                if pd.notna(val) and val > 0:
-                    candidates.append(float(val))
-        if candidates:
-            return max(candidates)
+def _total_patterns(currency: str):
+    from ml.receipt_currency import CURRENCY_IDR, money_amount_regex_fragment
+
+    amt = money_amount_regex_fragment(currency)
+    if currency == CURRENCY_IDR:
+        preferred = re.compile(
+            rf"(?:^|\b)(?:total\s*belanja|jumlah\s*bayar|non\s*tunai|edc)\b.*?({amt})",
+            re.I,
+        )
+        grand = re.compile(
+            rf"(?:^|\b)(?:grand\s*total|amount\s*due|jumlah\s*bayar|total\s*bayar|"
+            rf"nett\s*total|total\s*belanja)\b[\s:]*({amt})",
+            re.I,
+        )
+        strict = re.compile(rf"^\s*TOTAL\s*[:\s\-]*({amt})\s*$", re.I)
+        final = re.compile(
+            rf"(?:^|\b)TOTAL\b(?!\s*(?:Sales|sales|penjualan))\s*[:\s\-]*({amt})",
+            re.I,
+        )
+    else:
+        preferred = re.compile(
+            rf"(?:^|\b)(?:grand\s*total|amount\s*due|nett\s*total)\b[^\dRM]*({amt})",
+            re.I,
+        )
+        grand = re.compile(
+            rf"(?:^|\b)(?:grand\s*total|amount\s*due|jumlah\s*bayar)\b[\s:]*({amt})",
+            re.I,
+        )
+        strict = re.compile(rf"^\s*TOTAL\s*[:\s\-]*({amt})\s*$", re.I)
+        final = re.compile(
+            rf"(?:^|\b)TOTAL\b(?!\s*(?:Sales|sales))\s*[:\s\-]*({amt})",
+            re.I,
+        )
+    return preferred, strict, grand, final
+
+
+def _parse_money_token(token: str, currency: Optional[str] = None, lines: Optional[List[str]] = None) -> Optional[float]:
+    from ml.receipt_currency import parse_money_amount
+
+    return parse_money_amount(token, currency, lines_hint=lines)
+
+
+def _merge_split_total_lines(lines: List[str], currency: str) -> List[str]:
+    """Join ``TOTAL`` on one line and amount on the next (common OCR split)."""
+    from ml.receipt_currency import CURRENCY_IDR
+
+    merged: List[str] = []
+    i = 0
+    amount_tail = (
+        r"^(?:Rp\.?\s*)?(?:\d{1,3}(?:\.\d{3})+|[\d,]+\.\d{2}|\d+)\s*$"
+        if currency == CURRENCY_IDR
+        else r"^[\d,]+\.\d{2}\s*$"
+    )
+    keyword_with_next_amount = re.compile(
+        r"^\s*(?:total|total\s*belanja|jumlah\s*bayar|non\s*tunai|edc)\b",
+        re.I,
+    )
+    while i < len(lines):
+        stripped = lines[i].strip()
+        if keyword_with_next_amount.match(stripped) and i + 1 < len(lines):
+            nxt = lines[i + 1].strip()
+            if re.match(amount_tail, nxt, re.I):
+                merged.append(f"{stripped} {nxt}")
+                i += 2
+                continue
+        merged.append(lines[i])
+        i += 1
+    return merged
+
+
+def extract_total_from_box_lines(lines: List[str], currency: Optional[str] = None) -> Optional[float]:
+    """
+    Extract final receipt total from OCR/box text lines.
+
+    Prefers grand-total style lines (``TOTAL 30.40``), not ``Total Sales Amount``.
+    """
+    if not lines:
         return None
-    return max(candidates)
+
+    from ml.receipt_currency import CURRENCY_IDR, detect_currency_from_lines, money_amount_regex_fragment
+
+    if currency is None:
+        currency = detect_currency_from_lines(lines)
+
+    lines = _merge_split_total_lines(lines, currency)
+    preferred, strict, grand, final = _total_patterns(currency)
+    n = len(lines)
+    bottom_start = n // 2
+    grand_candidates: List[tuple] = []
+
+    for i, line in enumerate(lines):
+        if _SUBTOTAL_SKIP_RE.search(line):
+            continue
+        stripped = line.strip()
+
+        for pattern in (preferred, strict, grand, final):
+            m = pattern.search(stripped)
+            if m:
+                amt = _parse_money_token(m.group(1), currency, lines)
+                if amt is not None:
+                    grand_candidates.append((i, amt))
+                break
+
+    if grand_candidates:
+        bottom = [(i, v) for i, v in grand_candidates if i >= bottom_start]
+        pool = bottom if bottom else grand_candidates
+        if currency == CURRENCY_IDR:
+            return max(pool, key=lambda t: t[1])[1]
+        return max(pool, key=lambda t: t[0])[1]
+
+    amt_pat = money_amount_regex_fragment(currency)
+    bottom_nums: List[tuple] = []
+    for i, line in enumerate(lines):
+        if i < bottom_start or _SUBTOTAL_SKIP_RE.search(line):
+            continue
+        for token in re.findall(amt_pat, line, flags=re.I):
+            amt = _parse_money_token(token, currency, lines)
+            if amt is not None:
+                bottom_nums.append((i, amt))
+    # For IDR receipts, avoid blind numeric fallback from footer noise (phone/order IDs).
+    if currency == CURRENCY_IDR:
+        return None
+    if bottom_nums:
+        return max(bottom_nums, key=lambda t: (t[0], t[1]))[1]
+    return None
 
 
 def load_box_lines_for_stem(stem: str, root: Optional[Path] = None) -> List[str]:
