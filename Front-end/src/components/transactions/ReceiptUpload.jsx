@@ -3,8 +3,10 @@
  *    REKAPIN — Receipt Upload Component
  *    src/components/transactions/ReceiptUpload.jsx
  *
- *    UI only — no actual file upload logic yet.
- *    Drag visual feedback via isDragging state.
+ *    Props:
+ *    - onFileSelect(file)  — callback when file is selected
+ *    - onScanReceipt()     — callback to trigger AI scan
+ *    - scanLoading          — boolean, true while scanning
  * ============================================================
  *
  * @format
@@ -31,7 +33,7 @@ const IconUpload = () => (
   </svg>
 );
 
-export default function ReceiptUpload() {
+export default function ReceiptUpload({ onFileSelect, onScanReceipt, scanLoading }) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -53,6 +55,7 @@ export default function ReceiptUpload() {
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
     setSelectedFile(file);
+    if (onFileSelect) onFileSelect(file);
   };
 
   const handleClick = () => {
@@ -63,6 +66,7 @@ export default function ReceiptUpload() {
     const file = e.target.files?.[0];
     if (!file) return;
     setSelectedFile(file);
+    if (onFileSelect) onFileSelect(file);
   };
 
   return (
@@ -102,6 +106,17 @@ export default function ReceiptUpload() {
           </p>
         )}
       </div>
+
+      {selectedFile && onScanReceipt && (
+        <button
+          type="button"
+          className="receipt-scan-btn"
+          onClick={onScanReceipt}
+          disabled={scanLoading}
+        >
+          {scanLoading ? "Scanning..." : "Scan with AI"}
+        </button>
+      )}
     </div>
   );
 }
