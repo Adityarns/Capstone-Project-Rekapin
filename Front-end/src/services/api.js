@@ -147,11 +147,13 @@ export const api = {
     }),
 
   patch: (url, body, opts = {}) =>
-    apiRequest(url, {
-      method: "PATCH",
-      body,
-      ...opts,
-    }),
+  apiRequest(url, {
+    method: "PATCH",
+    body: body instanceof FormData
+      ? body
+      : JSON.stringify(body),
+    ...opts,
+  }),
 
   delete: (url, body) =>
     apiRequest(url, {
