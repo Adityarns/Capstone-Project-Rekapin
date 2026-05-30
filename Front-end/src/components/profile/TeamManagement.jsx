@@ -137,11 +137,7 @@ const IconUsersEmpty = () => (
 
 function MemberAvatar({ initials, avatarUrl }) {
   return avatarUrl ? (
-    <img
-      src={avatarUrl}
-      alt="avatar"
-      className="team-avatar"
-    />
+    <img src={avatarUrl} alt="avatar" className="team-avatar" />
   ) : (
     <div className="team-avatar" aria-hidden="true">
       <span>{initials}</span>
@@ -179,7 +175,7 @@ function MemberRow({ member, isOwner, isMenuOpen, onToggleMenu, onRemove }) {
     <li className="team-member">
       <MemberAvatar
         initials={member.initials}
-        avatarUrl={member.avatarUrl}
+        avatarUrl={member.avatarSrc || member.avatar_url}
       />
 
       <div className="team-member__info">
@@ -267,7 +263,12 @@ function EmptyTeam({ isOwner, onInvite }) {
 /*  Main Component                                             */
 /* ─────────────────────────────────────────────────────────── */
 
-export default function TeamManagement({ team = [], invitationCode, isOwner, onInvite }) {
+export default function TeamManagement({
+  team = [],
+  invitationCode,
+  isOwner,
+  onInvite,
+}) {
   /* Local members state — allows Remove without an API call yet */
   const members = team || [];
   console.log("TEAM MEMBERS:", members);
@@ -306,7 +307,8 @@ export default function TeamManagement({ team = [], invitationCode, isOwner, onI
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-  navigator.clipboard.writeText(invitationCode)
+    navigator.clipboard
+      .writeText(invitationCode)
       .catch(() => {})
       .finally(() => {
         setCopied(true);

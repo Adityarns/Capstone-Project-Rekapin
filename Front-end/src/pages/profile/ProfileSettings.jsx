@@ -9,7 +9,10 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { updateBusiness, getBusinessById } from "../../services/businessService";
+import {
+  updateBusiness,
+  getBusinessById,
+} from "../../services/businessService";
 import { useEffect } from "react";
 import { getTeamMembers } from "../../services/teamService";
 
@@ -26,10 +29,7 @@ import ChangePasswordModal from "../../components/profile/ChangePasswordModal";
 import LoginHistoryModal from "../../components/profile/LoginHistoryModal";
 import LogoutConfirmModal from "../../components/profile/LogoutConfirmModal";
 
-import {
-  mockBusiness,
-  mockNotifications,
-} from "../../data/profileData";
+import { mockBusiness, mockNotifications } from "../../data/profileData";
 
 import {
   updateUserProfile,
@@ -133,7 +133,7 @@ export default function ProfileSettings() {
     } catch (err) {
       console.error("Failed to update business profile:", err);
     }
-  }; 
+  };
 
   const handleProfileSave = async (saved) => {
     try {
@@ -223,27 +223,22 @@ export default function ProfileSettings() {
 
         const members = await getTeamMembers(businessId);
         console.log("RAW MEMBERS:", members);
-        console.log(
-          "MEMBER PERTAMA:",
-          JSON.stringify(members[0], null, 2)
-        );
+        console.log("MEMBER PERTAMA:", JSON.stringify(members[0], null, 2));
 
         setTeamMembers(
           members.map((member, index) => ({
             id: index,
             name: member.username,
-            email: "-",
-            role:
-              member.role === "owner"
-                ? "Owner"
-                : "Employee",
+            email: member.email,
+            role: member.role === "owner" ? "Owner" : "Employee",
+            avatarSrc: member.avatar_url,
             initials: member.username
               ?.split(" ")
               .map((word) => word[0])
               .join("")
               .slice(0, 2)
               .toUpperCase(),
-          }))
+          })),
         );
 
         console.log("BUSINESS API:", data);

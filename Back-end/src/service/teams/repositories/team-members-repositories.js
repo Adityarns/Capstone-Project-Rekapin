@@ -31,7 +31,7 @@ class TeamMemberRepositories {
 
   async getTeamMembersById(businessId) {
     const query = {
-      text: `SELECT users.username, team_members.role FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.business_id = $1`,
+      text: `SELECT users.username, users.email, team_members.role, users.avatar_url FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.business_id = $1`,
       values: [businessId],
     };
     const results = await this.pool.query(query);
@@ -40,7 +40,7 @@ class TeamMemberRepositories {
 
   async deleteTeamMembersById(userId, businessId) {
     const query = {
-      text: "DELETE FROM team_members USING users WHERE team_members.user_id = users.user_id AND team_members.user_id = $1 AND team_members.business_id = $2 RETURNING users.username, team_members.user_id, team_members.role",
+      text: "DELETE FROM team_members USING users WHERE team_members.user_id = users.user_id AND team_members.user_id = $1 AND team_members.business_id = $2 RETURNING users.username, users.email, team_members.user_id, team_members.role",
       values: [userId, businessId],
     };
     const results = await this.pool.query(query);
