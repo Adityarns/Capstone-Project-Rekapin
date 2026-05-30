@@ -48,14 +48,19 @@ export const scanReceiptWithAI = async ({ base64Image, mediaType }) => {
     // 1. Tangkap objek "data" utama dari respons FastAPI
     const aiData = result.data;
 
-    // 2. Petakan dan kembalikan data dengan struktur yang dibutuhkan oleh database Rekapin
+    // 2. Ekstrak deskripsi dengan aman
+    const finalDescription =
+      aiData?.description?.description_text ||
+      (typeof aiData?.description === "string" ? aiData.description : "");
+
+    // 3. Petakan dan kembalikan data
     return {
-      title: aiData?.title ?? "Transaksi Struk template",
+      title: aiData?.title ?? "Transaksi Struk",
       amount: aiData?.amount ? parseFloat(aiData.amount) : 0,
-      transaction_date: aiData?.transaction_date ?? null,
-      category_suggestion: aiData?.category_suggestion ?? "template",
-      transaction_type: aiData?.transaction_type ?? "template",
-      description: aiData?.description ?? null,
+      transaction_date: aiData?.transaction_date ?? "",
+      category_suggestion: aiData?.category_suggestion ?? "",
+      transaction_type: aiData?.transaction_type ?? "expense",
+      description: finalDescription,
     };
   } catch (error) {
     console.error("Gagal menjembatani ke AI OCR Service:", error.message);
