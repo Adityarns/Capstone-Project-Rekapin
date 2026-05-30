@@ -1,27 +1,3 @@
-"""
-ml/revenue_forecast_model.py
-=============================
-Model prediksi pendapatan/revenue bulanan UMKM — Rekapin
-
-Peran file ini di backend:
-- Di-import oleh api/main.py pada endpoint POST /ml/revenue-forecast
-- Load model .keras / .weights.h5 hasil training dari Google Colab
-- Fungsi predict: terima data revenue harian -> return prediksi bulan depan
-- Fungsi notifikasi: bandingkan bulan ini vs bulan lalu -> return pesan notifikasi
-
-PENTING: File ini TIDAK melatih model.
-Training dilakukan terpisah di Google Colab (revenue_forecast_training.ipynb)
-dan menghasilkan file:
-  - models/revenue_forecast/revenue_forecast.weights.h5  (atau .keras)
-  - models/revenue_forecast/revenue_forecast_config.json
-
-Konsistensi dengan training:
-- Normalisasi: MinMax per-window (w_min, w_max dari 30 hari input)
-- Fitur: [revenue_norm, weekday_norm, monthday_norm, trend_norm]
-- Target training: avg normalized revenue 30 hari ke depan (sigmoid [0,1])
-- Inverse: avg_daily = y_pred * span + w_min -> total = avg_daily * 30
-"""
-
 from __future__ import annotations
 
 import json
@@ -39,14 +15,12 @@ from tensorflow.keras import layers
 # ─── Konstanta ────────────────────────────────────────────────────────────────
 WINDOW = 30
 HORIZON = 30
-NOTIFICATION_THRESHOLD = 0.05  # 5% untuk notifikasi pendapatan
+NOTIFICATION_THRESHOLD = 0.05  
 
 _DEFAULT_MODEL_DIR = Path(__file__).resolve().parent.parent / "models" / "revenue_forecast"
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# 1. ARSITEKTUR MODEL (harus IDENTIK dengan Sel 6 di notebook training)
-# ═══════════════════════════════════════════════════════════════════════════════
+# 1. ARSITEKTUR MODEL 
 
 def build_forecast_model(window: int = WINDOW) -> keras.Model:
     """Bangun arsitektur Bidirectional LSTM (Functional API). Identik dengan training."""
@@ -64,10 +38,7 @@ def build_forecast_model(window: int = WINDOW) -> keras.Model:
 
     return keras.Model(inp, out, name="revenue_forecast_umkm")
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # 2. LOAD MODEL
-# ═══════════════════════════════════════════════════════════════════════════════
 
 def _load_model(model_dir: Optional[Path] = None) -> keras.Model:
     """Load .keras (prioritas) atau .weights.h5 (fallback)."""
@@ -89,10 +60,7 @@ def _load_model(model_dir: Optional[Path] = None) -> keras.Model:
         "Download dari Google Drive setelah training di Colab."
     )
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# 3. PREPROCESSING (konsisten dengan make_windows() di training)
-# ═══════════════════════════════════════════════════════════════════════════════
+# 3. PREPROCESSING 
 
 def _preprocess_window(daily_revenue: List[float]) -> tuple:
     """List revenue harian -> tensor (1,30,4) + (w_min, span) untuk inverse."""
@@ -119,9 +87,7 @@ def _preprocess_window(daily_revenue: List[float]) -> tuple:
     return x.reshape(1, WINDOW, 4).astype(np.float32), w_min, span
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# 4. FUNGSI PREDIKSI UTAMA (dipanggil oleh api/main.py)
-# ═══════════════════════════════════════════════════════════════════════════════
+# 4. FUNGSI PREDIKSI UTAMA 
 
 def predict_revenue_horizon(
     daily_revenue: List[float],
@@ -163,10 +129,7 @@ def predict_revenue_horizon(
         "confidence_note": "Prediksi berbasis pola 30 hari terakhir",
     }
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # 5. FUNGSI NOTIFIKASI PENDAPATAN
-# ═══════════════════════════════════════════════════════════════════════════════
 
 def generate_revenue_notifications(
     current_month_revenue: float,
@@ -213,10 +176,7 @@ def generate_revenue_notifications(
 
     return notifications
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# 6. ENTRY POINT — test via terminal: python -m ml.revenue_forecast_model
-# ═══════════════════════════════════════════════════════════════════════════════
+# 6. ENTRY POINT 
 
 if __name__ == "__main__":
     print("=" * 55)
