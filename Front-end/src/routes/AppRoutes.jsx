@@ -64,14 +64,21 @@ function PublicRoute({ children }) {
 
 /* ── Route Definitions ── */
 export default function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <Routes>
       <Route
         path="/"
         element={
-          <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+          <Navigate
+            to={
+              isAuthenticated && user?.businessId
+                ? `/dashboard/${user.businessId}`
+                : "/login"
+            }
+            replace
+          />
         }
       />
 

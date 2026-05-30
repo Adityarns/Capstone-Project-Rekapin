@@ -9,3 +9,11 @@ export async function getTeamMembers(businessId) {
 
   return response.data.teamMembers;
 }
+
+export async function removeTeamMember(businessId, userId) {
+  const response = await api.delete(
+    `/businesses/${businessId}/members/${userId}`
+  );
+
+  return response.data;
+}
