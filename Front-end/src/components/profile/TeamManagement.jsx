@@ -268,6 +268,7 @@ export default function TeamManagement({
   invitationCode,
   isOwner,
   onInvite,
+  onRemove,
 }) {
   /* Local members state — allows Remove without an API call yet */
   const members = team || [];
@@ -298,9 +299,13 @@ export default function TeamManagement({
     setOpenMenuId((prev) => (prev === memberId ? null : memberId));
   };
 
-  /* Remove member from local state */
+  /* Remove member from parent state via callback */
   const handleRemove = (memberId) => {
-    console.log("Remove member:", memberId);
+    if (typeof onRemove === "function") {
+      onRemove(memberId);
+    } else {
+      console.warn("onRemove callback not provided");
+    }
   };
 
   /* Invitation code copy */

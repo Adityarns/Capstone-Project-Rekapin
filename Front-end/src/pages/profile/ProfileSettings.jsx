@@ -14,7 +14,7 @@ import {
   getBusinessById,
 } from "../../services/businessService";
 import { useEffect } from "react";
-import { getTeamMembers } from "../../services/teamService";
+import { getTeamMembers, removeTeamMember } from "../../services/teamService";
 
 import ProfileCard from "../../components/profile/ProfileCard";
 import BusinessInfo from "../../components/profile/BusinessInfo";
@@ -178,6 +178,23 @@ export default function ProfileSettings() {
     setNotifications((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleRemoveTeamMember = async (userId) => {
+    try {
+      if (!businessId) {
+        console.error("Business ID tidak ditemukan saat menghapus anggota tim");
+        return;
+      }
+
+      await removeTeamMember(businessId, userId);
+      setTeamMembers((prev) =>
+        prev.filter((member) => member.userId !== userId),
+      );
+      console.log("Team member removed successfully", userId);
+    } catch (err) {
+      console.error("Failed to remove team member:", err);
+    }
+  };
+
   const handleSaveChanges = () => {
     setSavedSnapshot({
       profile: { ...userProfile },
@@ -226,8 +243,9 @@ export default function ProfileSettings() {
         console.log("MEMBER PERTAMA:", JSON.stringify(members[0], null, 2));
 
         setTeamMembers(
-          members.map((member, index) => ({
-            id: index,
+          members.map((member) => ({
+            id: member.user_id,
+            userId: member.user_id,
             name: member.username,
             email: member.email,
             role: member.role === "owner" ? "Owner" : "Employee",
@@ -300,6 +318,7 @@ export default function ProfileSettings() {
               invitationCode={business.invitationCode}
               isOwner={isOwner}
               onInvite={() => openModal("invite")}
+              onRemove={handleRemoveTeamMember}
             />
             <div className="profile-grid__bottom-row">
               <NotificationsCard

@@ -31,7 +31,7 @@ class TeamMemberRepositories {
 
   async getTeamMembersById(businessId) {
     const query = {
-      text: `SELECT users.username, users.email, team_members.role, users.avatar_url FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.business_id = $1`,
+      text: `SELECT users.user_id, users.username, users.email, team_members.role, users.avatar_url FROM team_members JOIN users ON team_members.user_id = users.user_id WHERE team_members.business_id = $1`,
       values: [businessId],
     };
     const results = await this.pool.query(query);
