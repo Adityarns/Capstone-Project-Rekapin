@@ -1,0 +1,11 @@
+/* ============================================================
+   REKAPIN — Carbon Tracking Page Layout
+   src/pages/carbon/CarbonTracking.css
+   ============================================================ */
+
+.ct-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 100%;
+}
