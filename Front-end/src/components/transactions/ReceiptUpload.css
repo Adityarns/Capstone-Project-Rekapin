@@ -88,3 +88,40 @@
   color: var(--color-text-muted);
   margin: var(--space-2) 0 0;
 }
+
+.receipt-dropzone__filename {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-primary-700);
+  margin: var(--space-2) 0 0;
+  word-break: break-all;
+}
+
+/* ── Scan with AI button ── */
+.receipt-scan-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  background-color: var(--color-primary-50);
+  color: var(--color-primary-700);
+  border: 1px solid var(--color-primary-200);
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    border-color var(--duration-normal) var(--ease-default);
+}
+
+.receipt-scan-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-300);
+}
+
+.receipt-scan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

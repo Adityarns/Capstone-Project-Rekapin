@@ -80,7 +80,7 @@
 /* 2-column row: Amount + Date */
 .txn-row-2col {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
@@ -266,4 +266,35 @@
   font-weight: var(--weight-regular);
   color: var(--color-text-secondary);
   line-height: 1;
+}
+
+.txn-form-card,
+.txn-field,
+.txn-select-wrap {
+  min-width: 0;
+}
+
+.txn-select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.txn-select-wrap {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.txn-field {
+  min-width: 0;
+}
+
+.txn-form-card {
+  overflow: hidden;
+}
+
+.txn-page-body {
+  overflow-x: hidden;
 }

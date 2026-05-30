@@ -8,7 +8,9 @@
  *    - onTypeChange
  *    - title, amount, date, category, description
  *    - onChange(fieldName, value) — unified handler
- *    - categories:  string[]     — dynamic per type
+ *    - categories:  object[]     — from backend API
+ *    - categoriesLoading: boolean
+ *    - selectedCategoryName: string — name of selected category
  * ============================================================
  *
  * @format
@@ -42,11 +44,15 @@ export default function TransactionForm({
   quantity,
   description,
   categories,
+  categoriesLoading,
+  selectedCategoryName,
   onChange,
 }) {
   const showQuantityField =
   type === "expense" &&
-  (category === "Electricity" || category === "Fuel");
+  (selectedCategoryName === "Electricity" ||
+   selectedCategoryName === "Transportation" ||
+   selectedCategoryName === "Water");
   return (
     <div className="txn-form-card">
       {/* ── Type Switcher: Expense / Income ── */}
@@ -141,13 +147,14 @@ export default function TransactionForm({
             className="txn-select"
             value={category}
             onChange={(e) => onChange("category", e.target.value)}
+            disabled={categoriesLoading}
           >
             <option value="" disabled>
-              Select a category
+              {categoriesLoading ? "Loading categories..." : "Select a category"}
             </option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+              <option key={cat.transaction_categories_id} value={cat.transaction_categories_id}>
+                {cat.category_name}
               </option>
             ))}
           </select>
@@ -169,9 +176,11 @@ export default function TransactionForm({
             type="number"
             className="txn-input"
             placeholder={
-              category === "Electricity"
+              selectedCategoryName === "Electricity"
                 ? "Enter kWh"
-                : "Enter liters"
+                : selectedCategoryName === "Water"
+                  ? "Enter m³"
+                  : "Enter liters"
             }
             min="0"
             value={quantity}
@@ -180,9 +189,11 @@ export default function TransactionForm({
           />
 
           <span className="txn-helper-text">
-            {category === "Electricity"
+            {selectedCategoryName === "Electricity"
               ? "Input electricity usage in kWh"
-              : "Input fuel usage in liters"}
+              : selectedCategoryName === "Water"
+                ? "Input water usage in m³"
+                : "Input transportation fuel usage in liters"}
           </span>
         </div>
       )}
