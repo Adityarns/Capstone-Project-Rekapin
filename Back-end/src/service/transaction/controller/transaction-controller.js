@@ -80,17 +80,25 @@ export const addTransaction = async (req, res, next) => {
     return next(new InvariantError("Gagal menambahkan transaksi"));
   }
 
-  // ================================================
-  //  Kalkulasi karbon otomatis
-  //  Hanya untuk kategori yang is_carbon_tracked = true
-  //  (Electricity dan Fuel)
-  // ================================================
   if (category.is_carbon_tracked === true) {
     try {
-      const carbonResult = await calculateCarbonWithAI({
-        description: description || title,
-        quantity: quantity,
-      });
+      let emissionInKg = 0;
+
+      // Cek apakah kategorinya adalah Listrik (Electricity)
+      if (category.category_name === "Electricity") {
+        // Perhitungan Manual: kWh * 0.85 = kg CO2
+        emissionInKg = quantity * 0.85;
+      } else {
+        // Perhitungan via AI untuk Fuel / Transportation
+        const carbonResult = await calculateCarbonWithAI({
+          description: description || title,
+          quantity: quantity,
+        });
+
+        // Ambil nilai ton dari AI, kalikan 1000 untuk jadi kg
+        const emissionInTons = carbonResult.estimated_emission_ton_co2 || 0;
+        emissionInKg = emissionInTons * 1000;
+      }
 
       await CarbonRepositories.createCarbonLog({
         businessId,
@@ -99,11 +107,9 @@ export const addTransaction = async (req, res, next) => {
         logDate: date,
         categoryType: category.category_name,
         quantity,
-        carbonTotal: carbonResult.estimated_emission_ton_co2 ?? 0,
+        carbonTotal: emissionInKg, // Sekarang semua murni masuk sebagai KG
       });
     } catch (error) {
-      // Kalau kalkulasi karbon gagal, transaksi tetap tersimpan
-      // Tidak perlu return error — carbon log bisa dihitung ulang nanti
       console.error("Carbon calculation failed:", error.message);
     }
   }

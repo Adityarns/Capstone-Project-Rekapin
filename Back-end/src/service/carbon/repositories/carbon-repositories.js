@@ -128,7 +128,7 @@ class CarbonRepositories {
     const query = {
       text: `SELECT
                category,
-               COALESCE(SUM(carbon_total), 0) AS total_carbon,
+               ROUND(COALESCE(SUM(carbon_total), 0)::NUMERIC, 2) AS total_carbon,
                ROUND(
                  (COALESCE(SUM(carbon_total), 0) /
                  NULLIF(SUM(SUM(carbon_total)) OVER (), 0) * 100)::NUMERIC
@@ -146,7 +146,6 @@ class CarbonRepositories {
 
   // ============================================================
   //  CARBON SUMMARY
-  //  Menggabungkan semua data untuk halaman Carbon Tracking
   // ============================================================
   async getCarbonSummary(businessId) {
     const now = new Date();
@@ -155,21 +154,15 @@ class CarbonRepositories {
       .split("T")[0];
     const today = now.toISOString().split("T")[0];
 
-    // Total karbon bulan ini
     const { total_carbon } = await this.getTotalCarbonByBusinessId({
       businessId,
       startDate: firstDayThisMonth,
       endDate: today,
     });
-
-    // Total karbon bulan lalu
     const { total_carbon: last_month_carbon } =
       await this.getLastMonthCarbon(businessId);
-
-    // Baseline = total karbon bulan pertama bisnis ada data
     const baseline_carbon = await this.getBaselineCarbon(businessId);
 
-    // Hitung % perubahan dari bulan lalu
     const changePercent =
       last_month_carbon > 0
         ? Math.round(
@@ -177,42 +170,25 @@ class CarbonRepositories {
           )
         : null;
 
-    // Progress terhadap baseline
-    // Contoh: baseline 1.5 tons, bulan ini 1.2 tons
-    // progress = (1.2 / 1.5) × 100 = 80%
-    // Semakin kecil dari baseline = semakin bagus
     const progressPercent =
       baseline_carbon && baseline_carbon > 0
         ? Math.min(Math.round((total_carbon / baseline_carbon) * 100), 100)
-        : null; // null = bulan pertama, belum ada baseline
+        : null;
 
-    // Carbon breakdown per kategori
     const breakdown = await this.getCarbonBreakdown(businessId);
 
+    // HANYA KEMBALIKAN DATA KILOGRAM DENGAN MAX 2 DESIMAL
     return {
-      // Total Carbon Footprint
-      total_carbon_kg: parseFloat(total_carbon),
-      total_carbon_tons: parseFloat((total_carbon / 1000).toFixed(6)),
-
-      // Perbandingan bulan lalu
-      last_month_carbon_kg: parseFloat(last_month_carbon),
-      last_month_carbon_tons: parseFloat((last_month_carbon / 1000).toFixed(6)),
-      change_percent: changePercent, // negatif = turun (bagus)
-
-      // Offset Goal Progress
+      total_carbon_kg: parseFloat(Number(total_carbon).toFixed(2)),
+      last_month_carbon_kg: parseFloat(Number(last_month_carbon).toFixed(2)),
+      change_percent: changePercent,
       goal: baseline_carbon
         ? {
-            baseline_carbon_kg: parseFloat(baseline_carbon),
-            baseline_carbon_tons: parseFloat(
-              (baseline_carbon / 1000).toFixed(6),
-            ),
+            baseline_carbon_kg: parseFloat(Number(baseline_carbon).toFixed(2)),
             progress_percent: progressPercent,
-            // is_on_track = karbon bulan ini lebih kecil dari baseline
             is_on_track: total_carbon < baseline_carbon,
           }
-        : null, // null = bulan pertama, tampilkan "Collecting baseline..."
-
-      // Carbon Breakdown chart
+        : null,
       breakdown,
     };
   }
