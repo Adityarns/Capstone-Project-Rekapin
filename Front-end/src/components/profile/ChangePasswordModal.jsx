@@ -12,6 +12,8 @@
 
 import { useState } from "react";
 import Modal from "./Modal";
+import { useAuth } from "../../context/AuthContext";
+import { changePassword } from "../../services/userService";
 
 /* ── Eye Icons ── */
 const IconEye = () => (
@@ -127,15 +129,31 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     return err;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const validation = validate();
+
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
       return;
     }
-    // TODO: PATCH /auth/change-password
-    console.log("Change password submitted");
-    handleClose();
+
+    try {
+      await changePassword(
+        user.userId,
+        form.current,
+        form.newPass
+      );
+
+      alert("Password berhasil diperbarui");
+      handleClose();
+    } catch (err) {
+      console.error(err);
+
+      alert(
+        err?.response?.data?.message ||
+        "Gagal memperbarui password"
+      );
+    }
   };
 
   const handleClose = () => {
@@ -148,6 +166,8 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
   /* Passwords match indicator */
   const passwordsMatch =
     form.confirm.length > 0 && form.newPass === form.confirm;
+
+  const { user } = useAuth();
 
   return (
     <Modal
