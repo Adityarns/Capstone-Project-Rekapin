@@ -6,32 +6,33 @@
  */
 
 /* ── Quarter options ── */
+const currentYear = new Date().getFullYear();
 export const QUARTER_OPTIONS = [
-  { value: "Q3-2023", label: "Q3 2023" },
-  { value: "Q2-2023", label: "Q2 2023" },
-  { value: "Q1-2023", label: "Q1 2023" },
-  { value: "Q4-2022", label: "Q4 2022" },
+  { value: `Q1-${currentYear}`, label: `Q1 ${currentYear}` },
+  { value: `Q2-${currentYear}`, label: `Q2 ${currentYear}` },
+  { value: `Q3-${currentYear}`, label: `Q3 ${currentYear}` },
+  { value: `Q4-${currentYear}`, label: `Q4 ${currentYear}` },
 ];
 
 /* ── Summary metric cards ── */
 export const reportsSummary = {
   totalRevenue: {
-    label:    "TOTAL REVENUE",
-    value:    124500000,
-    change:   12,
+    label: "TOTAL REVENUE",
+    value: 124500000,
+    change: 12,
     positive: true,
   },
   netIncome: {
-    label:    "NET INCOME",
-    value:    42100000,
-    change:   8,
+    label: "NET INCOME",
+    value: 42100000,
+    change: 8,
     positive: true,
   },
   carbonFootprint: {
-    label:    "CARBON FOOTPRINT",
-    value:    "2.4 tCO2e",
-    change:   -5,
-    onTrack:  true,
+    label: "CARBON FOOTPRINT",
+    value: "2.4 tCO2e",
+    change: -5,
+    onTrack: true,
   },
 };
 
@@ -63,75 +64,75 @@ export const revenueForecastData = [
  * ── */
 export const incomeStatementRows = [
   {
-    type:     "category",
-    label:    "Revenues",
-    q3:       124500000,
-    q2:       111000000,
+    type: "category",
+    label: "Revenues",
+    q3: 124500000,
+    q2: 111000000,
     variance: 12.1,
   },
   {
-    type:     "line",
-    indent:   true,
-    label:    "Cost of Goods Sold",
-    q3:       -45200000,
-    q2:       -42000000,
+    type: "line",
+    indent: true,
+    label: "Cost of Goods Sold",
+    q3: -45200000,
+    q2: -42000000,
     variance: -7.6,
   },
   {
-    type:     "subtotal",
-    label:    "Gross Profit",
-    q3:       79300000,
-    q2:       69000000,
+    type: "subtotal",
+    label: "Gross Profit",
+    q3: 79300000,
+    q2: 69000000,
     variance: 14.9,
   },
   {
-    type:  "section",
+    type: "section",
     label: "Operating Expenses",
   },
   {
-    type:     "line",
-    indent:   true,
-    label:    "Salaries and Wages",
-    q3:       -22000000,
-    q2:       -22000000,
+    type: "line",
+    indent: true,
+    label: "Salaries and Wages",
+    q3: -22000000,
+    q2: -22000000,
     variance: 0.0,
   },
   {
-    type:     "line",
-    indent:   true,
-    label:    "Rent Expense",
-    q3:       -8000000,
-    q2:       -8000000,
+    type: "line",
+    indent: true,
+    label: "Rent Expense",
+    q3: -8000000,
+    q2: -8000000,
     variance: 0.0,
   },
   {
-    type:     "line",
-    indent:   true,
-    label:    "Utilities",
-    q3:       -3500000,
-    q2:       -3200000,
+    type: "line",
+    indent: true,
+    label: "Utilities",
+    q3: -3500000,
+    q2: -3200000,
     variance: -9.3,
   },
   {
-    type:     "line",
-    indent:   true,
-    label:    "Other Expenses",
-    q3:       -3700000,
-    q2:       -2500000,
+    type: "line",
+    indent: true,
+    label: "Other Expenses",
+    q3: -3700000,
+    q2: -2500000,
     variance: -48.0,
   },
   {
-    type:     "subtotal",
-    label:    "Total Operating Expenses",
-    q3:       -37200000,
-    q2:       -35700000,
+    type: "subtotal",
+    label: "Total Operating Expenses",
+    q3: -37200000,
+    q2: -35700000,
     variance: -4.2,
   },
   {
-    type:     "total",
-    label:    "Net Income",
-    q3:       42100000,
-    q2:       33300000,
+    type: "total",
+    label: "Net Income",
+    q3: 42100000,
+    q2: 33300000,
     variance: 26.4,
   },
 ];
@@ -140,8 +141,9 @@ export const incomeStatementRows = [
 
 /** Rp 124.5M short format for summary cards */
 export function formatRpShort(value) {
-  if (value >= 1_000_000_000) return `Rp ${(value / 1_000_000_000).toFixed(1)}B`;
-  if (value >= 1_000_000)     return `Rp ${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000_000_000)
+    return `Rp ${(value / 1_000_000_000).toFixed(1)}B`;
+  if (value >= 1_000_000) return `Rp ${(value / 1_000_000).toFixed(1)}M`;
   return `Rp ${value.toLocaleString("id-ID")}`;
 }
 

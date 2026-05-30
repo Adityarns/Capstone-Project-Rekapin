@@ -66,17 +66,41 @@ async function _fetch(endpoint, options = {}) {
   }
 
   const response = await fetch(url, config);
-  const data = await response.json();
+
+  let data;
+  if (options.responseType === "blob") {
+    data = await response.blob();
+  } else {
+    const text = await response.text();
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = text;
+    }
+  }
 
   // ── Kenapa tidak hanya cek response.ok? ──────────────────
   // Backend Rekapin selalu mengembalikan JSON bahkan untuk error.
   // Response body punya field "status": "success" atau "fail".
-  // Kita cek HTTP status code (2xx = ok) untuk throw error.
   if (!response.ok) {
-    // Lempar error dengan pesan dari backend agar bisa ditampilkan di UI
-    const err = new Error(data?.message || "Terjadi kesalahan pada server.");
+    let message = "Terjadi kesalahan pada server.";
+    let responsePayload = data;
+
+    if (options.responseType === "blob") {
+      const errorText = await response.text();
+      try {
+        responsePayload = JSON.parse(errorText);
+        message = responsePayload?.message || errorText || message;
+      } catch {
+        message = errorText || message;
+      }
+    } else {
+      message = data?.message || message;
+    }
+
+    const err = new Error(message);
     err.status = response.status;
-    err.response = data;
+    err.response = responsePayload;
     throw err;
   }
 
@@ -147,13 +171,11 @@ export const api = {
     }),
 
   patch: (url, body, opts = {}) =>
-  apiRequest(url, {
-    method: "PATCH",
-    body: body instanceof FormData
-      ? body
-      : JSON.stringify(body),
-    ...opts,
-  }),
+    apiRequest(url, {
+      method: "PATCH",
+      body: body instanceof FormData ? body : JSON.stringify(body),
+      ...opts,
+    }),
 
   delete: (url, body) =>
     apiRequest(url, {

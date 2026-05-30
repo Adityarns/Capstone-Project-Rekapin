@@ -132,50 +132,66 @@ class FinancialReportService {
       ),
     ]);
 
-    const getAmount = (data, cat) =>
+    // Fungsi utilitas untuk mengambil nominal berdasarkan nama kategori
+    const getAmount = (data, catName) =>
       parseFloat(
-        data.find((d) => d.category_name.toLowerCase() === cat.toLowerCase())
-          ?.total_amount || 0,
+        data.find((d) => d.category_name === catName)?.total_amount || 0,
       );
 
-    const extractMetrics = (data) => {
-      const rev = data
-        .filter((d) => d.type === "income")
-        .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
-      const cogs = getAmount(data, "HPP") || getAmount(data, "COGS");
-      const sal = getAmount(data, "Salaries") || getAmount(data, "Beban Gaji");
-      const rent = getAmount(data, "Rent") || getAmount(data, "Beban Sewa");
-      const util =
-        getAmount(data, "Utilities") || getAmount(data, "Beban Utilitas");
+    // 1. Kalkulasi Pendapatan (Semua transaksi 'income')
+    const currentRev = currentData
+      .filter((d) => d.type === "income")
+      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+    const prevRev = prevData
+      .filter((d) => d.type === "income")
+      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
 
-      // Ekstraksi nilai untuk kategori baru: Transportation
-      const trans =
-        getAmount(data, "Transportation") ||
-        getAmount(data, "Beban Transportasi");
+    // 2. Kalkulasi HPP/COGS (Pengecualian khusus untuk beban pokok)
+    const isCogs = (name) =>
+      name.toLowerCase() === "hpp" || name.toLowerCase() === "cogs";
+    const currentCogs = currentData
+      .filter((d) => isCogs(d.category_name))
+      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
+    const prevCogs = prevData
+      .filter((d) => isCogs(d.category_name))
+      .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
 
-      const totalExp = data
-        .filter((d) => d.type === "expense")
-        .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
-
-      // Mengurangi total pengeluaran dengan beban transportasi agar data other_expenses tidak dobel
-      const other = totalExp - (cogs + sal + rent + util + trans);
-
-      return {
-        rev,
-        cogs,
-        gross: rev - cogs,
-        sal,
-        rent,
-        util,
-        trans,
-        other,
-        totalOp: sal + rent + util + trans + other,
-        net: rev - cogs - (sal + rent + util + trans + other),
-      };
+    // 3. Mengumpulkan SEMUA nama kategori pengeluaran yang unik (Operating Expenses)
+    const opexCategories = new Set();
+    const extractOpexCategories = (data) => {
+      data.forEach((d) => {
+        if (d.type === "expense" && !isCogs(d.category_name)) {
+          opexCategories.add(d.category_name);
+        }
+      });
     };
+    extractOpexCategories(currentData);
+    extractOpexCategories(prevData);
 
-    const c = extractMetrics(currentData);
-    const p = extractMetrics(prevData);
+    // 4. Membangun objek operating_expenses secara dinamis
+    const operating_expenses = {};
+    let currentTotalOp = 0;
+    let prevTotalOp = 0;
+
+    opexCategories.forEach((catName) => {
+      const currVal = getAmount(currentData, catName);
+      const prevVal = getAmount(prevData, catName);
+
+      operating_expenses[catName] = {
+        current: currVal,
+        previous: prevVal,
+        variance: calculateVariance(currVal, prevVal),
+      };
+
+      currentTotalOp += currVal;
+      prevTotalOp += prevVal;
+    });
+
+    // 5. Kalkulasi Akhir
+    const currentGross = currentRev - currentCogs;
+    const prevGross = prevRev - prevCogs;
+    const currentNet = currentGross - currentTotalOp;
+    const prevNet = prevGross - prevTotalOp;
 
     return {
       metadata: {
@@ -184,57 +200,30 @@ class FinancialReportService {
       },
       statement: {
         revenues: {
-          current: c.rev,
-          previous: p.rev,
-          variance: calculateVariance(c.rev, p.rev),
+          current: currentRev,
+          previous: prevRev,
+          variance: calculateVariance(currentRev, prevRev),
         },
         cogs: {
-          current: c.cogs,
-          previous: p.cogs,
-          variance: calculateVariance(c.cogs, p.cogs),
+          current: currentCogs,
+          previous: prevCogs,
+          variance: calculateVariance(currentCogs, prevCogs),
         },
         gross_profit: {
-          current: c.gross,
-          previous: p.gross,
-          variance: calculateVariance(c.gross, p.gross),
+          current: currentGross,
+          previous: prevGross,
+          variance: calculateVariance(currentGross, prevGross),
         },
-        operating_expenses: {
-          salaries_and_wages: {
-            current: c.sal,
-            previous: p.sal,
-            variance: calculateVariance(c.sal, p.sal),
-          },
-          rent_expense: {
-            current: c.rent,
-            previous: p.rent,
-            variance: calculateVariance(c.rent, p.rent),
-          },
-          utilities: {
-            current: c.util,
-            previous: p.util,
-            variance: calculateVariance(c.util, p.util),
-          },
-          // Memasukkan metrik transportasi baru ke dalam skema respons objek laba rugi
-          transportation: {
-            current: c.trans,
-            previous: p.trans,
-            variance: calculateVariance(c.trans, p.trans),
-          },
-          other_expenses: {
-            current: c.other,
-            previous: p.other,
-            variance: calculateVariance(c.other, p.other),
-          },
-        },
+        operating_expenses, // <-- Objek dinamis langsung disisipkan di sini
         total_operating_expenses: {
-          current: c.totalOp,
-          previous: p.totalOp,
-          variance: calculateVariance(c.totalOp, p.totalOp),
+          current: currentTotalOp,
+          previous: prevTotalOp,
+          variance: calculateVariance(currentTotalOp, prevTotalOp),
         },
         net_income: {
-          current: c.net,
-          previous: p.net,
-          variance: calculateVariance(c.net, p.net),
+          current: currentNet,
+          previous: prevNet,
+          variance: calculateVariance(currentNet, prevNet),
         },
       },
     };

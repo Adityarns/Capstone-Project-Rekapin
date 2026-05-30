@@ -30,7 +30,10 @@ function CashFlowTooltip({ active, payload, label }) {
       <p className="rpt-cf-tooltip__label">{label}</p>
       {payload.map((entry) => (
         <div key={entry.dataKey} className="rpt-cf-tooltip__row">
-          <span className="rpt-cf-tooltip__dot" style={{ backgroundColor: entry.fill }} />
+          <span
+            className="rpt-cf-tooltip__dot"
+            style={{ backgroundColor: entry.fill }}
+          />
           <span className="rpt-cf-tooltip__name">
             {entry.dataKey === "inflow" ? "Inflow" : "Outflow"}
           </span>
@@ -58,7 +61,7 @@ function ChartLegend() {
 }
 
 /* ── Main component ── */
-export default function CashFlowOverview() {
+export default function CashFlowOverview({ data = cashFlowOverviewData }) {
   return (
     <div className="rpt-cf-card">
       <div className="rpt-cf-card__header">
@@ -68,7 +71,7 @@ export default function CashFlowOverview() {
       <div className="rpt-cf-card__chart">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart
-            data={cashFlowOverviewData}
+            data={data}
             margin={{ top: 8, right: 4, left: -20, bottom: 0 }}
             barCategoryGap="30%"
             barGap={4}
@@ -83,8 +86,8 @@ export default function CashFlowOverview() {
               axisLine={false}
               tickLine={false}
               tick={{
-                fontSize:   11,
-                fill:       "var(--color-text-muted)",
+                fontSize: 11,
+                fill: "var(--color-text-muted)",
                 fontFamily: "var(--font-sans)",
               }}
             />
