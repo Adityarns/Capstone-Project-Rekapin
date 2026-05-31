@@ -8,7 +8,6 @@
  * ============================================================
  */
 
-import { greenInsights } from "../../data/carbonData";
 import "./GreenInsights.css";
 
 const IconSparkle = () => (
@@ -27,21 +26,26 @@ const IconSaving = () => (
 );
 
 function InsightCard({ insight }) {
+  // Try to determine impact level from text if not provided directly
+  const impactLevel = insight.impactLevel || "medium";
+  const impact = insight.impact || "Medium Impact";
+  const emoji = insight.emoji || (insight.icon === "lightning" ? "⚡" : insight.icon === "Transportation" ? "🚚" : "♻️");
+
   return (
     <div className="gi-card">
 
       {/* Top: category badge + impact level */}
       <div className="gi-card__top">
-        <span className="gi-card__category">{insight.category}</span>
-        <span className={`gi-card__impact gi-card__impact--${insight.impactLevel}`}>
-          {insight.impact}
+        <span className="gi-card__category">{insight.category || insight.title.split(" ")[0]}</span>
+        <span className={`gi-card__impact gi-card__impact--${impactLevel}`}>
+          {impact}
         </span>
       </div>
 
       {/* Emoji icon + title */}
       <div className="gi-card__heading">
         <span className="gi-card__emoji" aria-hidden="true">
-          {insight.emoji}
+          {emoji}
         </span>
         <h3 className="gi-card__title">{insight.title}</h3>
       </div>
@@ -50,19 +54,21 @@ function InsightCard({ insight }) {
       <p className="gi-card__desc">{insight.description}</p>
 
       {/* Saving estimate */}
-      <div className="gi-card__saving">
-        <span className="gi-card__saving-icon" aria-hidden="true">
-          <IconSaving />
-        </span>
-        <span className="gi-card__saving-label">Est. saving:</span>
-        <span className="gi-card__saving-value">{insight.saving}</span>
-      </div>
+      {insight.saving && (
+        <div className="gi-card__saving">
+          <span className="gi-card__saving-icon" aria-hidden="true">
+            <IconSaving />
+          </span>
+          <span className="gi-card__saving-label">Est. saving:</span>
+          <span className="gi-card__saving-value">{insight.saving}</span>
+        </div>
+      )}
 
     </div>
   );
 }
 
-export default function GreenInsights() {
+export default function GreenInsights({ insights = [] }) {
   return (
     <section className="gi-section">
 
@@ -74,19 +80,23 @@ export default function GreenInsights() {
           </span>
           <h2 className="gi-section__title">Green Insights</h2>
         </div>
-        <span className="gi-section__badge">Demo Template</span>
+        <span className="gi-section__badge">AI Powered</span>
       </div>
 
       <p className="gi-section__subtitle">
         Actionable recommendations to reduce your environmental impact.
-        AI-powered insights coming soon.
       </p>
 
       {/* Insight cards */}
       <div className="gi-cards-grid">
-        {greenInsights.map((insight) => (
-          <InsightCard key={insight.id} insight={insight} />
+        {insights.map((insight, index) => (
+          <InsightCard key={insight.id || index} insight={insight} />
         ))}
+        {insights.length === 0 && (
+          <p style={{ gridColumn: "1 / -1", color: "var(--color-text-muted)" }}>
+            No insights available for this month yet.
+          </p>
+        )}
       </div>
 
     </section>

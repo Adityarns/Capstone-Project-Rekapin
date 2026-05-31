@@ -55,8 +55,7 @@ export const carbonTrendData = [
 /* ── Green Insights — static demo, no AI/ML yet ── */
 export const greenInsights = [
   {
-    id:          "insight-1",
-    emoji:       "⚡",
+    id:          "insight-1",       
     title:       "Optimize Off-Peak Usage",
     description:
       "Shifting 30% of electricity usage to off-peak hours (10PM–6AM) could reduce your energy carbon footprint by up to 18%.",
@@ -66,8 +65,7 @@ export const greenInsights = [
     saving:      "0.26 tCO2e / mo",
   },
   {
-    id:          "insight-2",
-    emoji:       "🚚",
+    id:          "insight-2",       
     title:       "Route Consolidation",
     description:
       "Combining delivery routes and optimizing logistics scheduling could cut transportation emissions by up to 22%.",
@@ -77,8 +75,7 @@ export const greenInsights = [
     saving:      "0.21 tCO2e / mo",
   },
   {
-    id:          "insight-3",
-    emoji:       "♻️",
+    id:          "insight-3",       
     title:       "Waste Diversion Program",
     description:
       "Implementing proper waste segregation and partnering with certified recyclers can help reduce scope 3 emissions significantly.",

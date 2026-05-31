@@ -9,7 +9,6 @@
  * ============================================================
  */
 
-import { carbonSummary } from "../../data/carbonData";
 import "./CarbonStatsCards.css";
 
 /* ── Icons ── */
@@ -141,8 +140,9 @@ function BreakdownCard({ items }) {
 }
 
 /* ── Main export ── */
-export default function CarbonStatsCards() {
-  const { totalFootprint, sustainabilityScore, carbonBreakdown } = carbonSummary;
+export default function CarbonStatsCards({ summary }) {
+  if (!summary) return null;
+  const { totalFootprint, sustainabilityScore, carbonBreakdown } = summary;
 
   return (
     <div className="ct-cards-grid">
