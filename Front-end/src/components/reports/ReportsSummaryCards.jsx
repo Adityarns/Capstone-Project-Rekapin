@@ -38,9 +38,11 @@ function formatRp(value) {
 }
 
 function formatCarbonKg(valueInTons) {
-  const kgValue = valueInTons * 1000;
+  const kgValue = parseFloat(valueInTons) * 1000;
+  if (!Number.isFinite(kgValue)) return "0.00 kg CO2";
   return `${kgValue.toLocaleString("id-ID", {
-    maximumFractionDigits: 3,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   })} kg CO2`;
 }
 

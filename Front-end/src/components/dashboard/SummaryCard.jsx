@@ -1,9 +1,8 @@
 /**
  * ============================================================
- *    REKAPIN — Summary Card
- *    src/components/dashboard/SummaryCard.jsx
+ * REKAPIN — Summary Card
+ * src/components/dashboard/SummaryCard.jsx
  * ============================================================
- * @format
  */
 
 import "./SummaryCard.css";
@@ -36,33 +35,25 @@ const IconLeaf = () => (
     strokeLinejoin="round"
   >
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12 12" />
   </svg>
 );
 
 export default function SummaryCard({
-  type,
   label,
   value,
-  unit,
   change,
-  changeLabel,
-  trend,
+  positive,
+  showTrend = false,
+  isCarbon = false,
 }) {
-  const isCarbon = type === "carbon";
-
-  const formatValue = () => {
-    if (isCarbon) return value.toFixed(1);
-    // Format angka dengan titik ribuan (Indonesia style)
-    return new Intl.NumberFormat("id-ID").format(value);
-  };
-
+  // Fungsi penentuan gaya warna badge (hijau/merah) berdasarkan status `positive`
   const getBadgeClass = () => {
-    if (type === "expense") return "sc-badge sc-badge--warn";
-    if (isCarbon && change < 0) return "sc-badge sc-badge--good";
-    if (isCarbon && change > 0) return "sc-badge sc-badge--warn";
-    return "sc-badge sc-badge--good";
+    return positive ? "sc-badge sc-badge--good" : "sc-badge sc-badge--warn";
   };
+
+  // Bersihkan nilai value jika terjadi kesalahan pengiriman dari induk
+  const safeValue = value || (isCarbon ? "0 tons" : "Rp 0");
 
   return (
     <article
@@ -80,27 +71,23 @@ export default function SummaryCard({
 
       {/* Value */}
       <div className="sc-value-row">
-        {!isCarbon && <span className="sc-prefix">Rp</span>}
-        <span className="sc-value">{formatValue()}</span>
-        {isCarbon && <span className="sc-unit">{unit}</span>}
+        {/* Tidak menggunakan Rp di sini karena sudah dibentuk oleh formatRupiahShort di Dashboard */}
+        <span className="sc-value">{safeValue}</span>
       </div>
 
       {/* Footer: badge or trending arrow */}
       <footer className="sc-footer">
-        {change !== null ? (
+        {showTrend ? (
+          <span
+            className={`sc-trend-arrow ${positive ? "sc-trend-arrow--up" : "sc-trend-arrow--down"}`}
+            aria-label="Trend indicator"
+          >
+            <IconTrendUp />
+          </span>
+        ) : (
           <span className={getBadgeClass()}>
             {change > 0 ? "+" : ""}
             {change}%
-            {changeLabel && (
-              <span className="sc-badge-sub"> {changeLabel}</span>
-            )}
-          </span>
-        ) : (
-          <span
-            className={`sc-trend-arrow sc-trend-arrow--${trend}`}
-            aria-label="Trending up"
-          >
-            <IconTrendUp />
           </span>
         )}
       </footer>

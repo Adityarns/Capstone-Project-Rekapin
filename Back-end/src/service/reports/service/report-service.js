@@ -5,10 +5,19 @@ import ejs from "ejs";
 import path from "path";
 
 const calculateVariance = (current, previous) => {
-  if (!previous || previous === 0) return current > 0 ? 100 : 0;
-  return parseFloat(
-    (((current - previous) / Math.abs(previous)) * 100).toFixed(1),
-  );
+  if (!previous || previous === 0) {
+    if (current > 0) return 100.0;
+    if (current < 0) return -100.0;
+    return 0.0;
+  }
+
+  if (current === 0 && previous !== 0) {
+    return -100.0;
+  }
+
+  const variance = ((current - previous) / Math.abs(previous)) * 100;
+
+  return parseFloat(variance.toFixed(1));
 };
 
 const getQuarterDateRange = (quarter, year) => {
