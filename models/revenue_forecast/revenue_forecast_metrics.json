@@ -1,0 +1,8 @@
+{
+  "mae_normalized": 0.011948312632739544,
+  "r2_normalized": 0.9807029366493225,
+  "mape_percent": 9.04272174835205,
+  "accuracy_percent": 90.957275390625,
+  "target_mae_pass": true,
+  "target_r2_pass": true
+}
