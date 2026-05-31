@@ -104,17 +104,34 @@ export const calculateCarbonWithAI = async ({ description, quantity }) => {
 //     Kirim array total harian ke Python API
 //     Return: prediksi pengeluaran ke depan
 // ============================================================
-export const forecastExpenseWithAI = async ({ dailyTotals }) => {
-  const response = await fetch(`${ML_API_URL}/ml/forecast`, {
+// export const forecastExpenseWithAI = async ({ dailyTotals }) => {
+//   const response = await fetch(`${ML_API_URL}/ml/forecast`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       daily_totals: dailyTotals,
+//     }),
+//   });
+
+//   if (!response.ok) {
+//     throw new Error(`Forecast model error: ${response.statusText}`);
+//   }
+
+//   const result = await response.json();
+//   return result.data || result;
+// };
+
+export const forecastRevenueWithAI = async ({ dailyRevenue }) => {
+  const response = await fetch(`${ML_API_URL}/ml/forecast/revenue`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      daily_totals: dailyTotals,
+      daily_revenue: dailyRevenue,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Forecast model error: ${response.statusText}`);
+    throw new Error(`Revenue Forecast model error: ${response.statusText}`);
   }
 
   const result = await response.json();

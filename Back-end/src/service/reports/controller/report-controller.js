@@ -1,6 +1,6 @@
 import FinancialReportService from "../service/report-service.js";
 import FinancialReportRepositories from "../repositories/report-repositories.js";
-import { forecastExpenseWithAI } from "../../Models/ai-service.js";
+import { forecastRevenueWithAI } from "../../Models/ai-service.js";
 import response from "../../../utils/response.js";
 import puppeteer from "puppeteer";
 import ejs from "ejs";
@@ -57,28 +57,51 @@ export const getRevenueForecast = async (req, res, next) => {
       );
     }
 
-    // 1. Tarik riwayat pengeluaran agregat harian
+    // 1. Tarik riwayat PENDAPATAN agregat harian
+    // PERHATIAN: Pastikan Anda mengubah/membuat fungsi ini di FinancialReportRepositories
+    // agar mengambil transaksi dengan type === "income", BUKAN expense.
+    // 1. Tarik riwayat PENDAPATAN agregat harian
     const rawHistory =
-      await FinancialReportRepositories.getDailyExpensesLast30Days(businessId);
+      await FinancialReportRepositories.getDailyIncomeLast30Days(businessId);
 
-    // 2. Ekstrak data hasil kueri menjadi array angka float murni
-    let dailyTotals = rawHistory.map((row) => parseFloat(row.total_amount));
+    // 2. BANGUN ARRAY 30 HARI SECARA UTUH (ISI ANGKA 0 UNTUK HARI YANG KOSONG)
+    const dailyRevenue = [];
+    const today = new Date();
 
-    if (dailyTotals.length === 0) {
-      dailyTotals = [0.0];
+    // Looping mundur dari 29 hari yang lalu sampai hari ini (0)
+    for (let i = 29; i >= 0; i--) {
+      const targetDate = new Date(today);
+      targetDate.setDate(today.getDate() - i);
+
+      // Ambil format YYYY-MM-DD dari tanggal target
+      // Penyesuaian ke zona waktu lokal (WIB) agar tidak meleset
+      const dateStr = targetDate.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Jakarta",
+      });
+
+      // Cari apakah di database ada pendapatan pada tanggal ini
+      const record = rawHistory.find((r) => {
+        const rDate = new Date(r.transaction_date).toLocaleDateString("en-CA", {
+          timeZone: "Asia/Jakarta",
+        });
+        return rDate === dateStr;
+      });
+
+      // Jika ada, masukkan nominalnya. Jika tidak ada, paksa menjadi 0.
+      dailyRevenue.push(record ? parseFloat(record.total_amount) : 0.0);
     }
 
     // 3. Panggil fungsi jembatan AI dari ai-service.js
-    const aiResult = await forecastExpenseWithAI({ dailyTotals });
+    const aiResult = await forecastRevenueWithAI({ dailyRevenue });
 
     // 4. Susun struktur data respons
     const formattedData = {
       businessId,
-      historicalDaysAnalyzed: rawHistory.length,
+      // Ubah log ini untuk membuktikan bahwa kita sudah mengirimkan tepat 30 data harian
+      historicalDaysAnalyzed: dailyRevenue.length,
       forecast: {
-        predictedSpendNextHorizon: aiResult.predicted_spend_next_horizon,
+        predictedRevenueNextHorizon: aiResult.predicted_revenue_next_horizon,
         predictedDailyAvg: aiResult.predicted_daily_avg,
-        horizonDays: aiResult.horizon_days,
         windowDays: aiResult.window_days,
         confidenceNote: aiResult.confidence_note,
       },
@@ -87,7 +110,7 @@ export const getRevenueForecast = async (req, res, next) => {
     return response(
       res,
       200,
-      "AI Expense Forecast berhasil dihitung menggunakan model Bidirectional LSTM",
+      "AI Revenue Forecast berhasil dihitung menggunakan model Bidirectional LSTM",
       formattedData,
     );
   } catch (error) {

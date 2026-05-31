@@ -73,6 +73,24 @@ class FinancialReportRepositories {
     return result.rows;
   }
 
+  async getDailyIncomeLast30Days(businessId) {
+    const query = {
+      text: `SELECT 
+               DATE(t.transaction_date::timestamptz) AS transaction_date,
+               COALESCE(SUM(CAST(t.amount AS NUMERIC)), 0) AS total_amount
+             FROM transactions t
+             WHERE t.business_id = $1 
+               AND t.transaction_type = 'income' -- Pastikan ini 'income'
+               AND t.transaction_date::timestamptz >= CURRENT_DATE - INTERVAL '30 days'
+             GROUP BY DATE(t.transaction_date::timestamptz)
+             ORDER BY transaction_date ASC`,
+      values: [businessId],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows;
+  }
+
   async getCarbonTotalByPeriod(businessId, startDate, endDate) {
     const query = {
       text: `SELECT 

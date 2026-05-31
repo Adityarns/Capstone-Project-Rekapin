@@ -1,19 +1,3 @@
-/**
- * ============================================================
- *    REKAPIN — Financial Reports Page
- *    src/pages/reports/Reports.jsx
- *
- *    Renders inside DashboardLayout <Outlet />.
- *    Sidebar + Topbar stay untouched.
- *
- *    Layout (top → bottom):
- *    1. ReportsHeader   — title, quarter dropdown, export buttons
- *    2. ReportsSummaryCards — 3 metric cards
- *    3. Charts row      — CashFlowOverview (left) + RevenueForecast (right)
- *    4. IncomeStatement — SAK EMKM table
- * ============================================================
- */
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
@@ -27,6 +11,7 @@ import { QUARTER_OPTIONS } from "../../data/reportsData";
 import {
   getFinancialSummary,
   getIncomeStatement,
+  getRevenueForecast,
   exportReportExcel,
   exportReportPDF,
 } from "../../services/reportService";
@@ -64,6 +49,7 @@ export default function Reports() {
   const [quarter, setQuarter] = useState(getCurrentQuarterValue());
   const [summary, setSummary] = useState(null);
   const [cashFlow, setCashFlow] = useState([]);
+  const [forecast, setForecast] = useState(null);
   const [incomeStatementData, setIncomeStatementData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -83,17 +69,24 @@ export default function Reports() {
       setError("");
 
       try {
-        const [summaryData, incomeData] = await Promise.all([
+        // Jaring pengaman khusus untuk AI (jika server Python mati, halaman tetap render)
+        const forecastPromise = getRevenueForecast(businessId).catch((err) => {
+          console.warn("AI Forecast offline/error:", err.message);
+          return null;
+        });
+
+        const [summaryData, incomeData, forecastResponse] = await Promise.all([
           getFinancialSummary(businessId, quarterKey, year),
           getIncomeStatement(businessId, quarterKey, year),
+          forecastPromise,
         ]);
+
         setSummary(summaryData.summary);
         setCashFlow(summaryData.cash_flow || []);
         setIncomeStatementData(incomeData);
-        console.log("Report data loaded:", {
-          summary: summaryData,
-          income: incomeData,
-        });
+
+        // Ekstrak data forecast dari respons
+        setForecast(forecastResponse?.forecast || null);
       } catch (err) {
         setError(err.message || "Gagal memuat data laporan dari backend.");
       } finally {
@@ -140,7 +133,8 @@ export default function Reports() {
 
   const hasTransactions = Boolean(
     (incomeStatementData && incomeStatementData.statement) ||
-      (summary && (summary.total_revenue > 0 || (cashFlow && cashFlow.length > 0)))
+    (summary &&
+      (summary.total_revenue > 0 || (cashFlow && cashFlow.length > 0))),
   );
 
   return (
@@ -163,7 +157,7 @@ export default function Reports() {
       {/* 3 — Charts row */}
       <div className="rpt-charts-row">
         <CashFlowOverview data={cashFlow} />
-        <RevenueForecast />
+        <RevenueForecast forecast={forecast} historical={cashFlow} />
       </div>
 
       {/* 4 — Income Statement */}

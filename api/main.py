@@ -32,6 +32,13 @@ class ForecastRequest(BaseModel):
         min_length=1,
         examples=[[120.0, 0.0, 45.5, 200.0, 0.0, 90.0, 30.0, 150.0, 0.0, 60.0, 40.0, 10.0, 0.0, 85.0]],
     )
+    
+class RevenueForecastRequest(BaseModel):
+    daily_revenue: List[float] = Field(
+        ...,
+        min_length=1,
+        examples=[[1200000.0, 800000.0, 950000.0, 1100000.0]],
+    )
 
 
 def _model_paths() -> Dict[str, Path]:
@@ -156,3 +163,22 @@ def ml_forecast(body: ForecastRequest) -> Dict[str, Any]:
     from ml.expense_forecast_model import predict_horizon_total
 
     return predict_horizon_total(body.daily_totals)
+
+@app.post("/ml/forecast/revenue")
+def ml_forecast_revenue(body: RevenueForecastRequest) -> Dict[str, Any]:
+    try:
+        # Impor fungsi dari model revenue yang baru dibuat
+        from ml.revenue_forecast_model import predict_revenue_horizon
+        
+        # Eksekusi prediksi
+        result = predict_revenue_horizon(body.daily_revenue)
+        
+        # Kembalikan dengan struktur respons standar Rekapin
+        return {
+            "code": 200,
+            "status": "success",
+            "message": "AI Revenue Forecast calculated successfully",
+            "data": result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
