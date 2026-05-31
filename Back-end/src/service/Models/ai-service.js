@@ -48,14 +48,19 @@ export const scanReceiptWithAI = async ({ base64Image, mediaType }) => {
     // 1. Tangkap objek "data" utama dari respons FastAPI
     const aiData = result.data;
 
-    // 2. Petakan dan kembalikan data dengan struktur yang dibutuhkan oleh database Rekapin
+    // 2. Ekstrak deskripsi dengan aman
+    const finalDescription =
+      aiData?.description?.description_text ||
+      (typeof aiData?.description === "string" ? aiData.description : "");
+
+    // 3. Petakan dan kembalikan data
     return {
-      title: aiData?.title ?? "Transaksi Struk template",
+      title: aiData?.title ?? "Transaksi Struk",
       amount: aiData?.amount ? parseFloat(aiData.amount) : 0,
-      transaction_date: aiData?.transaction_date ?? null,
-      category_suggestion: aiData?.category_suggestion ?? "template",
-      transaction_type: aiData?.transaction_type ?? "template",
-      description: aiData?.description ?? null,
+      transaction_date: aiData?.transaction_date ?? "",
+      category_suggestion: aiData?.category_suggestion ?? "",
+      transaction_type: aiData?.transaction_type ?? "expense",
+      description: finalDescription,
     };
   } catch (error) {
     console.error("Gagal menjembatani ke AI OCR Service:", error.message);
@@ -99,17 +104,34 @@ export const calculateCarbonWithAI = async ({ description, quantity }) => {
 //     Kirim array total harian ke Python API
 //     Return: prediksi pengeluaran ke depan
 // ============================================================
-export const forecastExpenseWithAI = async ({ dailyTotals }) => {
-  const response = await fetch(`${ML_API_URL}/ml/forecast`, {
+// export const forecastExpenseWithAI = async ({ dailyTotals }) => {
+//   const response = await fetch(`${ML_API_URL}/ml/forecast`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       daily_totals: dailyTotals,
+//     }),
+//   });
+
+//   if (!response.ok) {
+//     throw new Error(`Forecast model error: ${response.statusText}`);
+//   }
+
+//   const result = await response.json();
+//   return result.data || result;
+// };
+
+export const forecastRevenueWithAI = async ({ dailyRevenue }) => {
+  const response = await fetch(`${ML_API_URL}/ml/forecast/revenue`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      daily_totals: dailyTotals,
+      daily_revenue: dailyRevenue,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Forecast model error: ${response.statusText}`);
+    throw new Error(`Revenue Forecast model error: ${response.statusText}`);
   }
 
   const result = await response.json();

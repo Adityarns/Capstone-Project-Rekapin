@@ -125,6 +125,12 @@ export function formatRupiah(amount) {
   return `${prefix}${abs.toLocaleString("id-ID")}`;
 }
 
+// Versi penuh untuk summary cards dashboard (tidak disingkat)
+export function formatRupiahFull(amount) {
+  const abs = Math.abs(amount);
+  return `Rp ${abs.toLocaleString("id-ID")}`;
+}
+
 // Versi singkat untuk summary cards (tanpa prefix +/-)
 export function formatRupiahShort(amount) {
   const abs = Math.abs(amount);

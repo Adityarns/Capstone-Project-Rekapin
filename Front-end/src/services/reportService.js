@@ -8,13 +8,27 @@ const buildQueryString = (quarter, year) => {
   return queryString ? `?${queryString}` : "";
 };
 
-export async function getFinancialSummary(businessId) {
-  const response = await api.get(`/reports/${businessId}/financial-summary`);
+const buildReportQuery = (quarter, year) => {
+  const params = new URLSearchParams();
+  if (quarter) params.set("quarter", quarter);
+  if (year) params.set("year", String(year));
+  const queryString = params.toString();
+  return queryString ? `?${queryString}` : "";
+};
+
+export async function getFinancialSummary(businessId, quarter, year) {
+  const query = buildReportQuery(quarter, year);
+  const response = await api.get(
+    `/reports/${businessId}/financial-summary${query}`,
+  );
   return response.data;
 }
 
-export async function getIncomeStatement(businessId) {
-  const response = await api.get(`/reports/${businessId}/income-statement`);
+export async function getIncomeStatement(businessId, quarter, year) {
+  const query = buildReportQuery(quarter, year);
+  const response = await api.get(
+    `/reports/${businessId}/income-statement${query}`,
+  );
   return response.data;
 }
 

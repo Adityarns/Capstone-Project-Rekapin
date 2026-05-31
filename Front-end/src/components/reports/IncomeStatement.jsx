@@ -1,9 +1,7 @@
 /**
  * ============================================================
- *    REKAPIN — Income Statement Table
- *    src/components/reports/IncomeStatement.jsx
- *
- *    Renders backend data structure or fallback to mock data
+ * REKAPIN — Income Statement Table
+ * src/components/reports/IncomeStatement.jsx
  * ============================================================
  */
 
@@ -20,30 +18,46 @@ function formatRpFull(value) {
   return value.toLocaleString("id-ID");
 }
 
-/* ── Variance cell — colored by sign ── */
-function VarianceCell({ value }) {
+/* ── Variance cell — colored by sign and sentiment ── */
+function VarianceCell({ value, isExpenseRow }) {
   if (value === undefined || value === null)
     return <td className="is-td is-td--right" />;
 
-  const cls =
-    value > 0
-      ? "is-variance is-variance--positive"
-      : value < 0
-        ? "is-variance is-variance--negative"
-        : "is-variance is-variance--neutral";
+  // Jika tidak ada perubahan (0)
+  if (value === 0) {
+    return (
+      <td className="is-td is-td--right">
+        <span className="is-variance is-variance--neutral">0.0%</span>
+      </td>
+    );
+  }
+
+  // Sentimen Akuntansi:
+  // Untuk Pendapatan (Income): Plus itu Bagus (Hijau), Minus itu Buruk (Merah)
+  // Untuk Pengeluaran (Expense): Minus itu Bagus (Hijau), Plus itu Buruk (Merah)
+  let isGood = value > 0;
+  if (isExpenseRow) {
+    isGood = value < 0;
+  }
+
+  const cls = isGood
+    ? "is-variance is-variance--positive"
+    : "is-variance is-variance--negative";
+
+  const displayValue =
+    value > 0 ? `+${value.toFixed(1)}%` : `${value.toFixed(1)}%`;
 
   return (
     <td className="is-td is-td--right">
-      <span className={cls}>{formatVariance(value)}</span>
+      <span className={cls}>{displayValue}</span>
     </td>
   );
 }
 
-/* ── Single row renderer ── */
+/* ── Single row renderer (For Mock Data) ── */
 function StatementRow({ row }) {
   const { type, label, indent, q3, q2, variance } = row;
 
-  /* "section" rows — label only, no amounts, no variance */
   if (type === "section") {
     return (
       <tr className="is-row is-row--section">
@@ -54,7 +68,6 @@ function StatementRow({ row }) {
     );
   }
 
-  /* "total" row — Net Income highlight */
   if (type === "total") {
     return (
       <tr className="is-row is-row--total">
@@ -74,7 +87,6 @@ function StatementRow({ row }) {
     );
   }
 
-  /* Standard rows */
   const labelCls = [
     "is-td",
     "is-td--label",
@@ -89,7 +101,8 @@ function StatementRow({ row }) {
       <td className={labelCls}>{label}</td>
       <td className="is-td is-td--right">{formatAccounting(q3)}</td>
       <td className="is-td is-td--right">{formatAccounting(q2)}</td>
-      <VarianceCell value={variance} />
+      {/* Fallback untuk mock data, asumsikan pengeluaran jika indentasinya masuk (sub-item) */}
+      <VarianceCell value={variance} isExpenseRow={indent} />
     </tr>
   );
 }
@@ -104,6 +117,7 @@ function BackendStatementRow({
   indent = false,
   isBold = false,
   isTotal = false,
+  isExpenseRow = false, // Menerima properti penentu jenis akun
 }) {
   if (type === "section") {
     return (
@@ -148,7 +162,8 @@ function BackendStatementRow({
       <td className={labelCls}>{label}</td>
       <td className="is-td is-td--right">{formatRpFull(current)}</td>
       <td className="is-td is-td--right">{formatRpFull(previous)}</td>
-      <VarianceCell value={variance} />
+      {/* Mengirim status ke komponen pewarna sel */}
+      <VarianceCell value={variance} isExpenseRow={isExpenseRow} />
     </tr>
   );
 }
@@ -160,7 +175,7 @@ function buildBackendRows(data) {
   const st = data.statement;
   const rows = [];
 
-  // Revenues
+  // Revenues (Bukan pengeluaran)
   rows.push({
     type: "category",
     label: "Revenues",
@@ -168,9 +183,10 @@ function buildBackendRows(data) {
     previous: st.revenues?.previous,
     variance: st.revenues?.variance,
     isBold: true,
+    isExpenseRow: false,
   });
 
-  // COGS
+  // COGS (Pengeluaran)
   if (st.cogs && (st.cogs.current !== 0 || st.cogs.previous !== 0)) {
     rows.push({
       type: "line",
@@ -179,10 +195,11 @@ function buildBackendRows(data) {
       previous: st.cogs.previous,
       variance: st.cogs.variance,
       indent: true,
+      isExpenseRow: true,
     });
   }
 
-  // Gross Profit
+  // Gross Profit (Bukan pengeluaran)
   rows.push({
     type: "subtotal",
     label: "Gross Profit",
@@ -190,6 +207,7 @@ function buildBackendRows(data) {
     previous: st.gross_profit?.previous,
     variance: st.gross_profit?.variance,
     isBold: true,
+    isExpenseRow: false,
   });
 
   // Operating Expenses section
@@ -198,68 +216,26 @@ function buildBackendRows(data) {
     label: "Operating Expenses",
   });
 
-  // Operating Expense items
+  // Operating Expense items (Dinamis - Semua ini adalah pengeluaran)
   const opex = st.operating_expenses || {};
-
   Object.keys(opex).forEach((categoryName) => {
     const expense = opex[categoryName];
-
-    // Hanya tampilkan jika ada nilainya di kuartal saat ini atau sebelumnya
     if (expense.current !== 0 || expense.previous !== 0) {
       rows.push({
         type: "line",
-        label: categoryName, // Label akan langsung memakai nama asli dari database
+        label: categoryName,
         current: expense.current,
         previous: expense.previous,
         variance: expense.variance,
         indent: true,
+        isExpenseRow: true, // TANDAI SEBAGAI PENGELUARAN
       });
     }
   });
 
-  if (
-    opex.utilities &&
-    (opex.utilities.current !== 0 || opex.utilities.previous !== 0)
-  ) {
-    rows.push({
-      type: "line",
-      label: "Utilities",
-      current: opex.utilities.current,
-      previous: opex.utilities.previous,
-      variance: opex.utilities.variance,
-      indent: true,
-    });
-  }
+  // BLOK STATIS YANG LAMA TELAH DIHAPUS DARI SINI UNTUK MENCEGAH DUPLIKASI BARIS
 
-  if (
-    opex.transportation &&
-    (opex.transportation.current !== 0 || opex.transportation.previous !== 0)
-  ) {
-    rows.push({
-      type: "line",
-      label: "Transportation",
-      current: opex.transportation.current,
-      previous: opex.transportation.previous,
-      variance: opex.transportation.variance,
-      indent: true,
-    });
-  }
-
-  if (
-    opex.other_expenses &&
-    (opex.other_expenses.current !== 0 || opex.other_expenses.previous !== 0)
-  ) {
-    rows.push({
-      type: "line",
-      label: "Other Expenses",
-      current: opex.other_expenses.current,
-      previous: opex.other_expenses.previous,
-      variance: opex.other_expenses.variance,
-      indent: true,
-    });
-  }
-
-  // Total Operating Expenses
+  // Total Operating Expenses (Pengeluaran)
   rows.push({
     type: "subtotal",
     label: "Total Operating Expenses",
@@ -267,9 +243,10 @@ function buildBackendRows(data) {
     previous: st.total_operating_expenses?.previous,
     variance: st.total_operating_expenses?.variance,
     isBold: true,
+    isExpenseRow: true,
   });
 
-  // Net Income
+  // Net Income (Bukan pengeluaran)
   rows.push({
     type: "total",
     label: "Net Income",
@@ -277,6 +254,7 @@ function buildBackendRows(data) {
     previous: st.net_income?.previous,
     variance: st.net_income?.variance,
     isTotal: true,
+    isExpenseRow: false,
   });
 
   return rows;
@@ -293,7 +271,6 @@ export default function IncomeStatement({
 
   return (
     <div className="is-card">
-      {/* Card header */}
       <div className="is-card__header">
         <div>
           <h3 className="is-card__title">Income Statement</h3>
@@ -301,7 +278,6 @@ export default function IncomeStatement({
         </div>
       </div>
 
-      {/* Scrollable table wrapper */}
       <div className="is-table-wrap">
         <table className="is-table">
           <thead>
@@ -326,6 +302,7 @@ export default function IncomeStatement({
                     indent={row.indent}
                     isBold={row.isBold}
                     isTotal={row.isTotal}
+                    isExpenseRow={row.isExpenseRow} // PROPERTI KRUSIAL UNTUK WARNA DITERUSKAN KE SINI
                   />
                 );
               } else {

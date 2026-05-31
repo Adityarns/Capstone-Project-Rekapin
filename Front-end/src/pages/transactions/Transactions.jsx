@@ -71,7 +71,7 @@ export default function Transactions() {
 
   // ── Derive selected category object for quantity logic ──
   const selectedCategory = categories.find(
-    (cat) => cat.transaction_categories_id === form.category
+    (cat) => cat.transaction_categories_id === form.category,
   );
   const selectedCategoryName = selectedCategory?.category_name || "";
 
@@ -99,17 +99,50 @@ export default function Transactions() {
     try {
       const result = await scanReceipt(receiptFile);
       console.log("AI RESULT:", result);
-      // Auto-fill form fields from AI scan result if available
+
       if (result) {
+        if (result.transaction_type && result.transaction_type !== type) {
+          setType(result.transaction_type);
+        }
+
+        const suggestion = (result.category_suggestion || "").toLowerCase();
+        let matchedCategoryId = "";
+
+        if (suggestion) {
+          const match = categories.find((c) => {
+            const name = c.category_name.toLowerCase();
+
+            if (
+              suggestion === "others" &&
+              (name.includes("other") || name.includes("lain"))
+            )
+              return true;
+            if (
+              suggestion === "electricity" &&
+              (name.includes("electric") || name.includes("listrik"))
+            )
+              return true;
+            if (
+              suggestion === "transportation" &&
+              (name.includes("transport") || name.includes("kendaraan"))
+            )
+              return true;
+
+            return name.includes(suggestion);
+          });
+
+          if (match) {
+            matchedCategoryId = match.transaction_categories_id;
+          }
+        }
+
         setForm((prev) => ({
           ...prev,
           title: result.title || prev.title,
           amount: result.amount ? String(result.amount) : prev.amount,
           date: result.transaction_date || result.date || prev.date,
-          description:
-            result.description?.description_text ||
-            result.description ||
-            "",
+          category: matchedCategoryId || prev.category,
+          description: result.description || prev.description,
         }));
       }
     } catch (err) {
@@ -125,7 +158,6 @@ export default function Transactions() {
   };
 
   const handleSave = async () => {
-    // ── Client-side validation ──
     if (!form.title.trim()) {
       setError("Transaction title is required.");
       return;
@@ -143,7 +175,6 @@ export default function Transactions() {
       return;
     }
 
-    // Quantity required for carbon-tracked categories
     const needsQuantity =
       selectedCategoryName === "Electricity" ||
       selectedCategoryName === "Transportation" ||

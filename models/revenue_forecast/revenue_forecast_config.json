@@ -1,0 +1,18 @@
+{
+  "window": 30,
+  "horizon_days": 30,
+  "n_features": 4,
+  "feature_names": [
+    "revenue_norm",
+    "weekday_norm",
+    "monthday_norm",
+    "trend_norm"
+  ],
+  "normalization": "minmax_per_series",
+  "target": "avg_normalized_revenue_next_30d",
+  "scaler_y": {
+    "y_min": 0.006323699839413166,
+    "y_max": 0.7020541429519653
+  },
+  "notification_threshold": 0.05
+}
