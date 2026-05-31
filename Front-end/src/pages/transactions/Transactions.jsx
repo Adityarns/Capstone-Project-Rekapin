@@ -195,16 +195,18 @@ export default function Transactions() {
         date: form.date,
         type,
         description:
-          typeof form.description === "string"
-            ? form.description.trim() || undefined
-            : JSON.stringify(form.description),
+          typeof form.description === "string" && form.description.trim() !== ""
+            ? form.description.trim()
+            : "-",
         businessId,
         categoryId: form.category,
       };
 
-      // Only send quantity if it has a value
+      // Only send quantity if it has a value, otherwise default to 1 to prevent backend crash
       if (form.quantity && Number(form.quantity) > 0) {
         payload.quantity = Number(form.quantity);
+      } else {
+        payload.quantity = 1;
       }
 
       console.log("PAYLOAD:", payload);

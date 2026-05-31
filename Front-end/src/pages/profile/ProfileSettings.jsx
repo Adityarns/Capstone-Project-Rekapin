@@ -6,20 +6,18 @@
  * @format
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   updateBusiness,
   getBusinessById,
 } from "../../services/businessService";
-import { useEffect } from "react";
 import { getTeamMembers, removeTeamMember } from "../../services/teamService";
 
 import ProfileCard from "../../components/profile/ProfileCard";
 import BusinessInfo from "../../components/profile/BusinessInfo";
 import TeamManagement from "../../components/profile/TeamManagement";
-import NotificationsCard from "../../components/profile/NotificationsCard";
 import SecurityCard from "../../components/profile/SecurityCard";
 
 import EditProfileModal from "../../components/profile/EditProfileModal";
@@ -29,7 +27,7 @@ import ChangePasswordModal from "../../components/profile/ChangePasswordModal";
 import LoginHistoryModal from "../../components/profile/LoginHistoryModal";
 import LogoutConfirmModal from "../../components/profile/LogoutConfirmModal";
 
-import { mockBusiness, mockNotifications } from "../../data/profileData";
+import { mockBusiness } from "../../data/profileData";
 
 import {
   updateUserProfile,
@@ -66,12 +64,10 @@ export default function ProfileSettings() {
   const [business, setBusiness] = useState({ ...mockBusiness });
   const [bizDraft, setBizDraft] = useState({ ...mockBusiness });
   const [teamMembers, setTeamMembers] = useState([]);
-  const [notifications, setNotifications] = useState({ ...mockNotifications });
 
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
     profile: { ...INIT_PROFILE(user) },
     business: { ...mockBusiness },
-    notifs: { ...mockNotifications },
   }));
 
   // Sinkronisasi data di fase rendering (Anti-cascading)
@@ -90,9 +86,8 @@ export default function ProfileSettings() {
   const isDirty = useMemo(
     () =>
       !isEqual(userProfile, savedSnapshot.profile) ||
-      !isEqual(business, savedSnapshot.business) ||
-      !isEqual(notifications, savedSnapshot.notifs),
-    [userProfile, business, notifications, savedSnapshot],
+      !isEqual(business, savedSnapshot.business),
+    [userProfile, business, savedSnapshot],
   );
 
   /* ── Modal Open/Close State ── */
@@ -174,10 +169,6 @@ export default function ProfileSettings() {
     }
   };
 
-  const handleNotifChange = (key, value) => {
-    setNotifications((prev) => ({ ...prev, [key]: value }));
-  };
-
   const handleRemoveTeamMember = async (userId) => {
     try {
       if (!businessId) {
@@ -199,19 +190,16 @@ export default function ProfileSettings() {
     setSavedSnapshot({
       profile: { ...userProfile },
       business: { ...business },
-      notifs: { ...notifications },
     });
     console.log("Saved globally to DB:", {
       userProfile,
       business,
-      notifications,
     });
   };
 
   const handleDiscard = () => {
     setUserProfile({ ...savedSnapshot.profile });
     setBusiness({ ...savedSnapshot.business });
-    setNotifications({ ...savedSnapshot.notifs });
   };
 
   const handleLogoutConfirmed = async () => {
@@ -305,11 +293,41 @@ export default function ProfileSettings() {
               user={displayUser}
               onEdit={() => openModal("editProfile")}
             />
-            <BusinessInfo
-              business={business}
-              isOwner={isOwner}
-              onEdit={handleOpenEditBiz}
+            <SecurityCard
+              onChangePassword={() => openModal("changePassword")}
+              onLoginHistory={() => openModal("loginHistory")}
+              onLogout={() => openModal("logoutConfirm")}
             />
+            
+            <div className="profile-page__actions">
+              <button
+                type="button"
+                className="profile-btn profile-btn--discard"
+                onClick={handleDiscard}
+                disabled={!isDirty}
+                style={{
+                  opacity: isDirty ? 1 : 0.45,
+                  cursor: isDirty ? "pointer" : "not-allowed",
+                }}
+              >
+                Discard Changes
+              </button>
+
+              <button
+                type="button"
+                className="profile-btn profile-btn--save"
+                onClick={isDirty ? handleSaveChanges : undefined}
+                disabled={!isDirty}
+                aria-disabled={!isDirty}
+                style={{
+                  opacity: isDirty ? 1 : 0.5,
+                  cursor: isDirty ? "pointer" : "not-allowed",
+                  boxShadow: isDirty ? "var(--shadow-primary)" : "none",
+                }}
+              >
+                {isDirty ? "Save Changes" : "No Changes"}
+              </button>
+            </div>
           </div>
 
           <div className="profile-grid__right">
@@ -320,48 +338,12 @@ export default function ProfileSettings() {
               onInvite={() => openModal("invite")}
               onRemove={handleRemoveTeamMember}
             />
-            <div className="profile-grid__bottom-row">
-              <NotificationsCard
-                settings={notifications}
-                onChange={handleNotifChange}
-              />
-              <SecurityCard
-                onChangePassword={() => openModal("changePassword")}
-                onLoginHistory={() => openModal("loginHistory")}
-                onLogout={() => openModal("logoutConfirm")}
-              />
-            </div>
+            <BusinessInfo
+              business={business}
+              isOwner={isOwner}
+              onEdit={handleOpenEditBiz}
+            />
           </div>
-        </div>
-
-        <div className="profile-page__actions">
-          <button
-            type="button"
-            className="profile-btn profile-btn--discard"
-            onClick={handleDiscard}
-            disabled={!isDirty}
-            style={{
-              opacity: isDirty ? 1 : 0.45,
-              cursor: isDirty ? "pointer" : "not-allowed",
-            }}
-          >
-            Discard Changes
-          </button>
-
-          <button
-            type="button"
-            className="profile-btn profile-btn--save"
-            onClick={isDirty ? handleSaveChanges : undefined}
-            disabled={!isDirty}
-            aria-disabled={!isDirty}
-            style={{
-              opacity: isDirty ? 1 : 0.5,
-              cursor: isDirty ? "pointer" : "not-allowed",
-              boxShadow: isDirty ? "var(--shadow-primary)" : "none",
-            }}
-          >
-            {isDirty ? "Save Changes" : "No Changes"}
-          </button>
         </div>
       </div>
 

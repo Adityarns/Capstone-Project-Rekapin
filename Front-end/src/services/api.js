@@ -90,13 +90,15 @@ async function _fetch(endpoint, options = {}) {
       const errorText = await response.text();
       try {
         responsePayload = JSON.parse(errorText);
-        message = responsePayload?.message || errorText || message;
+        message = responsePayload?.message || responsePayload?.error || errorText || message;
       } catch {
         message = errorText || message;
       }
     } else {
-      message = data?.message || message;
+      message = data?.message || data?.error || data?.detail || (typeof data === 'string' ? data : message);
     }
+
+    console.error("API Error Response Data:", responsePayload);
 
     const err = new Error(message);
     err.status = response.status;
