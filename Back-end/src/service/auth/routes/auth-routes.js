@@ -12,11 +12,13 @@ import {
   refreshToken,
   logout,
   register,
+  joinBusinessWorkspace,
 } from "../controller/auth-controller.js";
 
 const router = Router();
 router.post("/auth/register", validate(registerAuthPayloadSchema), register);
 router.post("/auth/login", validate(loginAuthPayloadSchema), login);
+router.post("/auth/join", authenticateToken, joinBusinessWorkspace);
 router.put(
   "/auth/refresh",
   authenticateToken,

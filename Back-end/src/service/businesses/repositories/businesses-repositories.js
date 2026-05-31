@@ -54,7 +54,7 @@ class BusinessRepositories {
 
   async findByInvitationCode(invitationCode) {
     const query = {
-      text: `SELECT business_id FROM businesses WHERE invitation_code = $1`,
+      text: `SELECT business_id, business_name FROM businesses WHERE invitation_code = $1`,
       values: [invitationCode],
     };
     const result = await this.pool.query(query);
@@ -94,6 +94,30 @@ class BusinessRepositories {
     };
     const result = await this.pool.query(query);
     return result.rows[0];
+  }
+
+  // ============================================================
+  // WORKSPACE SELECTION: Tarik semua bisnis milik user (Owner & Employee)
+  // ============================================================
+  async getAccessibleBusinesses(userId) {
+    const query = {
+      text: `
+        SELECT b.business_id, b.business_name, 'owner' AS role
+        FROM businesses b
+        WHERE b.owner_id = $1
+        
+        UNION
+        
+        SELECT b.business_id, b.business_name, tm.role
+        FROM team_members tm
+        JOIN businesses b ON tm.business_id = b.business_id
+        WHERE tm.user_id = $1
+      `,
+      values: [userId],
+    };
+
+    const result = await this.pool.query(query);
+    return result.rows;
   }
 }
 

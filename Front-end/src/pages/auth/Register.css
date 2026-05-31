@@ -114,3 +114,55 @@
 .reg-terms-label .checkbox-text {
   line-height: var(--leading-relaxed);
 }
+
+/* ----------------------------------------------------------
+   PENYESUAIAN TATA LETAK CARD REGISTER
+   Merapatkan tinggi dan spasi agar tidak perlu scroll vertikal
+   ---------------------------------------------------------- */
+
+/* Modifikasi pada kontainer card khusus register */
+.reg-card {
+  padding-top: var(--space-6) !important;
+  padding-bottom: var(--space-6) !important;
+  gap: var(--space-4) !important; /* Perkecil gap utama dalam card */
+}
+
+.reg-card .login-card-header {
+  gap: var(--space-1) !important;
+}
+
+.reg-card .login-title {
+  font-size: var(--text-2xl) !important; /* Sedikit perkecil ukuran judul */
+}
+
+/* Merapatkan form fields */
+.reg-card .login-form {
+  gap: var(--space-3) !important; /* Perkecil gap antar input */
+}
+
+.reg-card .form-field {
+  gap: var(--space-1) !important;
+}
+
+/* Mengecilkan input height khusus di register */
+.reg-card .form-input {
+  padding: var(--space-2) var(--space-3) !important;
+  padding-left: calc(var(--space-3) + 16px + var(--space-2)) !important;
+}
+
+/* Tombol submit yang lebih pipih */
+.reg-card .btn-primary-full {
+  padding: var(--space-3) var(--space-4) !important;
+  margin-top: 0 !important;
+}
+
+/* Margin dan spasi teks penutup */
+.reg-card .login-legal {
+  margin-top: 0 !important;
+}
+
+/* Mengecilkan ukuran icon di dalam input */
+.reg-card .input-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}

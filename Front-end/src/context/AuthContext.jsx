@@ -96,31 +96,34 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async ({ email, password, invitationCode }) => {
     try {
-      // 1. Hanya panggil satu endpoint ini saja
+      // 1. Panggil endpoint login
       const loginResponse = await loginUser({
         email,
         password,
         invitationCode,
       });
 
-      // 2. Ambil data user yang sudah dirakit lengkap oleh backend saat login
-      const profile = loginResponse.user;
+      // 2. Ambil businesses array dari response
+      const businesses = loginResponse.businesses || [];
 
+      // 3. Set user data TANPA business_id — business_id baru di-set di /workspace
       const userData = {
-        userId: profile.user_id,
-        businessId: profile.business_id,
-        name: profile.username,
-        email: profile.email,
-        role: profile.role,
-        avatarSrc: profile.avatar_url,
-        business_id: profile.business_id,
-        business_name: profile.business_name,
-        avatar_url: profile.avatar_url,
+        userId: loginResponse.user.user_id,
+        name: loginResponse.user.username,
+        email: loginResponse.user.email,
+        avatar_url: loginResponse.user.avatar_url,
       };
 
       setUser(userData);
       localStorage.setItem("rekapin_user", JSON.stringify(userData));
-      return { success: true };
+
+      // Return lengkap: success, user, businesses, accessToken agar /workspace bisa pakai
+      return {
+        success: true,
+        user: userData,
+        businesses: businesses,
+        accessToken: loginResponse.accessToken,
+      };
     } catch (error) {
       return { success: false, message: error.message };
     }
@@ -129,9 +132,7 @@ export function AuthProvider({ children }) {
   // ── REGISTER ─────────────────────────────────────────────────
   // Dipanggil dari Register.jsx.
   // Setelah register berhasil, langsung auto-login tidak dilakukan —
-  // user diarahkan ke /login untuk login manual.
-  // Kenapa? Karena backend register tidak mengembalikan token,
-  // hanya data user. Jadi harus login terpisah.
+  // user diarahkan ke /workspace untuk memilih bisnis.
 
   const register = useCallback(async (formData) => {
     try {

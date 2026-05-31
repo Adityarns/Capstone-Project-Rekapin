@@ -1,7 +1,7 @@
 /**
  * ============================================================
- *    REKAPIN — App Routes
- *    src/routes/AppRoutes.jsx
+ * REKAPIN — App Routes
+ * src/routes/AppRoutes.jsx
  * ============================================================
  * @format
  */
@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import WorkSpace from "../pages/auth/WorkSpace"; // <-- TAMBAHKAN IMPORT INI
 import DashboardLayout from "../layouts/DashboardLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Transactions from "../pages/transactions/Transactions";
@@ -39,42 +40,49 @@ function LoadingScreen() {
   );
 }
 
-/* ── Guards ── */
-//function ProtectedRoute({ children }) {
-//const { isAuthenticated, isLoading } = useAuth();
-//if (isLoading) return <LoadingScreen />;
-//if (!isAuthenticated) return <Navigate to="/login" replace />;
-//return children;
-//}
-
+/* ── Guards (Dinyalakan Kembali) ── */
 function ProtectedRoute({ children }) {
-  return children;
-}
+  const { isAuthenticated, isLoading } = useAuth();
 
-//function PublicRoute({ children }) {
-//const { isAuthenticated, isLoading } = useAuth();
-//if (isLoading) return null;
-//if (isAuthenticated) return <Navigate to="/dashboard" replace />;
-//return children;
-//}
+  if (isLoading) return <LoadingScreen />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  return children;
+} 
 
 function PublicRoute({ children }) {
-  return children;
-}
+  const { isAuthenticated, isLoading, user } = useAuth();
 
+  if (isLoading) return <LoadingScreen />;
+
+  // REDIRECT PRIORITY:
+  // 1. Jika authenticated DAN sudah pilih bisnis → ke dashboard
+  // 2. Jika authenticated tapi belum pilih bisnis → ke workspace
+  // 3. Jika belum authenticated → render children (login/register)
+
+  if (isAuthenticated) {
+    if (user?.business_id) {
+      return <Navigate to={`/dashboard/${user.business_id}`} replace />;
+    }
+  }
+  return children;
+} 
 /* ── Route Definitions ── */
 export default function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
 
   return (
     <Routes>
+      {/* ROOT REDIRECT */}
       <Route
         path="/"
         element={
           <Navigate
             to={
-              isAuthenticated && user?.businessId
-                ? `/dashboard/${user.businessId}`
+              isAuthenticated
+                ? user?.business_id
+                  ? `/dashboard/${user.business_id}`
+                  : "/workspace"
                 : "/login"
             }
             replace
@@ -82,6 +90,7 @@ export default function AppRoutes() {
         }
       />
 
+      {/* PUBLIC ROUTES (Login & Register) */}
       <Route
         path="/login"
         element={
@@ -99,6 +108,8 @@ export default function AppRoutes() {
         }
       />
 
+      <Route path="/workspace" element={<WorkSpace />} />
+
       <Route
         element={
           <ProtectedRoute>
@@ -114,6 +125,7 @@ export default function AppRoutes() {
         <Route path="/support/:businessId" element={<Team />} />
       </Route>
 
+      {/* FALLBACK / NOT FOUND */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

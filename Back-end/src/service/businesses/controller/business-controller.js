@@ -78,3 +78,14 @@ export const editBusinessById = async (req, res, next) => {
 
   return response(res, 200, "Business berhasil diperbarui", business);
 };
+
+export const getAccessibleBusiness = async (req, res, next) => {
+  const userId = req.params.userId;
+  const business = await businessesRepositories.getAccessibleBusinesses(userId);
+  if (!business) {
+    return next(
+      new NotFoundError("Anda tidak memiliki akses ke bisnis manapun"),
+    );
+  }
+  return response(res, 200, "Business ditemukan", business);
+};

@@ -51,13 +51,18 @@ export async function registerUser({
   // Field owner-only: hanya tambahkan jika role owner
   if (role === "owner") {
     payload.businessName = businessName;
-    // invitationCode optional — hanya kirim jika diisi
+    // invitationCode wajib untuk owner
+    if (invitationCode?.trim()) {
+      payload.invitationCode = invitationCode.trim();
+    }
+  } else if (role === "employee") {
+    // Employee: invitationCode wajib
     if (invitationCode?.trim()) {
       payload.invitationCode = invitationCode.trim();
     }
   }
 
-  // Response 201: { status: "success", data: { username, email, role, userId, businessName } }
+  // Response 201: { status: "success", data: { username, email, role, userId, businessId } }
   const response = await api.post("/auth/register", payload);
   return response.data;
 }
@@ -68,31 +73,24 @@ export async function registerUser({
 // Backend mengembalikan accessToken dan refreshToken.
 // Kita simpan keduanya ke localStorage via tokenStorage.
 // Fungsi ini mengembalikan data user agar bisa disimpan di context.
-
-export async function loginUser({ email, password, invitationCode }) {
+export async function loginUser({ email, password }) {
   const payload = { email, password };
 
-  // invitationCode di login: untuk employee join workspace
-  if (invitationCode?.trim()) {
-    payload.invitationCode = invitationCode.trim();
-  }
-
-  // Response 200: { status: "success", data: { accessToken, refreshToken } }
   const response = await api.post("/auth/login", payload);
-  const { accessToken, refreshToken } = response.data;
 
-  // ── Kenapa kita simpan token di sini (service layer) bukan di komponen? ──
-  // Supaya Login.jsx tidak perlu "tahu" tentang localStorage.
-  // Komponen UI cukup panggil loginUser() dan terima hasilnya.
-  // Ini prinsip separation of concerns.
+  // KEMBALIKAN KE response.data tunggal
+  const { accessToken, refreshToken, user, businesses } = response.data;
+
+  // Simpan token di service layer
   tokenStorage.setTokens(accessToken, refreshToken);
 
-  // ── Decode JWT untuk ambil user_id ──
   const decoded = jwtDecode(accessToken);
 
   return {
     ...response.data,
     userId: decoded.user_id,
+    user,
+    businesses,
   };
 }
 

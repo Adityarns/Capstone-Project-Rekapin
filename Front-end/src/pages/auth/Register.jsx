@@ -65,7 +65,7 @@ function RoleSelector({ role, onChange }) {
 /* ── Main Component ── */
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth(); // ← ambil register() dari context
+  const { register, login, updateUser } = useAuth(); // ← ambil register(), login(), updateUser dari context
 
   const [role, setRole] = useState("owner");
   const [showPassword, setShowPassword] = useState(false);
@@ -87,15 +87,24 @@ export default function Register() {
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
-    if (newRole === "employee") {
-      setForm((prev) => ({ ...prev, businessName: "", invitationCode: "" }));
+    if (newRole === "owner") {
+      // Owner: bersihkan businessName saja (invitationCode tetap perlu)
+      setForm((prev) => ({ ...prev, businessName: "" }));
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n.businessName;
+        return n;
+      });
+    } else if (newRole === "employee") {
+      // Employee: bersihkan businessName (tidak perlu)
+      setForm((prev) => ({ ...prev, businessName: "" }));
       setErrors((prev) => {
         const n = { ...prev };
         delete n.businessName;
         return n;
       });
     }
-    setApiError(""); // clear error saat role berganti
+    setApiError("");
   };
 
   const handleChange = (e) => {
@@ -108,26 +117,36 @@ export default function Register() {
   const validate = () => {
     const err = {};
     if (!form.fullName.trim()) err.fullName = "Full name is required.";
+
     if (role === "owner" && !form.businessName.trim())
       err.businessName = "Business name is required.";
+
+    // Invitation code wajib untuk owner dan employee
+    if (!form.invitationCode.trim())
+      err.invitationCode = "Invitation code is required.";
+
     if (!form.email.trim()) err.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       err.email = "Enter a valid email address.";
+
     if (!form.password) err.password = "Password is required.";
     else if (form.password.length < 8)
       err.password = "Password must be at least 8 characters.";
+
     if (!form.confirmPassword)
       err.confirmPassword = "Please confirm your password.";
     else if (form.password !== form.confirmPassword)
       err.confirmPassword = "Passwords do not match.";
+
     if (!agreeTerms) err.terms = "You must agree to the terms to continue.";
+
     return err;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Frontend validation dulu sebelum hit API
+    // Frontend validation
     const validation = validate();
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
@@ -137,29 +156,50 @@ export default function Register() {
     setIsSubmitting(true);
     setApiError("");
 
-    // ── Kirim ke API via AuthContext ────────────────────────
-    // register() → registerUser() di authService.js
-    // authService akan handle mapping fullName → username
+    // 1. Eksekusi Registrasi
     const result = await register({
       role,
-      fullName: form.fullName, // authService maps ke "username"
+      fullName: form.fullName,
       businessName: form.businessName,
       email: form.email,
       password: form.password,
       invitationCode: form.invitationCode,
-      // confirmPassword TIDAK dikirim ke API — hanya untuk validasi frontend
     });
 
-    setIsSubmitting(false);
-
     if (result.success) {
-      // ── Register berhasil → redirect ke /login ──────────
-      // Kenapa tidak auto-login? Karena /auth/register tidak
-      // mengembalikan token — hanya data user.
-      // User perlu login manual setelahnya.
       setApiSuccess(true);
-      setTimeout(() => navigate("/login"), 2000); // beri waktu baca success message
+
+      // 2. AUTO-LOGIN DI BALIK LAYAR
+      const loginResult = await login({
+        email: form.email,
+        password: form.password,
+      });
+
+      // 3. NAVIGASI LANGSUNG KE DASHBOARD
+      setTimeout(() => {
+        if (loginResult.success && loginResult.businesses?.length > 0) {
+          // Ambil bisnis pertama (owner atau employee)
+          const newBusiness = loginResult.businesses[0];
+
+          // Update user context dengan business_id dan role
+          if (updateUser) {
+            updateUser({
+              business_id: newBusiness.business_id,
+              role: newBusiness.role,
+              business_name: newBusiness.business_name,
+            });
+          }
+
+          // Langsung ke Dashboard
+          navigate(`/dashboard/${newBusiness.business_id}`, { replace: true });
+        } else {
+          // Jika login gagal atau tidak ada bisnis, ke login page
+          console.error("Login gagal setelah register:", loginResult);
+          navigate("/login", { replace: true });
+        }
+      }, 1500);
     } else {
+      setIsSubmitting(false);
       setApiError(result.message || "Registrasi gagal. Coba lagi.");
     }
   };
@@ -203,7 +243,7 @@ export default function Register() {
         {/* ── Success Banner ── */}
         {apiSuccess && (
           <div className="login-api-success" role="status">
-            ✓ Akun berhasil dibuat! Mengalihkan ke halaman login...
+            ✓ Akun berhasil dibuat! Mengalihkan ke dashboard...
           </div>
         )}
 
@@ -390,32 +430,41 @@ export default function Register() {
             )}
           </div>
 
-          {/* Invitation Code — Owner only, optional */}
-          {isOwner && (
-            <div className="form-field">
-              <div className="form-label-row">
-                <label className="form-label" htmlFor="reg-code">
-                  Invitation Code
-                </label>
-                <span className="form-label-badge">Optional</span>
-              </div>
-              <div className="input-wrapper">
-                <span className="input-icon">
-                  <IconTicket />
-                </span>
-                <input
-                  id="reg-code"
-                  name="invitationCode"
-                  type="text"
-                  className="form-input"
-                  placeholder="e.g. REKAPIN-2024"
-                  value={form.invitationCode}
-                  onChange={handleChange}
-                  autoComplete="off"
-                />
-              </div>
+          <div className="form-field">
+            <div className="form-label-row">
+              <label className="form-label" htmlFor="reg-code">
+                Invitation Code
+              </label>
+              <span className="form-label-badge form-label-badge--required">
+                Required
+              </span>
             </div>
-          )}
+            <div className="input-wrapper">
+              <span className="input-icon">
+                <IconTicket />
+              </span>
+              <input
+                id="reg-code"
+                name="invitationCode"
+                type="text"
+                className={`form-input ${errors.invitationCode ? "form-input--error" : ""}`}
+                placeholder={
+                  role === "owner"
+                    ? "e.g. REKAPIN-2024-OWN"
+                    : "e.g. REKAPIN-2024"
+                }
+                value={form.invitationCode}
+                onChange={handleChange}
+                autoComplete="off"
+                required
+              />
+            </div>
+            {errors.invitationCode && (
+              <span className="form-error" role="alert">
+                {errors.invitationCode}
+              </span>
+            )}
+          </div>
 
           {/* Terms */}
           <div className="form-field">

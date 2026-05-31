@@ -5,79 +5,99 @@ import TeamMemberRepositories from "../../teams/repositories/team-members-reposi
 import AuthenticationRepositories from "../repositories/auth-repositories.js";
 import TokenManager from "../../../security/token-manager.js";
 import response from "../../../utils/response.js";
-import {
-  InvariantError,
-  AuthenticationError,
-  NotFoundError,
-} from "../../../exceptions/index.js";
+import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 
 export const register = async (req, res, next) => {
-  const { username, businessName, email, password, role, invitationCode } =
-    req.validated;
+  try {
+    const { username, businessName, email, password, role, invitationCode } =
+      req.validated;
 
-  const emailTaken = await UserRepositories.verifyEmail(email);
-  if (emailTaken) {
-    return next(new InvariantError("Email sudah digunakan"));
-  }
-
-  const invitationCodeTaken =
-    await BusinessRepositories.findByInvitationCode(invitationCode);
-  if (invitationCode && invitationCodeTaken) {
-    return next(new InvariantError("Kode undangan sudah digunakan"));
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-
-  // ================================================
-  //  Owner → buat user + bisnis sekaligus
-  // ================================================
-  if (role === "owner") {
-    if (!businessName) {
-      return next(
-        new InvariantError("Nama bisnis wajib diisi untuk pemilik UMKM"),
-      );
+    const emailTaken = await UserRepositories.verifyEmail(email);
+    if (emailTaken) {
+      return next(new InvariantError("Email sudah digunakan"));
     }
 
-    const { user_id: userId } = await UserRepositories.addUser({
-      username: username,
-      email,
-      password: passwordHash,
-    });
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    const { business_id: businessId } = await BusinessRepositories.addBusiness({
-      ownerId: userId,
-      businessName,
-      invitationCode,
-    });
+    // ================================================
+    //  Owner → buat user + bisnis sekaligus (dengan invitation code dari user)
+    // ================================================
+    if (role === "owner") {
+      if (!businessName) {
+        return next(
+          new InvariantError("Nama bisnis wajib diisi untuk pemilik UMKM"),
+        );
+      }
 
-    await TeamMemberRepositories.addTeamMember({
-      businessId,
-      userId,
-      role: "owner",
-    });
+      if (!invitationCode) {
+        return next(
+          new InvariantError("Kode undangan wajib diisi untuk membuat bisnis"),
+        );
+      }
 
-    const data = { username, email, role, userId, businessId };
+      const { user_id: userId } = await UserRepositories.addUser({
+        username: username,
+        email,
+        password: passwordHash,
+      });
 
-    return response(res, 201, "Akun dan bisnis berhasil dibuat", data);
+      // Owner membuat bisnis dengan invitation code yang dia berikan
+      const { business_id: businessId } =
+        await BusinessRepositories.addBusiness({
+          ownerId: userId,
+          businessName,
+          invitationCode,
+        });
+
+      await TeamMemberRepositories.addTeamMember({
+        businessId,
+        userId,
+        role: "owner",
+      });
+
+      const data = {
+        username,
+        email,
+        role,
+        userId,
+        businessId,
+        invitationCode, // Return kode yang diberikan user
+      };
+
+      return response(res, 201, "Akun dan bisnis berhasil dibuat", data);
+    } else {
+      const targetBusiness =
+        await BusinessRepositories.findByInvitationCode(invitationCode);
+      if (!targetBusiness) {
+        return next(
+          new InvariantError(
+            "Kode undangan tidak valid atau sudah tidak aktif",
+          ),
+        );
+      }
+
+      const { user_id: userId } = await UserRepositories.addUser({
+        username: username,
+        email,
+        password: passwordHash,
+      });
+
+      await TeamMemberRepositories.addTeamMember({
+        businessId: targetBusiness.business_id,
+        userId,
+        role: "employee",
+      });
+
+      const data = { username, email, role, userId };
+      return response(res, 201, "Akun berhasil dibuat", data);
+    }
+  } catch (error) {
+    next(error);
   }
-
-  // ================================================
-  //  Karyawan → buat user saja, belum join bisnis
-  //  (akan join bisnis saat login dengan invitation code)
-  // ================================================
-  const { user_id: userId } = await UserRepositories.addUser({
-    username: username,
-    email,
-    password: passwordHash,
-  });
-
-  const data = { username, email, role, userId };
-
-  return response(res, 201, "Akun berhasil dibuat", data);
 };
 
 export const login = async (req, res, next) => {
-  const { email, password, invitationCode } = req.validated;
+  const { email, password } = req.validated;
 
   // 1. Validasi kredensial pengguna
   const userId = await UserRepositories.verifyUserCredential(email, password);
@@ -85,46 +105,10 @@ export const login = async (req, res, next) => {
     return next(new NotFoundError("Kredensial yang Anda berikan salah"));
   }
 
-  // Variabel penampung tunggal yang sah
-  let targetBusinessId = null;
+  const accessibleBusinesses =
+    await BusinessRepositories.getAccessibleBusinesses(userId);
 
-  // 2. LOGIKA JALUR KODE UNDANGAN (EMPLOYEE)
-  if (invitationCode) {
-    const business =
-      await BusinessRepositories.findByInvitationCode(invitationCode);
-    console.log("Business found:", business);
-
-    if (!business) {
-      return next(new InvariantError("Kode undangan tidak valid"));
-    }
-
-    // MEMPERBAIKI VARIABEL: Gunakan targetBusinessId
-    targetBusinessId = business.business_id;
-
-    const isMember = await TeamMemberRepositories.isMember({
-      businessId: business.business_id,
-      userId,
-    });
-    console.log("Already member:", isMember);
-
-    if (!isMember) {
-      await TeamMemberRepositories.addTeamMember({
-        businessId: business.business_id,
-        userId,
-        role: "employee",
-      });
-    }
-  } else {
-    // 3. LOGIKA JALUR LOGIN BIASA (OWNER / USER LAMA)
-    // Mencari ID bisnis yang terikat dengan user ini secara otomatis
-    const userBusiness =
-      await BusinessRepositories.findBusinessIdByUserId(userId);
-    if (userBusiness) {
-      targetBusinessId = userBusiness.business_id;
-    }
-  }
-
-  // 4. Manajemen pembuatan Token JWT
+  // 3. Manajemen pembuatan Token JWT
   const accessToken = TokenManager.generateAccessToken({ user_id: userId });
   const refreshToken = TokenManager.generateRefreshToken({ user_id: userId });
   const { exp } = TokenManager.verifyRefreshToken(refreshToken);
@@ -135,23 +119,65 @@ export const login = async (req, res, next) => {
     expiresAt: new Date(exp * 1000),
   });
 
-  // 5. Ambil detail profil user untuk disuplai ke AuthContext Frontend
   const userProfile = await UserRepositories.getUserById(userId);
 
-  // 6. ── RESPON PENYELARAS UTAMA (BEBAS UNDEFINED) ────────────────────────────
-  return response(res, 200, "Authentication berhasil ditambahkan", {
+  // 4. RESPON UTAMA: Selalu kirimkan senarai bisnis untuk layar "Select Workspace"
+  return response(res, 200, "Authentication berhasil", {
     accessToken,
     refreshToken,
     user: {
-      user_id: userId, // Samakan dengan console log frontend (user_id)
-      username: userProfile?.username || "Aditya",
+      user_id: userId,
+      username: userProfile?.username || "Pengguna",
       email: userProfile?.email || email,
-      role: invitationCode ? "employee" : userProfile?.role || "owner",
-      business_id: targetBusinessId, // <-- Nilai dijamin terisi string ID asli dari DB
-      business_name: userProfile?.business_name || null, // <-- Bisa null jika tidak ada bisnis terkait
-      avatar_url: userProfile?.avatar_url || null, // <-- Bisa null jika tidak ada avatar
+      avatar_url: userProfile?.avatar_url || null,
     },
+    businesses: accessibleBusinesses, // Akan dipetakan di frontend
   });
+};
+
+// ================================================
+// ENDPOINT BARU: GABUNG WORKSPACE DARI DASHBOARD SELECTION
+// ================================================
+export const joinBusinessWorkspace = async (req, res, next) => {
+  try {
+    const { invitationCode } = req.body;
+    const userId = req.user.user_id; // Diambil dari middleware auth
+
+    if (!invitationCode) {
+      return next(new InvariantError("Kode undangan wajib diisi"));
+    }
+
+    const business =
+      await BusinessRepositories.findByInvitationCode(invitationCode);
+    if (!business) {
+      return next(new NotFoundError("Bisnis tidak ditemukan atau kode salah"));
+    }
+
+    const isMember = await TeamMemberRepositories.isMember({
+      businessId: business.business_id,
+      userId,
+    });
+
+    if (isMember) {
+      return next(
+        new InvariantError("Anda sudah tergabung dalam workspace ini"),
+      );
+    }
+
+    await TeamMemberRepositories.addTeamMember({
+      businessId: business.business_id,
+      userId,
+      role: "employee",
+    });
+
+    return response(res, 200, "Berhasil bergabung ke workspace", {
+      business_id: business.business_id,
+      business_name: business.business_name,
+      role: "employee",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const refreshToken = async (req, res, next) => {
