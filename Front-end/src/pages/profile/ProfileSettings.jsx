@@ -298,7 +298,7 @@ export default function ProfileSettings() {
               onLoginHistory={() => openModal("loginHistory")}
               onLogout={() => openModal("logoutConfirm")}
             />
-            
+
             <div className="profile-page__actions">
               <button
                 type="button"
@@ -368,6 +368,33 @@ export default function ProfileSettings() {
       <InviteUserModal
         isOpen={modals.invite}
         onClose={() => closeModal("invite")}
+        businessId={businessId}
+        onInviteSuccess={async () => {
+          try {
+            const members = await getTeamMembers(businessId);
+            setTeamMembers(
+              members.map((member) => ({
+                id: member.user_id,
+                userId: member.user_id,
+                name: member.username,
+                email: member.email,
+                role: member.role === "owner" ? "Owner" : "Employee",
+                avatarSrc: member.avatar_url,
+                initials: member.username
+                  ?.split(" ")
+                  .map((word) => word[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase(),
+              })),
+            );
+          } catch (err) {
+            console.error(
+              "Gagal memuat ulang anggota tim setelah undangan:",
+              err,
+            );
+          }
+        }}
       />
 
       <ChangePasswordModal

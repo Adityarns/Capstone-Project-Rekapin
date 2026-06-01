@@ -6,7 +6,6 @@
    shared form field styles used inside modals.
    ============================================================ */
 
-
 /* ----------------------------------------------------------
    OVERLAY — dark backdrop
    ---------------------------------------------------------- */
@@ -28,10 +27,13 @@
 }
 
 @keyframes overlayFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
 
 /* ----------------------------------------------------------
    MODAL CARD
@@ -53,15 +55,26 @@
 }
 
 @keyframes modalSlideIn {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* Size variants */
-.modal--sm { max-width: 400px; }
-.modal--md { max-width: 480px; }
-.modal--lg { max-width: 600px; }
-
+.modal--sm {
+  max-width: 400px;
+}
+.modal--md {
+  max-width: 480px;
+}
+.modal--lg {
+  max-width: 600px;
+}
 
 /* ----------------------------------------------------------
    MODAL HEADER
@@ -95,8 +108,9 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-default),
-              color var(--duration-normal) var(--ease-default);
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    color var(--duration-normal) var(--ease-default);
   flex-shrink: 0;
 }
 
@@ -104,7 +118,6 @@
   background-color: var(--color-neutral-100);
   color: var(--color-text-primary);
 }
-
 
 /* ----------------------------------------------------------
    MODAL BODY
@@ -116,7 +129,6 @@
   flex-direction: column;
   gap: var(--space-5);
 }
-
 
 /* ----------------------------------------------------------
    MODAL FORM FIELDS
@@ -152,15 +164,21 @@
   box-shadow: var(--shadow-inset);
 }
 
-.modal-input::placeholder { color: var(--color-neutral-400); }
+.modal-input::placeholder {
+  color: var(--color-neutral-400);
+}
 
 .modal-input:hover,
-.modal-select:hover  { border-color: var(--color-border-strong); }
+.modal-select:hover {
+  border-color: var(--color-border-strong);
+}
 
 .modal-input:focus,
 .modal-select:focus {
   border-color: var(--color-primary-400);
-  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.10), var(--shadow-inset);
+  box-shadow:
+    0 0 0 3px rgba(192, 57, 43, 0.1),
+    var(--shadow-inset);
 }
 
 .modal-select {
@@ -184,7 +202,6 @@
   display: flex;
   align-items: center;
 }
-
 
 /* ----------------------------------------------------------
    MODAL FOOTER (action buttons)
@@ -229,8 +246,9 @@
   background-color: var(--color-primary-700);
   border: 1.5px solid var(--color-primary-700);
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-default),
-              transform var(--duration-fast) var(--ease-default);
+  transition:
+    background-color var(--duration-normal) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
   box-shadow: var(--shadow-primary);
 }
 

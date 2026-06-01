@@ -12,31 +12,19 @@
 
 import { useState } from "react";
 import Modal from "./Modal";
+import { inviteTeamMember } from "../../services/teamService";
 
-const IconChevronDown = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-
-/* UPDATED: Employee / Owner instead of Viewer / Admin */
-const ROLE_OPTIONS = ["Employee", "Owner"];
-
-export default function InviteUserModal({ isOpen, onClose }) {
+export default function InviteUserModal({
+  isOpen,
+  onClose,
+  businessId,
+  onInviteSuccess,
+}) {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Employee");
   const [error, setError] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!email.trim()) {
       setError("Email address is required.");
       return;
@@ -45,14 +33,29 @@ export default function InviteUserModal({ isOpen, onClose }) {
       setError("Enter a valid email address.");
       return;
     }
-    // TODO: POST /team/invite
-    console.log("Send invite:", { email, role });
-    handleClose();
+    if (!businessId) {
+      setError("Business ID tidak ditemukan.");
+      return;
+    }
+
+    try {
+      setIsSending(true);
+      await inviteTeamMember(businessId, email);
+      setError("");
+      setEmail("");
+      if (typeof onInviteSuccess === "function") {
+        onInviteSuccess();
+      }
+      handleClose();
+    } catch (err) {
+      setError(err?.message || "Gagal mengirim undangan. Silakan coba lagi.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleClose = () => {
     setEmail("");
-    setRole("Employee");
     setError("");
     onClose();
   };
@@ -95,37 +98,13 @@ export default function InviteUserModal({ isOpen, onClose }) {
         )}
       </div>
 
-      {/* Role */}
-      <div className="modal-field">
-        <label className="modal-label" htmlFor="invite-role">
-          Role
-        </label>
-        <div className="modal-select-wrap">
-          <select
-            id="invite-role"
-            className="modal-select"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            style={{ paddingRight: "calc(var(--space-4) + 20px)" }}
-          >
-            {ROLE_OPTIONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-          <span className="modal-select-icon" aria-hidden="true">
-            <IconChevronDown />
-          </span>
-        </div>
-      </div>
-
       {/* Actions */}
       <div className="modal-actions">
         <button
           type="button"
           className="modal-btn-cancel"
           onClick={handleClose}
+          disabled={isSending}
         >
           Cancel
         </button>
@@ -133,8 +112,9 @@ export default function InviteUserModal({ isOpen, onClose }) {
           type="button"
           className="modal-btn-primary"
           onClick={handleSend}
+          disabled={isSending}
         >
-          Send Invite
+          {isSending ? "Sending..." : "Send Invite"}
         </button>
       </div>
     </Modal>
