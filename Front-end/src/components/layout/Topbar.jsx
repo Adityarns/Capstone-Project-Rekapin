@@ -13,7 +13,7 @@
  * @format
  */
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import LogoutConfirmModal from "../profile/LogoutConfirmModal";
 
@@ -78,6 +78,7 @@ export default function Topbar() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { businessId } = useParams();
 
   const handleLogoutConfirmed = async () => {
     await logout();
@@ -135,11 +136,11 @@ export default function Topbar() {
               <button
                 className="topbar-dropdown-item"
                 onClick={() => {
-                  navigate("/profile");
+                  navigate(`/profile/${businessId}`);
                   setIsMenuOpen(false);
                 }}
               >
-                Settings
+                Profile
               </button>
 
               <button
