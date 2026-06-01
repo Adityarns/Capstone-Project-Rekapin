@@ -4,6 +4,9 @@ import {
   getTeamMembersById,
   deleteTeamMembersById,
   inviteTeamMember,
+  getTeamInvitations,
+  rejectInvitation,
+  acceptInvitation,
 } from "../controller/team-member-controller.js";
 import authenticateToken from "../../../middlewares/auth.js";
 const router = express.Router();
@@ -13,6 +16,14 @@ router.get(
   authenticateToken,
   getTeamMembersById,
 );
+router.get("/invitations", authenticateToken, getTeamInvitations);
+router.post(
+  "/invitations/:inviteCode/accept",
+  authenticateToken,
+  acceptInvitation,
+);
+router.delete("/invitations/:inviteCode", authenticateToken, rejectInvitation);
+
 router.delete(
   "/businesses/:businessId/members/:userId",
   authenticateToken,

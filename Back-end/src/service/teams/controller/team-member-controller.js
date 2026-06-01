@@ -8,6 +8,7 @@ import authRepositories from "../../auth/repositories/auth-repositories.js";
 import response from "../../../utils/response.js";
 import crypto from "crypto";
 import EmailService from "../email/email-service.js";
+import UserRepositories from "../../users/repositories/users-repositories.js";
 import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
 
 export const addTeamMember = async (req, res, next) => {
@@ -36,7 +37,7 @@ export const inviteTeamMember = async (req, res, next) => {
     const role = "employee";
 
     const businessProfile =
-      await businessesRepositories.getBusinessProfileById (businessId);
+      await businessesRepositories.getBusinessProfileById(businessId);
     if (!businessProfile) {
       return next(new NotFoundError("Bisnis tidak ditemukan"));
     }
@@ -112,4 +113,83 @@ export const deleteTeamMembersById = async (req, res, next) => {
     "User berhasil dihapus dari anggota tim",
     teamMember,
   );
+};
+
+export const getTeamInvitations = async (req, res, next) => {
+  try {
+    // Ambil ID dari user yang sedang login (bergantung pada struktur token Anda)
+    const userId = req.user.user_id;
+
+    // Cari tahu apa email dari pengguna ini
+    const userProfile = await UserRepositories.getUserById(userId);
+    if (!userProfile) {
+      return next(new NotFoundError("Pengguna tidak ditemukan"));
+    }
+
+    // Ambil daftar undangan berdasarkan email
+    const invitations = await teamMembersRepositories.getInvitationsByEmail(
+      userProfile.email,
+    );
+
+    return response(res, 200, "Undangan tim berhasil ditarik", { invitations });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rejectInvitation = async (req, res, next) => {
+  try {
+    const { inviteCode } = req.params;
+
+    // Gunakan fungsi delete baru yang memakai invitation_code
+    const invitation =
+      await teamMembersRepositories.deleteInvitationByCode(inviteCode);
+
+    if (!invitation) {
+      return next(
+        new NotFoundError("Undangan tidak ditemukan atau sudah kedaluwarsa"),
+      );
+    }
+
+    return response(res, 200, "Undangan berhasil ditolak", null);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const acceptInvitation = async (req, res, next) => {
+  try {
+    const { inviteCode } = req.params;
+    // Ambil userId yang menerima undangan dari token yang sedang aktif
+    const userId = req.user.user_id;
+
+    // Hapus dari tabel undangan sekaligus mengembalikan datanya
+    const invitation =
+      await teamMembersRepositories.deleteInvitationByCode(inviteCode);
+
+    if (!invitation) {
+      return next(new NotFoundError("Undangan tidak valid atau sudah ditarik"));
+    }
+
+    const { business_id, role } = invitation;
+
+    // Masukkan pengguna tersebut ke dalam tim bisnis
+    const teamMember = await teamMembersRepositories.addTeamMember({
+      businessId: business_id,
+      userId,
+      role,
+    });
+
+    if (!teamMember) {
+      return next(
+        new InvariantError(
+          "Gagal menerima undangan dan bergabung ke dalam tim",
+        ),
+      );
+    }
+
+    return response(res, 200, "Undangan berhasil diterima", teamMember);
+  } catch (error) {
+    next(error);
+  }
 };

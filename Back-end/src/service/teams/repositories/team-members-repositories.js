@@ -59,6 +59,36 @@ class TeamMemberRepositories {
     const result = await this.pool.query(query);
     return result.rows[0];
   }
+
+  async getInvitationsByEmail(email) {
+    const query = {
+      text: `
+        SELECT 
+          ti.invitation_id, 
+          ti.business_id, 
+          b.business_name, 
+          ti.role, 
+          ti.invitation_code, 
+          ti.expired_at
+        FROM team_invitations ti
+        JOIN businesses b ON ti.business_id = b.business_id
+        WHERE ti.email = $1 AND ti.expired_at > NOW()
+      `,
+      values: [email],
+    };
+    const result = await this.pool.query(query);
+    return result.rows; // Akan mengembalikan array kosong [] jika tidak ada undangan
+  }
+
+  // Perbaiki fungsi delete agar bisa menerima invitation_code
+  async deleteInvitationByCode(inviteCode) {
+    const query = {
+      text: `DELETE FROM team_invitations WHERE invitation_code = $1 RETURNING *`,
+      values: [inviteCode],
+    };
+    const result = await this.pool.query(query);
+    return result.rows[0];
+  }
 }
 
 export default new TeamMemberRepositories();
