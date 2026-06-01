@@ -65,19 +65,6 @@ function CategoryBadge({ category }) {
   );
 }
 
-/* Status dot + label */
-function StatusCell({ status }) {
-  const isCompleted = status === "Completed";
-  return (
-    <span
-      className={`atm-status ${isCompleted ? "atm-status--done" : "atm-status--pending"}`}
-    >
-      <span className="atm-status__dot" aria-hidden="true" />
-      {status}
-    </span>
-  );
-}
-
 /* Amount cell — green positive, maroon negative */
 function AmountCell({ amount }) {
   const isIncome = amount >= 0;
@@ -378,7 +365,6 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
                 <th className="atm-th">Category</th>
                 <th className="atm-th atm-th--right">Amount</th>
                 <th className="atm-th atm-th--right">Date</th>
-                <th className="atm-th atm-th--right">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -395,14 +381,11 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
                     <td className="atm-td atm-td--right atm-td--date">
                       {txn.date}
                     </td>
-                    <td className="atm-td atm-td--right">
-                      <StatusCell status={txn.status} />
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="atm-empty">
+                  <td colSpan={4} className="atm-empty">
                     No transactions match your filters.
                   </td>
                 </tr>
