@@ -46,15 +46,33 @@ export default function CarbonTracking() {
 
   if (loading) {
     return (
-      <div className="ct-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <p style={{ color: "var(--color-text-muted)" }}>Loading carbon data...</p>
+      <div
+        className="ct-page"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <p style={{ color: "var(--color-text-muted)" }}>
+          Loading carbon data...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="ct-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+      <div
+        className="ct-page"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
         <p style={{ color: "red" }}>{error}</p>
       </div>
     );
@@ -72,47 +90,61 @@ export default function CarbonTracking() {
   };
 
   const formatSustainabilityScore = () => {
-    if (!carbonSummary?.goal) {
+    if (!carbonSummary?.goal || carbonSummary.goal.progress_percent === null) {
       return {
         score: 0,
         maxScore: 100,
-        target: 0,
+        target: 90,
         label: "No Data",
-        change: 0,
-        description: "Need at least one full month of data to set a baseline."
+        description: "Need at least one full month of data to set a baseline.",
       };
     }
-    
-    // Invert progress so that emitting less (e.g. 80%) gives a better score (e.g. 100 - 80 = 20)
-    // Or just show progress as how much of the allowance is left. 
-    // Wait, the original UI showed "Score 84, Target 90". So higher is better.
-    // If progress_percent is how much emission we made compared to baseline, 
-    // say progress_percent = 60%, score = 100 - 60 = 40? 
-    // Actually, let's just make score = 100 - progress_percent, and target = 20 (meaning target is 80% emission)
-    const emissionPct = carbonSummary.goal.progress_percent || 0;
-    const score = Math.max(0, 100 - emissionPct);
-    
+
+    const progressPercent = carbonSummary.goal.progress_percent;
+    const isExcellent = progressPercent <= 75;
+    const isGood = progressPercent <= 100;
+    const calculatedScore = isExcellent ? 95 : isGood ? 80 : 60;
+    const calculatedLabel = isExcellent
+      ? "Excellent"
+      : isGood
+        ? "Good"
+        : "Fair";
+
+    let description =
+      "Your carbon emissions remain stable compared to last month.";
+    const changePercent = carbonSummary.change_percent;
+
+    if (changePercent !== null && changePercent !== undefined) {
+      if (changePercent < 0) {
+        description = `You reduced carbon emissions by ${Math.abs(changePercent)}% compared to last month. Keep it up!`;
+      } else if (changePercent > 0) {
+        description = `Carbon emissions increased by ${changePercent}% from last month. Try to reduce consumption.`;
+      }
+    }
+
     return {
-      score: score,
+      score: calculatedScore,
       maxScore: 100,
-      target: 20, // Example target (e.g., target is to reduce emissions by 20%)
-      label: carbonSummary.goal.is_on_track ? "On Track" : "Needs Work",
-      change: 0,
-      description: carbonSummary.goal.is_on_track 
-        ? "You are emitting less than your baseline target." 
-        : "You have exceeded your baseline target."
+      target: 90,
+      label: calculatedLabel,
+      description,
     };
   };
 
   const formatCarbonBreakdown = () => {
-    const colors = ["var(--color-primary-600)", "var(--color-accent-500)", "#FF9800", "#4CAF50"];
+    const colors = [
+      "var(--color-primary-600)",
+      "var(--color-accent-500)",
+      "#FF9800",
+      "#4CAF50",
+    ];
     return (carbonSummary?.breakdown || []).map((item, index) => ({
       id: item.category.toLowerCase(),
       label: item.category,
       value: item.total_carbon,
       percentage: parseFloat(item.percentage) || 0,
       unit: "kgCO2e",
-      color: colors[index % colors.length]
+      color: colors[index % colors.length],
     }));
   };
 

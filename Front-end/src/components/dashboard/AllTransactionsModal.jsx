@@ -11,10 +11,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  categoryConfig,
-  formatRupiah,
-} from "../../data/dashboardData";
+import { categoryConfig, formatRupiah } from "../../data/dashboardData";
 import "./AllTransactionsModal.css";
 
 /* ─────────────────────────────────────────────────────────── */
@@ -61,19 +58,6 @@ function CategoryBadge({ category }) {
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
       {category}
-    </span>
-  );
-}
-
-/* Status dot + label */
-function StatusCell({ status }) {
-  const isCompleted = status === "Completed";
-  return (
-    <span
-      className={`atm-status ${isCompleted ? "atm-status--done" : "atm-status--pending"}`}
-    >
-      <span className="atm-status__dot" aria-hidden="true" />
-      {status}
     </span>
   );
 }
@@ -179,7 +163,11 @@ const IconClearSmall = () => (
 /*  Main component                                             */
 /* ─────────────────────────────────────────────────────────── */
 
-export default function AllTransactionsModal({isOpen, onClose, transactions = []}) {
+export default function AllTransactionsModal({
+  isOpen,
+  onClose,
+  transactions = [],
+}) {
   /* ── Filter state ── */
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Categories");
@@ -199,21 +187,6 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
       document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
-
-  /* ── Reset page when filters change ── */
-  useEffect(() => {
-    setPage(1);
-  }, [transactions, search, category, dateRange]);
-
-  /* ── Reset all state when modal closes ── */
-  useEffect(() => {
-    if (!isOpen) {
-      setSearch("");
-      setCategory("All Categories");
-      setDateRange({ from: "", to: "" });
-      setPage(1);
-    }
-  }, [isOpen]);
 
   /* ── Filtered data ── */
   const filtered = useMemo(() => {
@@ -239,7 +212,7 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
 
       return matchSearch && matchCategory && matchDate;
     });
-  }, [search, category, dateRange]);
+  }, [transactions, search, category, dateRange]);
 
   /* ── Pagination ── */
   const totalItems = filtered.length;
@@ -302,7 +275,10 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
               className="atm-input atm-input--search"
               placeholder="Search transactions..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               aria-label="Search transactions"
             />
           </div>
@@ -312,7 +288,10 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
             <select
               className="atm-input atm-input--select"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
               aria-label="Filter by category"
             >
               {CATEGORY_OPTIONS.map((opt) => (
@@ -338,9 +317,10 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
               className="atm-input atm-input--date"
               value={dateRange.from}
               max={dateRange.to || undefined}
-              onChange={(e) =>
-                setDateRange((prev) => ({ ...prev, from: e.target.value }))
-              }
+              onChange={(e) => {
+                setDateRange((prev) => ({ ...prev, from: e.target.value }));
+                setPage(1);
+              }}
               aria-label="Filter from date"
             />
             <span className="atm-date-sep" aria-hidden="true">
@@ -351,16 +331,20 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
               className="atm-input atm-input--date"
               value={dateRange.to}
               min={dateRange.from || undefined}
-              onChange={(e) =>
-                setDateRange((prev) => ({ ...prev, to: e.target.value }))
-              }
+              onChange={(e) => {
+                setDateRange((prev) => ({ ...prev, to: e.target.value }));
+                setPage(1);
+              }}
               aria-label="Filter to date"
             />
             {hasDateFilter && (
               <button
                 type="button"
                 className="atm-date-clear"
-                onClick={() => setDateRange({ from: "", to: "" })}
+                onClick={() => {
+                  setDateRange({ from: "", to: "" });
+                  setPage(1);
+                }}
                 aria-label="Clear date filter"
               >
                 <IconClearSmall />
@@ -378,7 +362,6 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
                 <th className="atm-th">Category</th>
                 <th className="atm-th atm-th--right">Amount</th>
                 <th className="atm-th atm-th--right">Date</th>
-                <th className="atm-th atm-th--right">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -395,14 +378,11 @@ export default function AllTransactionsModal({isOpen, onClose, transactions = []
                     <td className="atm-td atm-td--right atm-td--date">
                       {txn.date}
                     </td>
-                    <td className="atm-td atm-td--right">
-                      <StatusCell status={txn.status} />
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="atm-empty">
+                  <td colSpan={4} className="atm-empty">
                     No transactions match your filters.
                   </td>
                 </tr>

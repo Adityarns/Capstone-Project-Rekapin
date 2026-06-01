@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -24,22 +25,6 @@ import Notifications from "../dashboard/Notifications";
 import "./Topbar.css";
 
 /* ── Icons ───────────────────────────────────────────────────── */
-
-const IconSearch = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
 
 const IconBell = () => (
   <svg
@@ -80,7 +65,6 @@ export default function Topbar() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
@@ -163,32 +147,11 @@ export default function Topbar() {
     navigate("/login", { replace: true });
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log("Search:", searchQuery);
-  };
-
   return (
     <div className="topbar">
-      {/* ── Search Bar ── */}
-      <form
-        className="topbar-search"
-        onSubmit={handleSearch}
-        role="search"
-        aria-label="Search"
-      >
-        <span className="topbar-search-icon" aria-hidden="true">
-          <IconSearch />
-        </span>
-        <input
-          type="search"
-          className="topbar-search-input"
-          placeholder="Search transactions, reports..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label="Search transactions and reports"
-        />
-      </form>
+      <div className="topbar-welcome">
+        <span>Welcome back to Rekapin!</span>
+      </div>
 
       {/* ── Right Actions ── */}
       <div className="topbar-actions">
@@ -242,7 +205,7 @@ export default function Topbar() {
                   setIsMenuOpen(false);
                 }}
               >
-                Settings
+                Profile
               </button>
 
               <button

@@ -13,7 +13,6 @@ import SummaryCard from "../../components/dashboard/SummaryCard";
 import CashFlowChart from "../../components/dashboard/CashFlowChart";
 import AiInsightCard from "../../components/dashboard/AiInsightCard";
 import SustainabilityCard from "../../components/dashboard/SustainabilityCard";
-import QuickTipCard from "../../components/dashboard/QuickTipCard";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -218,7 +217,6 @@ export default function Dashboard() {
             <aside className="dashboard__right-col" aria-label="Insights">
               <AiInsightCard />
               <SustainabilityCard />
-              <QuickTipCard />
             </aside>
           </div>
 
