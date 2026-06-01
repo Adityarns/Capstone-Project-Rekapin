@@ -187,3 +187,42 @@ export function convertCarbonKgToTons(carbonKg) {
 
   return Math.round((kg / 1000) * 100) / 100;
 }
+
+export async function getPendingInvitations() {
+  try {
+    const res = await api.get(`/invitations`);
+    const jsonBody = res.data !== undefined ? res.data : res;
+    // Mengamankan jalur ekstraksi array undangan
+    return (
+      jsonBody?.data?.invitations ||
+      jsonBody?.invitations ||
+      jsonBody?.data ||
+      []
+    );
+  } catch (error) {
+    console.error("Gagal mengambil daftar undangan aktif:", error);
+    throw error;
+  }
+}
+
+export async function acceptTeamInvitation(inviteCode) {
+  try {
+    const res = await api.post(`/invitations/${inviteCode}/accept`);
+    const jsonBody = res.data !== undefined ? res.data : res;
+    return jsonBody?.data || jsonBody || {};
+  } catch (error) {
+    console.error("Gagal menerima undangan tim:", error);
+    throw error;
+  }
+}
+
+export async function rejectTeamInvitation(inviteCode) {
+  try {
+    const res = await api.delete(`/invitations/${inviteCode}`);
+    const jsonBody = res.data !== undefined ? res.data : res;
+    return jsonBody?.data || jsonBody || {};
+  } catch (error) {
+    console.error("Gagal menolak undangan tim:", error);
+    throw error;
+  }
+}

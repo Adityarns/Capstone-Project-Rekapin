@@ -1,23 +1,26 @@
 /** @format */
 /**
  * ============================================================
- *    REKAPIN — Topbar Component
- *    src/components/layout/Topbar.jsx
- *
- *    Fitur:
- *    - Search bar dengan icon
- *    - Notifikasi bell + badge
- *    - Help button
- *    - User avatar (initials fallback)
+ * REKAPIN — Topbar Component
+ * src/components/layout/Topbar.jsx
  * ============================================================
  * @format
  */
 
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import LogoutConfirmModal from "../profile/LogoutConfirmModal";
 
-import { useState } from "react";
+// Impor fungsi-fungsi dari service, bukan lagi menggunakan api langsung
+import {
+  getPendingInvitations,
+  acceptTeamInvitation,
+  rejectTeamInvitation,
+} from "../../services/dashboardService";
+
+import LogoutConfirmModal from "../profile/LogoutConfirmModal";
+import Notifications from "../dashboard/Notifications";
+
 import "./Topbar.css";
 
 /* ── Icons ───────────────────────────────────────────────────── */
@@ -74,15 +77,87 @@ const IconHelp = () => (
 /* ── Component ───────────────────────────────────────────────── */
 
 export default function Topbar() {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
-  // TODO: ambil dari Supabase user session
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
+  // ── States untuk Notifikasi ──
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [invitations, setInvitations] = useState([]);
+  const [notifLoadingId, setNotifLoadingId] = useState(null);
+
+  // Menggunakan service untuk menarik data
+  const fetchInvitations = async () => {
+    try {
+      const data = await getPendingInvitations();
+      setInvitations(data);
+    } catch (error) {
+      console.error("Gagal menarik notifikasi:", error);
+    }
+  };
+
+  useEffect(() => {
+    const loadInvitations = async () => {
+      await fetchInvitations();
+    };
+
+    loadInvitations();
+  }, []);
+
+  const handleOpenNotif = () => {
+    setIsNotifOpen(true);
+    fetchInvitations();
+  };
+
+  // Menggunakan service untuk menerima undangan
+  const handleAcceptInvite = async (inviteCode) => {
+    setNotifLoadingId(inviteCode);
+    try {
+      await acceptTeamInvitation(inviteCode);
+
+      // Hapus undangan dari state lokal agar langsung hilang
+      setInvitations((prev) =>
+        prev.filter((inv) => inv.invitation_code !== inviteCode),
+      );
+
+      // Arahkan ke workspace tanpa membawa kode undangan di state
+      navigate("/workspace", { replace: true });
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Gagal menerima undangan",
+      );
+    } finally {
+      setNotifLoadingId(null);
+    }
+  };
+
+  // Menggunakan service untuk menolak undangan
+  const handleRejectInvite = async (inviteCode) => {
+    setNotifLoadingId(inviteCode);
+    try {
+      await rejectTeamInvitation(inviteCode);
+
+      // Hapus dari state lokal
+      setInvitations((prev) =>
+        prev.filter((inv) => inv.invitation_code !== inviteCode),
+      );
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Gagal menolak undangan",
+      );
+    } finally {
+      setNotifLoadingId(null);
+    }
+  };
+
+  // ── Actions ──
   const handleLogoutConfirmed = async () => {
     await logout();
     navigate("/login", { replace: true });
@@ -90,7 +165,6 @@ export default function Topbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // TODO: implement global search
     console.log("Search:", searchQuery);
   };
 
@@ -123,10 +197,13 @@ export default function Topbar() {
           className="topbar-icon-btn"
           type="button"
           aria-label="Notifications"
+          onClick={handleOpenNotif}
         >
           <IconBell />
-          {/* Badge — hilangkan jika tidak ada notif */}
-          <span className="topbar-notif-badge" aria-hidden="true" />
+          {/* Badge titik merah hanya muncul jika ada data undangan */}
+          {invitations.length > 0 && (
+            <span className="topbar-notif-badge" aria-hidden="true" />
+          )}
         </button>
 
         {/* Help */}
@@ -139,19 +216,19 @@ export default function Topbar() {
           <button
             className="topbar-avatar"
             type="button"
-            aria-label={`User: ${user?.name || "User"}`}
-            title={user?.name || "User"}
+            aria-label={`User: ${user?.name || user?.username || "User"}`}
+            title={user?.name || user?.username || "User"}
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
-            {user?.avatarSrc ? (
+            {user?.avatar_url ? (
               <img
-                src={user.avatarSrc}
+                src={user.avatar_url}
                 alt={user.name}
                 className="topbar-avatar-image"
               />
             ) : (
               <span className="topbar-avatar-initials">
-                {user?.initials}
+                {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
               </span>
             )}
           </button>
@@ -161,7 +238,7 @@ export default function Topbar() {
               <button
                 className="topbar-dropdown-item"
                 onClick={() => {
-                  navigate("/profile");
+                  navigate(`/profile/${user?.business_id}`);
                   setIsMenuOpen(false);
                 }}
               >
@@ -181,10 +258,20 @@ export default function Topbar() {
           )}
         </div>
 
+        {/* ── Modals ── */}
         <LogoutConfirmModal
           isOpen={isLogoutModalOpen}
           onClose={() => setIsLogoutModalOpen(false)}
           onConfirm={handleLogoutConfirmed}
+        />
+
+        <Notifications
+          isOpen={isNotifOpen}
+          onClose={() => setIsNotifOpen(false)}
+          invitations={invitations}
+          onAccept={handleAcceptInvite}
+          onReject={handleRejectInvite}
+          loadingId={notifLoadingId}
         />
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../services/api";
+import { getAccessibleBusinesses } from "../../services/businessService";
 // Impor Login.css untuk mewarisi struktur background dan tata letak split-screen
 import "./Login.css";
 // Impor WorkSpace.css HANYA untuk styling isi kotak (card) pemilihan bisnis
@@ -13,7 +14,7 @@ import LogoTulisan from "../../assets/logo/LogoTulisan.png";
 export default function WorkSpace() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { updateUser } = useAuth(); // ← Ambil updateUser dari context
+  const { updateUser, isAuthenticated, user } = useAuth(); // ← Ambil updateUser, user, dan auth state
 
   // Tangkap data dari hasil return loginUser() di halaman Login
   const authData = location.state?.authData;
@@ -25,10 +26,29 @@ export default function WorkSpace() {
 
   // Proteksi rute: Jika tidak ada data auth, kembalikan ke login — GUNAKAN useEffect!
   useEffect(() => {
-    if (!authData) {
+    if (!authData && !isAuthenticated) {
       navigate("/login", { replace: true });
     }
-  }, [authData, navigate]);
+  }, [authData, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const loadAccessibleBusinesses = async () => {
+      if (businesses.length > 0 || !user?.userId) return;
+
+      try {
+        const response = await getAccessibleBusinesses(user.userId);
+        const accessibleBusinesses = response.data || response;
+
+        if (Array.isArray(accessibleBusinesses)) {
+          setBusinesses(accessibleBusinesses);
+        }
+      } catch (err) {
+        console.error("Gagal memuat daftar bisnis yang tersedia:", err);
+      }
+    };
+
+    loadAccessibleBusinesses();
+  }, [businesses.length, user]);
 
   const handleSelectBusiness = (business) => {
     // Simpan business_id ke localStorage DULU
@@ -78,7 +98,7 @@ export default function WorkSpace() {
 
       // 3. Perbarui tampilan (opsional, karena kita akan langsung pindah)
       setBusinesses((prev) => [...prev, newBusiness]);
-          
+
       // 4. LOGIKA MELOMPAT KE DASHBOARD (Ini yang Anda inginkan!)
       handleSelectBusiness(newBusiness);
     } catch (err) {
