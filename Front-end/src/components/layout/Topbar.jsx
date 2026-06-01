@@ -74,47 +74,21 @@ const IconHelp = () => (
 /* ── Component ───────────────────────────────────────────────── */
 
 export default function Topbar() {
-  const [searchQuery, setSearchQuery] = useState("");
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
-
-  // TODO: ambil dari Supabase user session
 
   const handleLogoutConfirmed = async () => {
     await logout();
     navigate("/login", { replace: true });
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // TODO: implement global search
-    console.log("Search:", searchQuery);
-  };
-
   return (
     <div className="topbar">
-      {/* ── Search Bar ── */}
-      <form
-        className="topbar-search"
-        onSubmit={handleSearch}
-        role="search"
-        aria-label="Search"
-      >
-        <span className="topbar-search-icon" aria-hidden="true">
-          <IconSearch />
-        </span>
-        <input
-          type="search"
-          className="topbar-search-input"
-          placeholder="Search transactions, reports..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label="Search transactions and reports"
-        />
-      </form>
+      <div className="topbar-welcome">
+        <span>Welcome back to Rekapin!</span>
+      </div>
 
       {/* ── Right Actions ── */}
       <div className="topbar-actions">
