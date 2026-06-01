@@ -15,6 +15,7 @@ import {
   getRecentTransactions,
 } from "../../services/dashboardService";
 import "./RecentTransactions.css";
+import AllTransactionsModal from "./AllTransactionsModal";
 
 /* ── Category Badge ── */
 function CategoryBadge({ category }) {
@@ -35,6 +36,8 @@ export default function RecentTransactions() {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allTransactions, setAllTransactions] = useState([]);
 
   // Fetch recent transactions
   useEffect(() => {
@@ -44,8 +47,14 @@ export default function RecentTransactions() {
       try {
         setIsLoading(true);
         setError(null);
-        const allTransactions = await getTransactionsForDashboard(businessId);
-        const recentTxns = getRecentTransactions(allTransactions, 10);
+        const rawTransactions = await getTransactionsForDashboard(businessId);
+        
+        // Format all transactions and store them for the modal
+        const formattedTxns = getRecentTransactions(rawTransactions, rawTransactions.length);
+        setAllTransactions(formattedTxns);
+        
+        // Slice top 10 for the recent transactions view
+        const recentTxns = formattedTxns.slice(0, 10);
         setTransactions(recentTxns);
       } catch (err) {
         console.error("Error fetching recent transactions:", err);
@@ -62,7 +71,7 @@ export default function RecentTransactions() {
     <div className="txn-card">
       <div className="txn-card__header">
         <h3 className="txn-card__title">Recent Transactions</h3>
-        <button type="button" className="txn-card__view-all">
+        <button type="button" className="txn-card__view-all" onClick={() => setIsModalOpen(true)}>
           View All
         </button>
       </div>
@@ -116,6 +125,12 @@ export default function RecentTransactions() {
           </table>
         </div>
       )}
+
+      <AllTransactionsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        transactions={allTransactions}
+      />
     </div>
   );
 }
