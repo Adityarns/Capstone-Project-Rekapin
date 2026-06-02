@@ -75,19 +75,29 @@ export async function registerUser({
 // Fungsi ini mengembalikan data user agar bisa disimpan di context.
 export async function loginUser({ email, password }) {
   const payload = { email, password };
+  const res = await api.post("/auth/login", payload);
 
-  const response = await api.post("/auth/login", payload);
+  // 1. Teknik Ekstraksi Bertingkat (Tahan Banting)
+  // Jika res sudah merupakan data, kita pakai res. Jika res.data ada, kita pakai itu.
+  const data = res.data || res;
 
-  // KEMBALIKAN KE response.data tunggal
-  const { accessToken, refreshToken, user, businesses } = response.data;
+  // 2. Jika backend membungkus di dalam { data: { ... } }, kita gali lagi
+  const finalData = data.data || data;
 
-  // Simpan token di service layer
+  // 3. Destructuring dari data yang sudah pasti bersih
+  const { accessToken, refreshToken, user, businesses } = finalData;
+
+  if (!accessToken) {
+    throw new Error(
+      "Struktur respons API tidak sesuai: accessToken tidak ditemukan",
+    );
+  }
+
   tokenStorage.setTokens(accessToken, refreshToken);
-
   const decoded = jwtDecode(accessToken);
 
   return {
-    ...response.data,
+    success: true, // WAJIB untuk Login.jsx
     userId: decoded.user_id,
     user,
     businesses,

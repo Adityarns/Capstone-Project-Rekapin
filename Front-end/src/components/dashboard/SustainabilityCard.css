@@ -63,6 +63,9 @@
 .sustain-card__badge--poor {
   color: var(--color-error);
 }
+.sustain-card__badge--unavailable {
+  color: var(--color-text-muted);
+}
 
 /* ── Progress bar ── */
 .sustain-card__bar {

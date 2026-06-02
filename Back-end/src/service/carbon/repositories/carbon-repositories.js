@@ -70,7 +70,8 @@ class CarbonRepositories {
                COUNT(*) AS total_logs
              FROM carbon_logs
              WHERE business_id = $1
-               AND log_date::timestamptz BETWEEN $2::timestamptz AND $3::timestamptz`,
+               AND log_date::timestamptz >= $2::timestamptz
+               AND log_date::timestamptz < $3::timestamptz`,
       values: [businessId, startDate, endDate],
     };
     const result = await this.pool.query(query);
@@ -120,10 +121,18 @@ class CarbonRepositories {
   // ============================================================
   async getCarbonBreakdown(businessId) {
     const now = new Date();
-    const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      .toISOString()
-      .split("T")[0];
-    const today = now.toISOString().split("T")[0];
+    // Gunakan rentang [startOfMonth, startOfNextMonth) sehingga semua log
+    // pada bulan berjalan akan tercakup tanpa tergantung pada jam "sekarang".
+    const firstDayThisMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+    ).toISOString();
+    const startOfNextMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1,
+    ).toISOString();
 
     const query = {
       text: `SELECT
@@ -135,10 +144,11 @@ class CarbonRepositories {
                , 1) AS percentage
              FROM carbon_logs
              WHERE business_id = $1
-               AND log_date::timestamptz BETWEEN $2::timestamptz AND $3::timestamptz
+              AND log_date::timestamptz >= $2::timestamptz
+              AND log_date::timestamptz < $3::timestamptz
              GROUP BY category
              ORDER BY total_carbon DESC`,
-      values: [businessId, firstDayThisMonth, today],
+      values: [businessId, firstDayThisMonth, startOfNextMonth],
     };
     const result = await this.pool.query(query);
     return result.rows;
@@ -149,16 +159,23 @@ class CarbonRepositories {
   // ============================================================
   async getCarbonSummary(businessId) {
     const now = new Date();
-    const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      .toISOString()
-      .split("T")[0];
-    const today = now.toISOString().split("T")[0];
+    const firstDayThisMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+    ).toISOString();
+    const startOfNextMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1,
+    ).toISOString();
 
     const { total_carbon } = await this.getTotalCarbonByBusinessId({
       businessId,
       startDate: firstDayThisMonth,
-      endDate: today,
+      endDate: startOfNextMonth,
     });
+
     const { total_carbon: last_month_carbon } =
       await this.getLastMonthCarbon(businessId);
     const baseline_carbon = await this.getBaselineCarbon(businessId);
@@ -177,7 +194,6 @@ class CarbonRepositories {
 
     const breakdown = await this.getCarbonBreakdown(businessId);
 
-    // HANYA KEMBALIKAN DATA KILOGRAM DENGAN MAX 2 DESIMAL
     return {
       total_carbon_kg: parseFloat(Number(total_carbon).toFixed(2)),
       last_month_carbon_kg: parseFloat(Number(last_month_carbon).toFixed(2)),

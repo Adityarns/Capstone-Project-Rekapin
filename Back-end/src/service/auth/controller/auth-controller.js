@@ -35,6 +35,15 @@ export const register = async (req, res, next) => {
         );
       }
 
+      // CEK DULU: apakah invitation code sudah digunakan oleh bisnis lain?
+      // SEBELUM membuat user
+      const isInvitationCodeExist =
+        await BusinessRepositories.findByInvitationCode(invitationCode);
+      if (isInvitationCodeExist) {
+        return next(new InvariantError("Kode undangan sudah digunakan."));
+      }
+
+      // Baru buat user SETELAH semua validasi berhasil
       const { user_id: userId } = await UserRepositories.addUser({
         username: username,
         email,
@@ -66,6 +75,13 @@ export const register = async (req, res, next) => {
 
       return response(res, 201, "Akun dan bisnis berhasil dibuat", data);
     } else {
+      // EMPLOYEE: Validasi invitation code DULU, SEBELUM membuat user
+      if (!invitationCode) {
+        return next(
+          new InvariantError("Kode undangan wajib diisi untuk bergabung"),
+        );
+      }
+
       const targetBusiness =
         await BusinessRepositories.findByInvitationCode(invitationCode);
       if (!targetBusiness) {
@@ -76,6 +92,7 @@ export const register = async (req, res, next) => {
         );
       }
 
+      // Baru buat user SETELAH semua validasi berhasil
       const { user_id: userId } = await UserRepositories.addUser({
         username: username,
         email,
@@ -121,7 +138,6 @@ export const login = async (req, res, next) => {
 
   const userProfile = await UserRepositories.getUserById(userId);
 
-  // 4. RESPON UTAMA: Selalu kirimkan senarai bisnis untuk layar "Select Workspace"
   return response(res, 200, "Authentication berhasil", {
     accessToken,
     refreshToken,
@@ -130,8 +146,10 @@ export const login = async (req, res, next) => {
       username: userProfile?.username || "Pengguna",
       email: userProfile?.email || email,
       avatar_url: userProfile?.avatar_url || null,
+      business_id: userProfile?.business_id || null, // Tambahkan ini!
+      business_name: userProfile?.business_name || null, // Tambahkan ini!
     },
-    businesses: accessibleBusinesses, // Akan dipetakan di frontend
+    businesses: accessibleBusinesses,
   });
 };
 

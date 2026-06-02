@@ -6,6 +6,9 @@ import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
 import TransactionRepositories from "../repositories/transaction-repositories.js";
 import CarbonRepositories from "../../carbon/repositories/carbon-repositories.js";
+import CacheService from "../../cache/redis-cache.js";
+
+const cacheService = new CacheService();
 
 export const createCategory = async (req, res, next) => {
   const {
@@ -64,6 +67,9 @@ export const addTransaction = async (req, res, next) => {
   // ================================================
   //  Simpan transaksi
   // ================================================
+  // ================================================
+  //  Simpan transaksi
+  // ================================================
   const newTransaction = await TransactionRepositories.createTransaction({
     title,
     amount,
@@ -80,45 +86,82 @@ export const addTransaction = async (req, res, next) => {
     return next(new InvariantError("Gagal menambahkan transaksi"));
   }
 
-  if (category.is_carbon_tracked === true) {
+  // 1. Pengecekan Boolean yang Tahan Banting
+  const isTracked =
+    category.is_carbon_tracked === true ||
+    category.is_carbon_tracked === "true" ||
+    category.is_carbon_tracked === 1;
+
+  if (isTracked) {
     try {
       let emissionInKg = 0;
 
-      // Cek apakah kategorinya adalah Listrik (Electricity)
-      if (category.category_name === "Electricity") {
+      // 2. Amankan nilai quantity (Ubah ke angka, jika kosong jadikan 1 sebagai acuan)
+      const safeQuantity = Number(quantity) || 1;
+
+      // 3. Pengecekan nama yang tidak peduli huruf besar/kecil
+      const catName = (category.category_name || "").toLowerCase();
+
+      if (catName === "electricity" || catName === "listrik") {
         // Perhitungan Manual: kWh * 0.85 = kg CO2
-        emissionInKg = quantity * 0.85;
+        emissionInKg = safeQuantity * 0.85;
       } else {
         // Perhitungan via AI untuk Fuel / Transportation
         const carbonResult = await calculateCarbonWithAI({
           description: description || title,
-          quantity: quantity,
+          quantity: safeQuantity,
         });
 
-        // Ambil nilai ton dari AI, kalikan 1000 untuk jadi kg
-        const emissionInTons = carbonResult.estimated_emission_ton_co2 || 0;
+        const emissionInTons = carbonResult?.estimated_emission_ton_co2 || 0;
         emissionInKg = emissionInTons * 1000;
       }
 
+      // 4. Proses Simpan
       await CarbonRepositories.createCarbonLog({
         businessId,
         userId,
         transactionId: newTransaction.transaction_id,
         logDate: date,
         categoryType: category.category_name,
-        quantity,
-        carbonTotal: emissionInKg, // Sekarang semua murni masuk sebagai KG
+        quantity: safeQuantity,
+        carbonTotal: emissionInKg,
       });
+
+      console.log(
+        `📦 [DEBUG] Karbon berhasil dicatat: ${emissionInKg} kg untuk transaksi ${title}`,
+      );
     } catch (error) {
-      console.error("Carbon calculation failed:", error.message);
+      // 5. JANGAN DITELAN! Cetak error aslinya agar Anda tahu apa yang rusak
+      console.error(
+        "❌ [FATAL] Gagal menghitung atau menyimpan jejak karbon:",
+        error,
+      );
     }
   }
+
+  // Hapus semua cache yang berhubungan
+  await cacheService.del(`transactions_${businessId}`);
+  await cacheService.del(`carbonSummary_${businessId}`);
+  await cacheService.del(`carbonLogs_${businessId}`);
+  await cacheService.delPattern(`financialSummary_${businessId}_*`); // Hapus semua financial summary untuk business ini
+  await cacheService.delPattern(`incomeStatement_${businessId}_*`); // Hapus semua income statement untuk business ini
+  await cacheService.del(`revenueForecast_${businessId}`);
+  await cacheService.delPattern(`revenue_forecast_${businessId}_*`);
 
   return response(res, 201, "Transaksi berhasil ditambahkan", newTransaction);
 };
 
 export const getTransactionsByBusinessId = async (req, res, next) => {
   const { businessId } = req.params;
+  const cachedTransactions = await cacheService.get(
+    `transactions_${businessId}`,
+  );
+  if (cachedTransactions) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(res, 200, "Transaksi berhasil diambil (cache)", {
+      transactions: JSON.parse(cachedTransactions),
+    });
+  }
   const transactions =
     await TransactionRepositories.getTransactionByBusinessId(businessId);
   if (!transactions) {
@@ -126,16 +169,38 @@ export const getTransactionsByBusinessId = async (req, res, next) => {
       new NotFoundError("Transaksi tidak ditemukan untuk bisnis ini"),
     );
   }
+  await cacheService.set(
+    `transactions_${businessId}`,
+    JSON.stringify(transactions),
+  );
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Transaksi berhasil diambil", { transactions });
 };
 
 export const getTransactionById = async (req, res, next) => {
   const { transactionId } = req.params;
+  const cachedTransaction = await cacheService.get(
+    `transaction_${transactionId}`,
+  );
+  if (cachedTransaction) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(
+      res,
+      200,
+      "Transaksi berhasil diambil (cache)",
+      JSON.parse(cachedTransaction),
+    );
+  }
   const transaction =
     await TransactionRepositories.getTransactionById(transactionId);
   if (!transaction) {
     return next(new NotFoundError("Transaksi tidak ditemukan"));
   }
+  await cacheService.set(
+    `transaction_${transactionId}`,
+    JSON.stringify(transaction),
+  );
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Transaksi berhasil diambil", transaction);
 };
 
@@ -151,7 +216,20 @@ export const editTransaction = async (req, res, next) => {
   if (!updatedTransaction) {
     return next(new InvariantError("Gagal memperbarui transaksi"));
   }
-
+  await cacheService.del(`transaction_${transactionId}`); // Hapus cache transaksi yang diupdate
+  await cacheService.del(`transactions_${updatedTransaction.business_id}`);
+  await cacheService.del(`carbonSummary_${updatedTransaction.business_id}`); // Hapus cache ringkasan karbon
+  await cacheService.del(`carbonLogs_${updatedTransaction.business_id}`); // Hapus cache log karbon
+  await cacheService.delPattern(
+    `financialSummary_${updatedTransaction.business_id}_*`,
+  );
+  await cacheService.delPattern(
+    `incomeStatement_${updatedTransaction.business_id}_*`,
+  );
+  await cacheService.del(`revenueForecast_${updatedTransaction.business_id}`);
+  await cacheService.delPattern(
+    `revenue_forecast_${updatedTransaction.business_id}_*`,
+  );
   return response(
     res,
     200,
@@ -169,7 +247,20 @@ export const deleteTransaction = async (req, res, next) => {
   if (!deletedTransaction) {
     return next(new InvariantError("Gagal menghapus transaksi"));
   }
-
+  await cacheService.del(`transaction_${transactionId}`); // Hapus cache transaksi yang dihapus
+  await cacheService.del(`transactions_${deletedTransaction.business_id}`); // Hapus cache list transaksi untuk bisnis ini
+  await cacheService.del(`carbonSummary_${deletedTransaction.business_id}`); // Hapus cache ringkasan karbon
+  await cacheService.del(`carbonLogs_${deletedTransaction.business_id}`); // Hapus cache log karbon
+  await cacheService.delPattern(
+    `financialSummary_${deletedTransaction.business_id}_*`,
+  );
+  await cacheService.delPattern(
+    `incomeStatement_${deletedTransaction.business_id}_*`,
+  );
+  await cacheService.del(`revenueForecast_${deletedTransaction.business_id}`);
+  await cacheService.delPattern(
+    `revenue_forecast_${deletedTransaction.business_id}_*`,
+  );
   return response(res, 200, "Transaksi berhasil dihapus", deletedTransaction);
 };
 

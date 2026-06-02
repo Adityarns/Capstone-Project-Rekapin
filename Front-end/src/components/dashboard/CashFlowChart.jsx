@@ -67,6 +67,9 @@ function ChartLegend() {
 
 /* ── Main Component ── */
 export default function CashFlowChart({ data }) {
+  // Check apakah data kosong atau tidak ada
+  const hasData = data && Array.isArray(data) && data.length > 0;
+
   return (
     <div className="cashflow-card">
       <div className="cashflow-card__header">
@@ -74,49 +77,55 @@ export default function CashFlowChart({ data }) {
         <ChartLegend />
       </div>
 
-      <div className="cashflow-card__chart">
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart
-            data={data}
-            margin={{ top: 8, right: 4, left: -20, bottom: 0 }}
-            barSize={36}
-          >
-            <CartesianGrid
-              vertical={false}
-              stroke="var(--color-border)"
-              strokeDasharray="3 3"
-            />
-            <XAxis
-              dataKey="month"
-              axisLine={false}
-              tickLine={false}
-              tick={{
-                fontSize: 11,
-                fill: "var(--color-text-muted)",
-                fontFamily: "var(--font-sans)",
-              }}
-            />
-            <YAxis hide />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ fill: "var(--color-neutral-100)", radius: 4 }}
-            />
-            {/* Expense di bawah, income di atas — stacked */}
-            <Bar
-              dataKey="expense"
-              stackId="cashflow"
-              fill="var(--color-neutral-300)"
-              radius={[0, 0, 6, 6]}
-            />
-            <Bar
-              dataKey="income"
-              stackId="cashflow"
-              fill="var(--color-accent-400)"
-              radius={[6, 6, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {hasData ? (
+        <div className="cashflow-card__chart">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart
+              data={data}
+              margin={{ top: 8, right: 4, left: -20, bottom: 0 }}
+              barSize={36}
+            >
+              <CartesianGrid
+                vertical={false}
+                stroke="var(--color-border)"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{
+                  fontSize: 11,
+                  fill: "var(--color-text-muted)",
+                  fontFamily: "var(--font-sans)",
+                }}
+              />
+              <YAxis hide />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "var(--color-neutral-100)", radius: 4 }}
+              />
+              {/* Expense di bawah, income di atas — stacked */}
+              <Bar
+                dataKey="expense"
+                stackId="cashflow"
+                fill="var(--color-neutral-300)"
+                radius={[0, 0, 6, 6]}
+              />
+              <Bar
+                dataKey="income"
+                stackId="cashflow"
+                fill="var(--color-accent-400)"
+                radius={[6, 6, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="cashflow-card__empty">
+          <p className="cashflow-card__empty-text">Belum ada transaksi</p>
+        </div>
+      )}
     </div>
   );
 }

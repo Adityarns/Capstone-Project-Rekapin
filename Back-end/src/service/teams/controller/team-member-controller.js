@@ -10,6 +10,9 @@ import crypto from "crypto";
 import EmailService from "../email/email-service.js";
 import UserRepositories from "../../users/repositories/users-repositories.js";
 import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
+import CacheService from "../../cache/redis-cache.js";
+
+const cacheService = new CacheService();
 
 export const addTeamMember = async (req, res, next) => {
   const { businessId } = req.params;
@@ -22,6 +25,8 @@ export const addTeamMember = async (req, res, next) => {
   if (!teamMember) {
     return next(new InvariantError("Gagal menambahkan anggota tim"));
   }
+  await cacheService.del(`teamMembers_${businessId}`);
+  await cacheService.del(`accessibleBusinesses_${userId}`);
   return response(res, 201, "Anggota tim berhasil ditambahkan", teamMember);
 };
 
@@ -72,6 +77,13 @@ export const inviteTeamMember = async (req, res, next) => {
 
 export const getTeamMembersById = async (req, res, next) => {
   const { businessId } = req.params;
+  const cachedTeamMembers = await cacheService.get(`teamMembers_${businessId}`);
+  if (cachedTeamMembers) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(res, 200, "Anggota tim berhasil ditemukan (cache)", {
+      teamMembers: JSON.parse(cachedTeamMembers),
+    });
+  }
   const teamMembers =
     await teamMembersRepositories.getTeamMembersById(businessId);
 
@@ -80,21 +92,28 @@ export const getTeamMembersById = async (req, res, next) => {
     return next(new NotFoundError("Anggota tim tidak ditemukan"));
   }
 
+  await cacheService.set(
+    `teamMembers_${businessId}`,
+    JSON.stringify(teamMembers),
+  );
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Anggota tim berhasil ditemukan", { teamMembers });
 };
 
 export const deleteTeamMembersById = async (req, res, next) => {
   const { businessId, userId } = req.params;
-  const isTeamMemberExist =
-    await teamMembersRepositories.getTeamMembersById(userId);
+  const currentUserId = req.user.user_id;
+
+  const isTeamMemberExist = await teamMembersRepositories.isMember({
+    businessId,
+    userId,
+  });
   if (!isTeamMemberExist) {
     return next(new NotFoundError("Anggota tim tidak ditemukan"));
   }
-  const isOwner = await businessesRepositories.verifyBusinessAccess(
-    userId,
-    businessId,
-  );
-  if (!isOwner) {
+
+  const business = await businessesRepositories.getBusinessById(businessId);
+  if (!business || business.owner_id !== currentUserId) {
     return next(
       new AuthorizationError("Member tidak dapat menghapus anggota tim"),
     );
@@ -107,6 +126,10 @@ export const deleteTeamMembersById = async (req, res, next) => {
   if (!teamMember) {
     return next(new InvariantError("User gagal dihapus dari anggota tim"));
   }
+
+  await cacheService.del(`teamMembers_${businessId}`);
+  await cacheService.del(`accessibleBusinesses_${userId}`);
+
   return response(
     res,
     200,
@@ -117,16 +140,12 @@ export const deleteTeamMembersById = async (req, res, next) => {
 
 export const getTeamInvitations = async (req, res, next) => {
   try {
-    // Ambil ID dari user yang sedang login (bergantung pada struktur token Anda)
     const userId = req.user.user_id;
-
-    // Cari tahu apa email dari pengguna ini
     const userProfile = await UserRepositories.getUserById(userId);
     if (!userProfile) {
       return next(new NotFoundError("Pengguna tidak ditemukan"));
     }
 
-    // Ambil daftar undangan berdasarkan email
     const invitations = await teamMembersRepositories.getInvitationsByEmail(
       userProfile.email,
     );
@@ -187,7 +206,8 @@ export const acceptInvitation = async (req, res, next) => {
         ),
       );
     }
-
+    await cacheService.del(`teamMembers_${business_id}`);
+    await cacheService.del(`accessibleBusinesses_${userId}`);
     return response(res, 200, "Undangan berhasil diterima", teamMember);
   } catch (error) {
     next(error);

@@ -35,6 +35,7 @@ import {
   isSessionActive,
 } from "../services/authService";
 import { tokenStorage } from "../services/api";
+import { sanitizeErrorMessage } from "../utils/errorHandler";
 
 // ── Buat context ──────────────────────────────────────────────
 // createContext() membuat "channel" kosong.
@@ -125,7 +126,10 @@ export function AuthProvider({ children }) {
         accessToken: loginResponse.accessToken,
       };
     } catch (error) {
-      return { success: false, message: error.message };
+      return {
+        success: false,
+        message: sanitizeErrorMessage(error.message),
+      };
     }
   }, []);
 
@@ -140,7 +144,10 @@ export function AuthProvider({ children }) {
       // Register sukses → kembalikan data untuk ditampilkan atau redirect
       return { success: true, data: userData };
     } catch (error) {
-      return { success: false, message: error.message };
+      return {
+        success: false,
+        message: sanitizeErrorMessage(error.message),
+      };
     }
   }, []);
 

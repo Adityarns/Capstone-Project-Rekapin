@@ -14,6 +14,7 @@ import {
   register,
   joinBusinessWorkspace,
 } from "../controller/auth-controller.js";
+import { resetAllCache } from "../../cache/redis-controller.js";
 
 const router = Router();
 router.post("/auth/register", validate(registerAuthPayloadSchema), register);
@@ -31,5 +32,6 @@ router.delete(
   validate(logoutAuthPayloadSchema),
   logout,
 );
+router.post("/cache/reset", resetAllCache);
 
 export default router;

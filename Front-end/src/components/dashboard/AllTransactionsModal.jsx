@@ -22,13 +22,20 @@ const ITEMS_PER_PAGE = 10;
 
 const CATEGORY_OPTIONS = [
   "All Categories",
+  "Electricity",
+  "Transportation",
   "Operations",
-  "Sales",
   "Rent",
-  "Utilities",
   "Marketing",
   "Salary",
-  "Transportation",
+  "Inventory",
+  "Other expense",
+  "Sales",
+  "Services",
+  "Investment",
+  "Subscription",
+  "Other income",
+  "Utilities",
 ];
 
 /* ─────────────────────────────────────────────────────────── */
@@ -359,9 +366,10 @@ export default function AllTransactionsModal({
             <thead>
               <tr>
                 <th className="atm-th atm-th--transaction">Transaction</th>
-                <th className="atm-th">Category</th>
-                <th className="atm-th atm-th--right">Amount</th>
-                <th className="atm-th atm-th--right">Date</th>
+                <th className="atm-th atm-th--category">Category</th>
+                <th className="atm-th atm-th--right atm-th--amount">Amount</th>
+                <th className="atm-th atm-th--right atm-th--date">Date</th>
+                <th className="atm-th atm-th--user">Username</th>
               </tr>
             </thead>
             <tbody>
@@ -378,11 +386,14 @@ export default function AllTransactionsModal({
                     <td className="atm-td atm-td--right atm-td--date">
                       {txn.date}
                     </td>
+                    <td className="atm-td atm-td--user">
+                      {txn.username || "—"}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="atm-empty">
+                  <td colSpan={5} className="atm-empty">
                     No transactions match your filters.
                   </td>
                 </tr>

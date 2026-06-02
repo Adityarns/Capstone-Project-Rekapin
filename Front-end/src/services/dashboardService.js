@@ -165,6 +165,7 @@ export function getRecentTransactions(transactions, limit = 5) {
           category: txn.category_name || txn.category || "Lainnya",
           amount: type === "income" ? parsedAmount : -Math.abs(parsedAmount), // Pengeluaran harus minus
           rawDateString: rawDate, // Disimpan untuk proses sortir
+          username: txn.username || "—",
           // Merender tanggal ke format lokalisasi Indonesia
           date: new Date(rawDate).toLocaleDateString("id-ID", {
             year: "numeric",

@@ -16,6 +16,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { sanitizeErrorMessage } from "../../utils/errorHandler";
 
 import AuthLayout from "./AuthLayout";
 import {
@@ -200,7 +201,11 @@ export default function Register() {
       }, 1500);
     } else {
       setIsSubmitting(false);
-      setApiError(result.message || "Registrasi gagal. Coba lagi.");
+      // Sanitasi error message
+      const cleanError = sanitizeErrorMessage(
+        result.message || "Registrasi gagal. Coba lagi.",
+      );
+      setApiError(cleanError);
     }
   };
 

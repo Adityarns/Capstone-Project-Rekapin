@@ -25,7 +25,7 @@ router.post(
 router.delete("/invitations/:inviteCode", authenticateToken, rejectInvitation);
 
 router.delete(
-  "/businesses/:businessId/members/:userId",
+  "/businesses/:businessId/members/:userId",  
   authenticateToken,
   deleteTeamMembersById,
 );

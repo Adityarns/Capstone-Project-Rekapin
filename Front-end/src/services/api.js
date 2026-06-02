@@ -86,16 +86,58 @@ async function _fetch(endpoint, options = {}) {
     let message = "Terjadi kesalahan pada server.";
     let responsePayload = data;
 
+    // Helper: Extract text dari HTML error page jika ada
+    const extractMessageFromHTML = (html) => {
+      try {
+        // Coba cari message di dalam <pre> tags (error pages biasanya punya ini)
+        const preMatch = html.match(/<pre[^>]*>([\s\S]*?)<\/pre>/);
+        if (preMatch && preMatch[1]) {
+          // Ambil baris pertama dari <pre> content
+          const lines = preMatch[1].split("<br");
+          let firstLine = lines[0]
+            .replace(/<[^>]*>/g, "") // Strip HTML tags
+            .replace(/&nbsp;/g, " ") // Replace HTML entities
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .trim();
+
+          // Jika ada "Error:" prefix yang berulang, ambil saja pesan setelah ": "
+          if (firstLine.includes(": ")) {
+            firstLine = firstLine.split(": ").pop();
+          }
+          return firstLine || null;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    };
+
     if (options.responseType === "blob") {
       const errorText = await response.text();
       try {
         responsePayload = JSON.parse(errorText);
-        message = responsePayload?.message || responsePayload?.error || errorText || message;
+        message =
+          responsePayload?.message ||
+          responsePayload?.error ||
+          errorText ||
+          message;
       } catch {
         message = errorText || message;
       }
+    } else if (typeof data === "string" && data.includes("<")) {
+      // Data adalah HTML → ekstrak pesan dari HTML
+      const extractedMessage = extractMessageFromHTML(data);
+      message = extractedMessage || "Terjadi kesalahan pada server.";
+      responsePayload = { rawHTML: data }; // Simpan HTML untuk debugging
     } else {
-      message = data?.message || data?.error || data?.detail || (typeof data === 'string' ? data : message);
+      // Data adalah JSON atau teks biasa
+      message =
+        data?.message ||
+        data?.error ||
+        data?.detail ||
+        (typeof data === "string" ? data : message);
+      responsePayload = data;
     }
 
     console.error("API Error Response Data:", responsePayload);

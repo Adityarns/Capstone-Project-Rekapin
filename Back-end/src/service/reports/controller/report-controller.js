@@ -6,17 +6,36 @@ import puppeteer from "puppeteer";
 import ejs from "ejs";
 import path from "path";
 import excelJS from "exceljs";
+import CacheService from "../../cache/redis-cache.js";
+
+const cacheService = new CacheService();
 
 export const getFinancialSummary = async (req, res, next) => {
   try {
     const { businessId } = req.params;
     const { quarter = "Q2", year = 2026 } = req.query;
+    const cacheKey = `financialSummary_${businessId}_${quarter}_${year}`;
+    const cachedData = await cacheService.get(cacheKey);
+    if (cachedData) {
+      res.setHeader("X-Data-Source", "cache");
+      return response(
+        res,
+        200,
+        "Financial summary berhasil diambil (cache)",
+        JSON.parse(cachedData),
+      );
+    }
 
     const data = await FinancialReportService.calculateSummary({
       businessId,
       quarter,
       year: parseInt(year),
     });
+    await cacheService.set(
+      `financialSummary_${businessId}_${quarter}_${year}`,
+      JSON.stringify(data),
+    );
+    res.setHeader("X-Data-Source", "database");
     return response(res, 200, "Financial summary berhasil diambil", data);
   } catch (error) {
     next(error);
@@ -24,24 +43,33 @@ export const getFinancialSummary = async (req, res, next) => {
 };
 
 export const getIncomeStatement = async (req, res, next) => {
-  try {
-    const { businessId } = req.params;
-    const { quarter = "Q2", year = 2026 } = req.query;
-
-    const data = await FinancialReportService.generateStatement({
-      businessId,
-      quarter,
-      year: parseInt(year),
-    });
+  const { businessId } = req.params;
+  const { quarter = "Q2", year = 2026 } = req.query;
+  const cacheKey = `incomeStatement_${businessId}_${quarter}_${year}`;
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) {
+    res.setHeader("X-Data-Source", "cache");
     return response(
       res,
       200,
-      "Income statement SAK EMKM berhasil diambil",
-      data,
+      "Income statement SAK EMKM berhasil diambil (cache)",
+      JSON.parse(cachedData),
     );
-  } catch (error) {
-    next(error);
   }
+  const data = await FinancialReportService.generateStatement({
+    businessId,
+    quarter,
+    year: parseInt(year),
+  });
+  if (!data) {
+    return next(new InvariantError("Gagal menghasilkan income statement"));
+  }
+  await cacheService.set(
+    `incomeStatement_${businessId}_${quarter}_${year}`,
+    JSON.stringify(data),
+  );
+  res.setHeader("X-Data-Source", "database");
+  return response(res, 200, "Income statement SAK EMKM berhasil diambil", data);
 };
 
 export const getRevenueForecast = async (req, res, next) => {
@@ -49,26 +77,25 @@ export const getRevenueForecast = async (req, res, next) => {
     const { businessId } = req.params;
 
     if (!businessId) {
+      return next(new InvariantError("Business ID harus disediakan"));
+    }
+    const cacheKey = `revenueForecast_${businessId}`;
+    const cachedData = await cacheService.get(cacheKey);
+    if (cachedData) {
+      res.setHeader("X-Data-Source", "cache");
       return response(
         res,
-        400,
-        "Business ID wajib disertakan dalam URL parameter",
-        null,
+        200,
+        "Revenue forecast berhasil diambil (cache)",
+        JSON.parse(cachedData),
       );
     }
-
-    // 1. Tarik riwayat PENDAPATAN agregat harian
-    // PERHATIAN: Pastikan Anda mengubah/membuat fungsi ini di FinancialReportRepositories
-    // agar mengambil transaksi dengan type === "income", BUKAN expense.
-    // 1. Tarik riwayat PENDAPATAN agregat harian
     const rawHistory =
       await FinancialReportRepositories.getDailyIncomeLast30Days(businessId);
 
-    // 2. BANGUN ARRAY 30 HARI SECARA UTUH (ISI ANGKA 0 UNTUK HARI YANG KOSONG)
     const dailyRevenue = [];
     const today = new Date();
 
-    // Looping mundur dari 29 hari yang lalu sampai hari ini (0)
     for (let i = 29; i >= 0; i--) {
       const targetDate = new Date(today);
       targetDate.setDate(today.getDate() - i);
@@ -106,7 +133,11 @@ export const getRevenueForecast = async (req, res, next) => {
         confidenceNote: aiResult.confidence_note,
       },
     };
-
+    await cacheService.set(
+      `revenueForecast_${businessId}`,
+      JSON.stringify(formattedData),
+    );
+    res.setHeader("X-Data-Source", "database");
     return response(
       res,
       200,

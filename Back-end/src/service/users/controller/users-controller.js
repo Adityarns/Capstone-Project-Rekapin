@@ -3,6 +3,9 @@ import bcrypt from "bcrypt";
 import { uploadAvatar, deleteAvatar } from "../../supabase/supabase-service.js";
 import response from "../../../utils/response.js";
 import { InvariantError, NotFoundError } from "../../../exceptions/index.js";
+import CacheService from "../../cache/redis-cache.js";
+
+const cacheService = new CacheService();
 
 export const addUser = async (req, res, next) => {
   const { username, email, passwordHash } = req.validated;
@@ -25,10 +28,17 @@ export const addUser = async (req, res, next) => {
 
 export const getUserById = async (req, res, next) => {
   const { userId } = req.params;
+  const cachedUser = await cacheService.get(`user:${userId}`);
+  if (cachedUser) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(res, 200, "Akun ditemukan (cache)", JSON.parse(cachedUser));
+  }
   const user = await UserRepositories.getUserById(userId);
   if (!user) {
     return next(new NotFoundError("Akun tidak ditemukan"));
   }
+  await cacheService.set(`user:${userId}`, JSON.stringify(user));
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Akun ditemukan", user);
 };
 
@@ -43,6 +53,8 @@ export const editUserById = async (req, res, next) => {
   if (!user) {
     return next(new InvariantError("User gagal diperbarui"));
   }
+  await cacheService.del(`user:${userId}`); // Hapus cache lama jika ada
+  await cacheService.del(`user:all`);
   return response(res, 201, "User berhasil diperbarui", user);
 };
 
@@ -67,11 +79,12 @@ export const updatePassword = async (req, res, next) => {
     return next(new InvariantError("Password saat ini tidak cocok"));
   }
 
-  // Perbarui password dengan yang baru
   const user = await UserRepositories.updatePassword({ userId, newPassword });
   if (!user) {
     return next(new InvariantError("Password gagal diperbarui"));
   }
+  await cacheService.del(`user:${userId}`);
+  await cacheService.del(`user:all`);
   return response(res, 201, "Password berhasil diperbarui", {
     userId: user.user_id,
   });
@@ -98,20 +111,17 @@ export const updateAvatar = async (req, res, next) => {
 
   const userId = req.user.user_id;
 
-  // Hapus foto lama di Supabase jika ada
   const oldAvatarUrl = await UserRepositories.getAvatarUrl(userId);
   if (oldAvatarUrl) {
     await deleteAvatar(oldAvatarUrl);
   }
 
-  // Upload foto baru ke Supabase
   const avatarUrl = await uploadAvatar({
     userId,
     fileBuffer: req.file.buffer,
     mimeType: req.file.mimetype,
   });
 
-  // Simpan URL baru ke database
   const updatedUser = await UserRepositories.updateAvatar({
     userId,
     avatarUrl,
@@ -119,7 +129,8 @@ export const updateAvatar = async (req, res, next) => {
   if (!updatedUser) {
     return next(new InvariantError("Gagal memperbarui foto profil"));
   }
-
+  await cacheService.del(`user:${userId}`);
+  await cacheService.del(`user:all`);
   return response(res, 200, "Foto profil berhasil diperbarui", {
     avatarUrl: updatedUser.avatar_url,
   });

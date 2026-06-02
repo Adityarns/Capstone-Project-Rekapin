@@ -1,21 +1,13 @@
 /**
  * ============================================================
- *    REKAPIN — Carbon Tracking Page
- *    src/pages/carbon/CarbonTracking.jsx
- *
- *    Renders inside DashboardLayout <Outlet />.
- *    Sidebar + Topbar stay untouched.
- *
- *    Layout (top → bottom):
- *    1. CarbonHeader   — title, subtitle, Verified badge
- *    2. CarbonStatsCards — 3 metric cards
- *    3. GreenInsights  — 3 static insight cards
+ * REKAPIN — Carbon Tracking Page
+ * src/pages/carbon/CarbonTracking.jsx
  * ============================================================
  */
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { carbonService } from "../../services/carbonService";
+import { getCarbonSummary } from "../../services/carbonService";
 import CarbonHeader from "../../components/carbon/CarbonHeader";
 import CarbonStatsCards from "../../components/carbon/CarbonStatsCards";
 import GreenInsights from "../../components/carbon/GreenInsights";
@@ -31,8 +23,8 @@ export default function CarbonTracking() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await carbonService.getCarbonSummary(businessId);
-        setCarbonSummary(response.data);
+        const response = await getCarbonSummary(businessId);
+        setCarbonSummary(response);
       } catch (err) {
         setError(err.message || "Failed to load carbon data");
       } finally {
@@ -78,19 +70,31 @@ export default function CarbonTracking() {
     );
   }
 
-  // Transform API data for UI components
+  // ── Transform API data for UI components ──
+
   const formatTotalFootprint = () => {
+    // PERBAIKAN: Tangkap 'total_carbon' dari backend, bukan 'total_carbon_kg'
+    const rawTotal =
+      carbonSummary?.total_carbon || carbonSummary?.total_carbon_kg || 0;
+
+    // Pastikan format angkanya benar (maksimal 2 desimal agar rapi)
+    const parsedTotal = parseFloat(rawTotal);
+
     return {
-      value: carbonSummary?.total_carbon_kg || 0,
+      value: isNaN(parsedTotal) ? 0 : Number(parsedTotal.toFixed(2)),
       unit: "kgCO2e",
       change: carbonSummary?.change_percent || 0,
-      positive: (carbonSummary?.change_percent || 0) <= 0,
+      positive: (carbonSummary?.change_percent || 0) <= 0, // Turun = positif (hijau)
       period: "vs last month",
     };
   };
 
   const formatSustainabilityScore = () => {
-    if (!carbonSummary?.goal || carbonSummary.goal.progress_percent === null) {
+    if (
+      !carbonSummary?.goal ||
+      carbonSummary.goal.progress_percent === null ||
+      carbonSummary.goal.progress_percent === undefined
+    ) {
       return {
         score: 0,
         maxScore: 100,
@@ -100,9 +104,10 @@ export default function CarbonTracking() {
       };
     }
 
-    const progressPercent = carbonSummary.goal.progress_percent;
+    const progressPercent = parseFloat(carbonSummary.goal.progress_percent);
     const isExcellent = progressPercent <= 75;
     const isGood = progressPercent <= 100;
+
     const calculatedScore = isExcellent ? 95 : isGood ? 80 : 60;
     const calculatedLabel = isExcellent
       ? "Excellent"
@@ -112,14 +117,12 @@ export default function CarbonTracking() {
 
     let description =
       "Your carbon emissions remain stable compared to last month.";
-    const changePercent = carbonSummary.change_percent;
+    const changePercent = parseFloat(carbonSummary.change_percent || 0);
 
-    if (changePercent !== null && changePercent !== undefined) {
-      if (changePercent < 0) {
-        description = `You reduced carbon emissions by ${Math.abs(changePercent)}% compared to last month. Keep it up!`;
-      } else if (changePercent > 0) {
-        description = `Carbon emissions increased by ${changePercent}% from last month. Try to reduce consumption.`;
-      }
+    if (changePercent < 0) {
+      description = `You reduced carbon emissions by ${Math.abs(changePercent)}% compared to last month. Keep it up!`;
+    } else if (changePercent > 0) {
+      description = `Carbon emissions increased by ${changePercent}% from last month. Try to reduce consumption.`;
     }
 
     return {
@@ -138,10 +141,12 @@ export default function CarbonTracking() {
       "#FF9800",
       "#4CAF50",
     ];
+
     return (carbonSummary?.breakdown || []).map((item, index) => ({
       id: item.category.toLowerCase(),
       label: item.category,
-      value: item.total_carbon,
+      // PERBAIKAN: Pastikan ini terbaca sebagai angka
+      value: parseFloat(item.total_carbon) || 0,
       percentage: parseFloat(item.percentage) || 0,
       unit: "kgCO2e",
       color: colors[index % colors.length],

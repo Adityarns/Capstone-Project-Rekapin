@@ -36,7 +36,7 @@
   background: #ffffff;
   border-radius: 16px;
   width: 100%;
-  max-width: 920px;
+  max-width: 1080px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 28px 0;
+  padding: 20px 24px 0;
   flex-shrink: 0;
 }
 
@@ -100,7 +100,7 @@
 .atm-filters {
   display: flex;
   gap: 12px;
-  padding: 20px 28px 16px;
+  padding: 16px 24px 14px;
   flex-shrink: 0;
 }
 
@@ -273,7 +273,7 @@
 .atm-table-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 0 28px;
+  padding: 0 24px;
   /* Custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #e5e7eb transparent;
@@ -315,7 +315,24 @@
 }
 
 .atm-th--transaction {
-  width: 38%;
+  width: 32%;
+}
+
+.atm-th--user {
+  width: 22%;
+  white-space: nowrap;
+}
+
+.atm-th--category {
+  width: 15%;
+}
+
+.atm-th--amount {
+  width: 16%;
+}
+
+.atm-th--date {
+  width: 15%;
 }
 
 /* ── Table Rows ── */
@@ -350,6 +367,12 @@
 .atm-td--date {
   color: #6b7280;
   white-space: nowrap;
+}
+
+.atm-td--user {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Empty State ── */
@@ -389,7 +412,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px 24px;
+  padding: 14px 24px 20px;
   flex-shrink: 0;
   border-top: 1.5px solid #f3f4f6;
   margin-top: 4px;

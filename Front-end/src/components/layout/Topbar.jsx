@@ -42,22 +42,22 @@ const IconBell = () => (
   </svg>
 );
 
-const IconHelp = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </svg>
-);
+// const IconHelp = () => (
+//   <svg
+//     width="18"
+//     height="18"
+//     viewBox="0 0 24 24"
+//     fill="none"
+//     stroke="currentColor"
+//     strokeWidth="1.75"
+//     strokeLinecap="round"
+//     strokeLinejoin="round"
+//   >
+//     <circle cx="12" cy="12" r="10" />
+//     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+//     <line x1="12" y1="17" x2="12.01" y2="17" />
+//   </svg>
+// );
 
 /* ── Component ───────────────────────────────────────────────── */
 
@@ -150,7 +150,7 @@ export default function Topbar() {
   return (
     <div className="topbar">
       <div className="topbar-welcome">
-        <span>Welcome back to Rekapin!</span>
+        <span>Welcome to Rekapin!</span>
       </div>
 
       {/* ── Right Actions ── */}
@@ -170,9 +170,9 @@ export default function Topbar() {
         </button>
 
         {/* Help */}
-        <button className="topbar-icon-btn" type="button" aria-label="Help">
+        {/* <button className="topbar-icon-btn" type="button" aria-label="Help">
           <IconHelp />
-        </button>
+        </button> */}
 
         {/* User Avatar */}
         <div className="topbar-profile">

@@ -55,12 +55,14 @@ class TransactionRepositories {
                t.transaction_type,
                t.description,
                t.user_id,
+               u.username AS username,
                t.business_id,
                t.category_id,
                c.category_name,
                c.category_type
              FROM transactions t
              LEFT JOIN transaction_categories c ON t.category_id = c.transaction_categories_id
+             LEFT JOIN users u ON t.user_id = u.user_id
              WHERE t.business_id = $1
              ORDER BY t.transaction_date DESC`,
       values: [businessId],

@@ -3,27 +3,36 @@ import { calculateCarbonWithAI } from "../../models/ai-service.js";
 import response from "../../../utils/response.js";
 import { NotFoundError } from "../../../exceptions/index.js";
 import { GREEN_INSIGHTS_BANK } from "../../carbon/insights/insights.js";
+import CacheService from "../../cache/redis-cache.js";
 
-// ============================================================
-//  GET CARBON SUMMARY
-//  Untuk tampilan utama halaman Carbon Tracking
-// ============================================================
+const cacheService = new CacheService();
+
 export const getCarbonSummary = async (req, res, next) => {
   const { businessId } = req.params;
 
+  const cacheKey = `carbonSummary_${businessId}`;
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(
+      res,
+      200,
+      "Carbon summary berhasil diambil (cache)",
+      JSON.parse(cachedData),
+    );
+  }
   const summary = await CarbonRepositories.getCarbonSummary(businessId);
+  if (!summary) {
+    return next(
+      new NotFoundError("Carbon summary tidak ditemukan untuk bisnis ini"),
+    );
+  }
   const insights = [];
 
-  // Ambil kategori penyumbang emisi tertinggi bulan ini dari data breakdown Anda
   if (summary.breakdown && summary.breakdown.length > 0) {
-    const topCategory = summary.breakdown[0].category; // e.g., "Electricity" atau "Transportation"
-
-    // Cek apakah performa bulan ini lebih buruk atau lebih baik dari bulan lalu
-    // Jika change_percent positif (> 0) artinya emisi naik (worse)
-    // Jika change_percent negatif (<= 0) artinya emisi turun/stabil (better)
+    const topCategory = summary.breakdown[0].category;
     const status = summary.change_percent > 0 ? "worse" : "better";
 
-    // Ambil teks yang sesuai dari bank data berdasarkan kategori tertinggi dan statusnya
     if (GREEN_INSIGHTS_BANK[topCategory]) {
       insights.push({
         icon: topCategory === "Electricity" ? "lightning" : "Transportation",
@@ -33,30 +42,35 @@ export const getCarbonSummary = async (req, res, next) => {
     }
   }
 
-  // Selalu sisipkan 1 tips umum (General) sebagai variasi pelengkap di UI
   insights.push({
     icon: "recycle",
     title: GREEN_INSIGHTS_BANK.General.title,
     description: GREEN_INSIGHTS_BANK.General.description,
   });
-
-  // ============================================================
-  // GABUNGKAN KE OUTPUT DATA SUMMARY
-  // ============================================================
+  await cacheService.set(cacheKey, JSON.stringify({ ...summary, insights }));
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Carbon summary berhasil diambil", {
     ...summary,
-    insights, // <--- Frontend tinggal nge-loop array insights ini untuk komponen Green Insights
+    insights,
   });
 };
 
-// ============================================================
-//  GET CARBON LOGS
-//  History log karbon dari semua transaksi
-// ============================================================
 export const getCarbonLogs = async (req, res, next) => {
   const { businessId } = req.params;
-
+  const cacheKey = `carbonLogs_${businessId}`;
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(
+      res,
+      200,
+      "Carbon logs berhasil diambil (cache)",
+      JSON.parse(cachedData),
+    );
+  }
   const logs = await CarbonRepositories.getCarbonLogsByBusinessId(businessId);
 
+  await cacheService.set(cacheKey, JSON.stringify({ logs }));
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Carbon logs berhasil diambil", { logs });
 };

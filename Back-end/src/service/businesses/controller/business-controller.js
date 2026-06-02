@@ -5,6 +5,9 @@ import {
   NotFoundError,
 } from "../../../exceptions/index.js";
 import response from "../../../utils/response.js";
+import CacheService from "../../cache/redis-cache.js";
+
+const cacheService = new CacheService();
 
 export const addBusiness = async (req, res, next) => {
   const { ownerId: user_id } = req.user;
@@ -17,17 +20,13 @@ export const addBusiness = async (req, res, next) => {
   if (!business) {
     return next(new InvariantError("Bisnis gagal ditambahkan"));
   }
+  await cacheService.del(`accessibleBusinesses_${user_id}`); // Invalidate cache untuk daftar bisnis yang bisa diakses user
   return response(res, 201, "Bisnis berhasil ditambahkan", business);
 };
 
 export const getBusinessById = async (req, res, next) => {
   const { businessId } = req.params;
   const userId = req.user.user_id;
-
-  const business = await businessesRepositories.getBusinessById(businessId);
-  if (!business) {
-    return next(new NotFoundError("Business tidak ditemukan"));
-  }
 
   const hasAccess = await businessesRepositories.verifyBusinessAccess(
     userId,
@@ -40,7 +39,23 @@ export const getBusinessById = async (req, res, next) => {
       ),
     );
   }
-
+  const cacheKey = `business_${businessId}`;
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) {
+    res.setHeader("X-Data-Source", "cache");
+    return response(
+      res,
+      200,
+      "Business ditemukan (cache)",
+      JSON.parse(cachedData),
+    );
+  }
+  const business = await businessesRepositories.getBusinessById(businessId);
+  if (!business) {
+    return next(new NotFoundError("Business tidak ditemukan"));
+  }
+  await cacheService.set(cacheKey, JSON.stringify(business));
+  res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Business ditemukan", business);
 };
 
@@ -76,6 +91,7 @@ export const editBusinessById = async (req, res, next) => {
     return next(new InvariantError("Business gagal diperbarui"));
   }
 
+  await cacheService.del(`business_${businessId}`); // Invalidate cache untuk bisnis yang diperbarui
   return response(res, 200, "Business berhasil diperbarui", business);
 };
 

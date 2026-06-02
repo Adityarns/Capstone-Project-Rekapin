@@ -14,10 +14,10 @@ import "./SustainabilityCard.css";
 
 export default function SustainabilityCard() {
   const { businessId } = useParams();
-  const [score, setScore] = useState(84);
-  const [label, setLabel] = useState("Excellent");
+  const [score, setScore] = useState(0);
+  const [label, setLabel] = useState("Unavailable");
   const [description, setDescription] = useState(
-    "You are performing 12% better than similar MSMEs in your region.",
+    "No sustainability data available yet. Start recording transactions to see your sustainability score.",
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,8 +30,8 @@ export default function SustainabilityCard() {
         const carbonData = await getCarbonSummary(businessId);
 
         // Hitung sustainability score berdasarkan carbon goal progress
-        let calculatedScore = 50;
-        let calculatedLabel = "Fair";
+        let calculatedScore = 0;
+        let calculatedLabel = "Unavailable";
 
         if (carbonData.goal && carbonData.goal.progress_percent !== null) {
           // Jika on-track, score lebih tinggi
