@@ -89,6 +89,19 @@ export default function EditBusinessModal({ isOpen, onClose, form, onChange, onS
         />
       </div>
 
+      {/* Modal */}
+      <div className="modal-field">
+        <label className="modal-label" htmlFor="biz-modal">Modal</label>
+        <input
+          id="biz-modal"
+          type="number"
+          className="modal-input"
+          value={form.modal}
+          onChange={(e) => onChange("modal", e.target.value)}
+          placeholder="Modal amount"
+        />
+      </div>
+
       {/* Actions */}
       <div className="modal-actions">
         <button type="button" className="modal-btn-cancel" onClick={onClose}>

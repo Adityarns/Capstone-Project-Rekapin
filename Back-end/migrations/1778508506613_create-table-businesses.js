@@ -18,7 +18,7 @@ export const up = (pgm) => {
       type: "VARCHAR(50)",
       notNull: true,
       references: "users(user_id)",
-      onDelete: "CASCADE",
+      onDelete: "CASCADE",  
     },
     business_name: {
       type: "VARCHAR(255)",

@@ -29,11 +29,20 @@ class BusinessRepositories {
 
   async getBusinessById(businessId) {
     const query = {
-      text: `SELECT * FROM businesses WHERE business_id = $1`,
+      text: `SELECT business_id, owner_id, business_name, industry, phone_number, address, modal FROM businesses WHERE business_id = $1`,
       values: [businessId],
     };
     const results = await this.pool.query(query);
     return results.rows[0];
+  }
+
+  async checkBusinessModal(businessId) {
+    const query = {
+      text: `SELECT modal FROM businesses WHERE business_id = $1`,
+      values: [businessId],
+    };
+    const results = await this.pool.query(query);
+    return results.rows[0] ? results.rows[0].modal : null;
   }
 
   async editBusinessById({ businessId, ...payload }) {
@@ -45,7 +54,7 @@ class BusinessRepositories {
     if (fields.length === 0) return null;
     const setClause = fields.map((key, i) => `${key} = $${i + 1}`).join(", ");
     const query = {
-      text: `UPDATE businesses SET ${setClause} WHERE business_id = $${fields.length + 1} RETURNING business_name, industry, phone_number, address`,
+      text: `UPDATE businesses SET ${setClause} WHERE business_id = $${fields.length + 1} RETURNING business_name, industry, phone_number, address, modal`,
       values: [...fields.map((key) => payload[key]), businessId],
     };
     const results = await this.pool.query(query);

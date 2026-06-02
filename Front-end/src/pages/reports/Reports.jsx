@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import ReportsHeader from "../../components/reports/ReportsHeader";
 import ReportsSummaryCards from "../../components/reports/ReportsSummaryCards";
@@ -46,6 +46,7 @@ const downloadBlob = (blob, fileName) => {
 
 export default function Reports() {
   const { businessId } = useParams();
+  const navigate = useNavigate();
   const [quarter, setQuarter] = useState(getCurrentQuarterValue());
   const [summary, setSummary] = useState(null);
   const [cashFlow, setCashFlow] = useState([]);
@@ -108,7 +109,15 @@ export default function Reports() {
       const blob = await exportReportExcel(businessId, q, year);
       downloadBlob(blob, `Rekapin_Report_${q}_${year}.xlsx`);
     } catch (err) {
-      setError(err.message || "Gagal mengunduh file Excel.");
+      const errorMessage = err.message || "Gagal mengunduh file Excel.";
+      setError(errorMessage);
+
+      // JIKA GALAT KARENA MODAL: Alihkan otomatis ke halaman pengaturan setelah 2 detik
+      if (errorMessage.toLowerCase().includes("modal")) {
+        setError(
+          "Data modal bisnis 0 atau belum diisi. Mengalihkan ke halaman pengaturan...",
+        );
+      }
     } finally {
       setExporting(false);
     }
@@ -125,7 +134,15 @@ export default function Reports() {
       const blob = await exportReportPDF(businessId, q, year);
       downloadBlob(blob, `Rekapin_Report_${q}_${year}.pdf`);
     } catch (err) {
-      setError(err.message || "Gagal mengunduh file PDF.");
+      const errorMessage = err.message || "Gagal mengunduh file PDF.";
+      setError(errorMessage);
+
+      // JIKA GALAT KARENA MODAL: Alihkan otomatis ke halaman pengaturan setelah 2 detik
+      if (errorMessage.toLowerCase().includes("modal")) {
+        setError(
+          "Data modal bisnis 0 atau belum diisi. Mengalihkan ke halaman pengaturan...",
+        );
+      }
     } finally {
       setExporting(false);
     }
@@ -148,7 +165,40 @@ export default function Reports() {
         isExporting={exporting}
       />
 
-      {error && <div className="rpt-error">{error}</div>}
+      {error && (
+        <div
+          className="rpt-error"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "between",
+            gap: "16px",
+          }}
+        >
+          <span>{error}</span>
+
+          {/* Jika pesan galat mendeteksi kata 'modal', munculkan tombol pintas */}
+          {error.toLowerCase().includes("modal") && (
+            <button
+              type="button"
+              className="rpt-error-action-btn"
+              onClick={() => navigate(`/profile/${businessId}`)}
+              style={{
+                background: "#60070d",
+                color: "#ffffff",
+                border: "none",
+                padding: "6px 12px",
+                borderRadius: "6px",
+                fontSize: "13px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              Isi Modal Sekarang
+            </button>
+          )}
+        </div>
+      )}
       {loading && <div className="rpt-loading">Loading report data…</div>}
 
       {/* 2 — Summary cards */}

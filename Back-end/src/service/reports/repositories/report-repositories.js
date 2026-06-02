@@ -115,7 +115,8 @@ class FinancialReportRepositories {
                b.business_name, 
                u.username, 
                b.address, 
-               b.phone_number 
+               b.phone_number, 
+               b.modal  
              FROM businesses b
              JOIN users u ON b.owner_id = u.user_id
              WHERE b.business_id = $1`,

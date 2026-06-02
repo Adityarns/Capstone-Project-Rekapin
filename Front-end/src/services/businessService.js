@@ -6,6 +6,7 @@ export async function updateBusiness(businessId, payload) {
     industry: payload.industry,
     phone_number: payload.phone,
     address: payload.address,
+    modal: payload.modal,
   });
 
   return response.data.data;

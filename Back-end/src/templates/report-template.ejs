@@ -2,101 +2,190 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <title>Financial Statement - <%= profile.business_name %></title>
     <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #000; padding: 20px; font-size: 12px; }
-        .header { text-align: left; margin-bottom: 30px; }
-        .header h1 { font-size: 18px; margin: 0; text-transform: uppercase; }
-        .section-title { font-weight: bold; font-size: 14px; margin-top: 20px; margin-bottom: 10px; }
-        .row { display: flex; justify-content: space-between; padding: 4px 0; }
-        .indent { padding-left: 40px; }
+        /* ── DASAR TYPOGRAPHY & LAYOUT ── */
+        body { 
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; 
+            color: #111111; 
+            padding: 10px; 
+            font-size: 12px; 
+            line-height: 1.5;
+        }
+        
+        /* ── HEADER BISNIS ── */
+        .header { 
+            border-bottom: 2px solid #111111;
+            padding-bottom: 15px;
+            margin-bottom: 30px; 
+        }
+        .header h1 { 
+            font-size: 20px; 
+            font-weight: 700;
+            margin: 0 0 4px 0; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            font-size: 12px;
+            color: #555555;
+            margin: 0;
+            font-style: italic;
+        }
+
+        /* ── STRUKTUR TABEL AKUNTANSI STANDAR ── */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 35px;
+            table-layout: fixed;
+        }
+        .report-table th, .report-table td {
+            padding: 6px 0;
+            vertical-align: bottom;
+        }
+        .report-table th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            border-bottom: 1px solid #111111;
+            padding-bottom: 6px;
+        }
+        
+        /* ── DETERMINASI LEBAR KOLOM (ALIGNED PERFECTLY) ── */
+        .col-desc { width: 70%; text-align: left; }
+        .col-amount { width: 30%; text-align: right; font-variant-numeric: tabular-nums; }
+        
+        /* ── VARIASI BARIS & INDENTASI ── */
+        .section-header {
+            font-size: 13px;
+            font-weight: 700;
+            padding-bottom: 8px;
+            text-transform: capitalize;
+        }
+        .indent-1 { padding-left: 20px; }
+        .indent-2 { padding-left: 40px; }
         .bold { font-weight: bold; }
         .italic { font-style: italic; }
-        .amount { text-align: right; width: 150px; }
-        .highlight { background-color: #d9d9d9; padding: 5px 0; border-top: 1px solid #000; border-bottom: 2px solid #000; }
-        .line-above { border-top: 1px solid #000; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 6px 0; text-align: left; }
-        th { border-bottom: 2px solid #000; font-weight: bold; font-style: italic; }
-        .td-amount { text-align: right; }
-        .tfoot-row td { border-top: 1px solid #000; font-weight: bold; padding-top: 10px; }
+
+        /* ── GARIS SYARAT AKUNTANSI (ACCOUNTING BORDERS) ── */
+        .line-above {
+            border-top: 1px solid #111111;
+        }
+        .final-total td {
+            font-weight: bold;
+            border-top: 1px solid #111111;
+            border-bottom: 4px double #111111; /* Standar Double Underline Akuntansi */
+            padding-top: 8px;
+            padding-bottom: 4px;
+        }
+        .sub-total td {
+            font-weight: bold;
+            border-top: 1px solid #cccccc;
+            padding-top: 6px;
+        }
     </style>
 </head>
 <body>
+
     <div class="header">
         <h1><%= profile.business_name %></h1>
-        <p>Financial Statement - Quarter <%= quarter %> <%= year %></p>
+        <p>Financial Statement — Quarter <%= quarter %> Fiscal Year <%= year %></p>
     </div>
 
-    <div class="section-title">1. Income statement</div>
-    <div class="row bold">
-        <div>Fees Earned</div>
-        <div class="amount"><%= formatNumber(totalIncome) %></div>
-    </div>
-    <div class="row bold">
-        <div>Total Expense</div>
-        <div class="amount">(<%= formatNumber(totalExpense) %>)</div>
-    </div>
-    <div class="row bold highlight" style="margin-top: 5px;">
-        <div>Nett Profit</div>
-        <div class="amount"><%= formatNumber(netProfit) %></div>
-    </div>
-
-    <br>
-
-    <div class="section-title">2. Expense Statement</div>
-    <table>
+    <table class="report-table">
         <thead>
             <tr>
-                <th>Category</th>
-                <th class="td-amount">Amount</th>
+                <th class="col-desc">1. Income Statement</th>
+                <th class="col-amount">Amount (IDR)</th>
             </tr>
         </thead>
         <tbody>
-            <% for(let cat in expenseDetails) { %>
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td class="indent"><%= cat %></td>
-                    <td class="td-amount"><%= formatNumber(expenseDetails[cat]) %></td>
-                </tr>
-            <% } %>
-        </tbody>
-        <tfoot>
-            <tr class="tfoot-row">
-                <td>Total Operating Expenses</td>
-                <td class="td-amount"><%= formatNumber(totalExpense) %></td>
+            <tr>
+                <td class="col-desc indent-1">Gross Revenues / Fees Earned</td>
+                <td class="col-amount"><%= formatNumber(totalIncome) %></td>
             </tr>
-        </tfoot>
+            <tr>
+                <td class="col-desc indent-1">Total Operating Expenses</td>
+                <td class="col-amount">(<%= formatNumber(totalExpense) %>)</td>
+            </tr>
+            <tr class="final-total">
+                <td class="col-desc">Net Profit / (Loss)</td>
+                <td class="col-amount"><%= formatNumber(netProfit) %></td>
+            </tr>
+        </tbody>
     </table>
 
-    <br>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th class="col-desc">2. Operating Expense Breakdown</th>
+                <th class="col-amount">Amount (IDR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (Object.keys(expenseDetails).length === 0) { %>
+                <tr>
+                    <td class="col-desc indent-1 italic" color="#888">No operating expenses recorded in this period.</td>
+                    <td class="col-amount">-</td>
+                </tr>
+            <% } else { %>
+                <% for(let cat in expenseDetails) { %>
+                    <tr>
+                        <td class="col-desc indent-1"><%= cat %></td>
+                        <td class="col-amount"><%= formatNumber(expenseDetails[cat]) %></td>
+                    </tr>
+                <% } %>
+            <% } %>
+            <tr class="sub-total">
+                <td class="col-desc">Total Operational Accumulation</td>
+                <td class="col-amount"><%= formatNumber(totalExpense) %></td>
+            </tr>
+        </tbody>
+    </table>
 
-    <div class="section-title">3. Statement of Changes Equity</div>
-    
-    <div class="row">
-        <div class="italic">Beginning of the year :</div>
-        <div class="amount"><%= beginningEquity === 0 ? '-' : formatNumber(beginningEquity) %></div>
-    </div>
-    <br>
-    
-    <div class="row italic">
-        <div>Change during years in Owners Equity :</div>
-    </div>
-    <div class="row indent">
-        <div>+/+ Paid in Capital</div>
-        <div class="amount"><%= formatNumber(paidInCapital) %></div>
-    </div>
-    <div class="row indent">
-        <div>-/- Drawing</div>
-        <div class="amount">(<%= formatNumber(Math.abs(drawing)) %>)</div>
-    </div>
-    <div class="row indent line-above" style="margin-top: 5px;">
-        <div>+/+ Income from Operations</div>
-        <div class="amount"><%= formatNumber(netProfit) %></div>
-    </div>
-    
-    <br>
-    <div class="row bold">
-        <div>Ending of Year :</div>
-        <div class="amount"><%= formatNumber(endingEquity) %></div>
-    </div>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th class="col-desc">3. Statement of Changes Equity</th>
+                <th class="col-amount">Amount (IDR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="col-desc italic">Owner's Equity, Capital (Beginning of Period)</td>
+                <td class="col-amount"><%= beginningEquity === 0 ? '-' : formatNumber(beginningEquity) %></td>
+            </tr>
+            <tr>
+                <td class="col-desc bold" style="padding-top: 12px;">Changes in Owner's Equity Investment:</td>
+                <td class="col-amount"></td>
+            </tr>
+            <tr>
+                <td class="col-desc indent-1">(+) Capital Investment / Paid-in Capital</td>
+                <td class="col-amount"><%= formatNumber(paidInCapital) %></td>
+            </tr>
+            <tr>
+                <td class="col-desc indent-1">(-) Owner's Drawings / Prive Dues</td>
+                <td class="col-amount">
+                    <% if (Math.abs(drawing) === 0) { %>
+                        -
+                    <% } else { %>
+                        (<%= formatNumber(Math.abs(drawing)) %>)
+                    </thead>
+                    <% } %>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-desc indent-1">(+) Net Income from Current Operations</td>
+                <td class="col-amount"><%= formatNumber(netProfit) %></td>
+            </tr>
+            <tr class="final-total">
+                <td class="col-desc">Owner's Equity, Capital (End of Period)</td>
+                <td class="col-amount"><%= formatNumber(endingEquity) %></td>
+            </tr>
+        </tbody>
+    </table>
+
 </body>
 </html>

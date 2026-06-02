@@ -260,6 +260,7 @@ export default function ProfileSettings() {
           phone: data.phone_number,
           address: data.address,
           invitationCode: data.invitation_code,
+          modal: data.modal,
         });
 
         setBizDraft({
@@ -268,6 +269,7 @@ export default function ProfileSettings() {
           phone: data.phone_number,
           address: data.address,
           invitationCode: data.invitation_code,
+          modal: data.modal,
         });
       } catch (err) {
         console.error("Failed load business:", err);

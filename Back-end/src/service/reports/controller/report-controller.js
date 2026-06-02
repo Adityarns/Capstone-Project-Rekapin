@@ -1,12 +1,14 @@
 import FinancialReportService from "../service/report-service.js";
 import FinancialReportRepositories from "../repositories/report-repositories.js";
 import { forecastRevenueWithAI } from "../../Models/ai-service.js";
+import { InvariantError } from "../../../exceptions/index.js";
 import response from "../../../utils/response.js";
 import puppeteer from "puppeteer";
 import ejs from "ejs";
 import path from "path";
 import excelJS from "exceljs";
 import CacheService from "../../cache/redis-cache.js";
+import businessesRepositories from "../../businesses/repositories/businesses-repositories.js";
 
 const cacheService = new CacheService();
 
@@ -166,6 +168,15 @@ export const exportReportExcel = async (req, res, next) => {
     const { businessId } = req.params;
     // Nilai fallback Q2 dan 2026
     const { quarter = "Q2", year = 2026 } = req.query;
+    const isModalExist =
+      await businessesRepositories.checkBusinessModal(businessId);
+    if (
+      isModalExist === null ||
+      isModalExist === undefined ||
+      Number(isModalExist) === 0
+    ) {
+      return next(new InvariantError("Data modal bisnis tidak ditemukan"));
+    }
 
     // 1. Delegasikan tugas perakitan dokumen ke Service
     const { buffer, fileName } =
@@ -193,7 +204,15 @@ export const exportReportPDF = async (req, res, next) => {
   try {
     const { businessId } = req.params;
     const { quarter = "Q2", year = 2026 } = req.query;
-
+    const isModalExist =
+      await businessesRepositories.checkBusinessModal(businessId);
+    if (
+      isModalExist === null ||
+      isModalExist === undefined ||
+      Number(isModalExist) === 0
+    ) {
+      return next(new InvariantError("Data modal bisnis tidak ditemukan"));
+    }
     // 1. Panggil metode pencetakan PDF dari Service
     const { buffer, fileName } = await FinancialReportService.generatePDFReport(
       {

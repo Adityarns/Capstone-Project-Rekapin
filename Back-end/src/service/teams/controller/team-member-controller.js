@@ -115,6 +115,9 @@ export const deleteTeamMembersById = async (req, res, next) => {
   const business = await businessesRepositories.getBusinessById(businessId);
   if (!business || business.owner_id !== currentUserId) {
     return next(
+      console.log("=== DEBUG OTORISASI HAPUS MEMBER ==="),
+      console.log("ID Pengguna Aktif (Token):", currentUserId),
+      console.log("Data Lengkap Bisnis dari DB:", business),
       new AuthorizationError("Member tidak dapat menghapus anggota tim"),
     );
   }

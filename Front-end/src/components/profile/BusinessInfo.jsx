@@ -13,9 +13,16 @@
 import "./BusinessInfo.css";
 
 const IconBuilding = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.75"
-    strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <path d="M3 9h18" />
     <path d="M9 21V9" />
@@ -37,7 +44,6 @@ function InfoField({ label, value }) {
 export default function BusinessInfo({ business, isOwner, onEdit }) {
   return (
     <div className="biz-card">
-
       {/* Header */}
       <div className="biz-card__header">
         <div className="biz-card__title-group">
@@ -48,7 +54,11 @@ export default function BusinessInfo({ business, isOwner, onEdit }) {
         </div>
 
         {isOwner ? (
-          <button type="button" className="biz-card__edit-link" onClick={onEdit}>
+          <button
+            type="button"
+            className="biz-card__edit-link"
+            onClick={onEdit}
+          >
             Edit
           </button>
         ) : (
@@ -58,12 +68,19 @@ export default function BusinessInfo({ business, isOwner, onEdit }) {
 
       {/* Fields */}
       <div className="biz-card__fields">
-        <InfoField label="Business Name" value={business.name}     />
-        <InfoField label="Industry"      value={business.industry} />
-        <InfoField label="Phone Number"  value={business.phone}    />
-        <InfoField label="Address"       value={business.address}  />
+        <InfoField label="Business Name" value={business.name} />
+        <InfoField label="Industry" value={business.industry} />
+        <InfoField label="Phone Number" value={business.phone} />
+        <InfoField label="Address" value={business.address} />
+        <InfoField
+          label="Modal"
+          value={
+            business.modal
+              ? `Rp ${Number(business.modal).toLocaleString("id-ID")}`
+              : "—"
+          }
+        />
       </div>
-
     </div>
   );
 }

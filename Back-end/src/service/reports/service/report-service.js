@@ -71,7 +71,6 @@ class FinancialReportService {
         ),
       ]);
 
-    // Memastikan pemetaan properti d.type berjalan mulus dari database
     const currentRevenue = currentData
       .filter((d) => d.type === "income")
       .reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
@@ -88,7 +87,6 @@ class FinancialReportService {
       .filter((d) => d.type === "expense")
       .reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
 
-    // Hitung Net Income secara presisi
     const currentNetIncome = currentRevenue - currentExpense;
     const prevNetIncome = prevRevenue - prevExpense;
 
@@ -141,13 +139,11 @@ class FinancialReportService {
       ),
     ]);
 
-    // Fungsi utilitas untuk mengambil nominal berdasarkan nama kategori
     const getAmount = (data, catName) =>
       parseFloat(
         data.find((d) => d.category_name === catName)?.total_amount || 0,
       );
 
-    // 1. Kalkulasi Pendapatan (Semua transaksi 'income')
     const currentRev = currentData
       .filter((d) => d.type === "income")
       .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
@@ -155,7 +151,6 @@ class FinancialReportService {
       .filter((d) => d.type === "income")
       .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
 
-    // 2. Kalkulasi HPP/COGS (Pengecualian khusus untuk beban pokok)
     const isCogs = (name) =>
       name.toLowerCase() === "hpp" || name.toLowerCase() === "cogs";
     const currentCogs = currentData
@@ -165,7 +160,6 @@ class FinancialReportService {
       .filter((d) => isCogs(d.category_name))
       .reduce((acc, curr) => acc + parseFloat(curr.total_amount), 0);
 
-    // 3. Mengumpulkan SEMUA nama kategori pengeluaran yang unik (Operating Expenses)
     const opexCategories = new Set();
     const extractOpexCategories = (data) => {
       data.forEach((d) => {
@@ -177,7 +171,6 @@ class FinancialReportService {
     extractOpexCategories(currentData);
     extractOpexCategories(prevData);
 
-    // 4. Membangun objek operating_expenses secara dinamis
     const operating_expenses = {};
     let currentTotalOp = 0;
     let prevTotalOp = 0;
@@ -196,7 +189,6 @@ class FinancialReportService {
       prevTotalOp += prevVal;
     });
 
-    // 5. Kalkulasi Akhir
     const currentGross = currentRev - currentCogs;
     const prevGross = prevRev - prevCogs;
     const currentNet = currentGross - currentTotalOp;
@@ -223,7 +215,7 @@ class FinancialReportService {
           previous: prevGross,
           variance: calculateVariance(currentGross, prevGross),
         },
-        operating_expenses, // <-- Objek dinamis langsung disisipkan di sini
+        operating_expenses,
         total_operating_expenses: {
           current: currentTotalOp,
           previous: prevTotalOp,
@@ -254,20 +246,23 @@ class FinancialReportService {
       throw new Error("Data profil bisnis tidak ditemukan di database.");
     }
 
-    // 1. Logika Pengelompokan Akuntansi
     let totalIncome = 0;
     let totalExpense = 0;
+    let totalDrawing = 0; // Variabel baru untuk menampung data penarikan pribadi harian
     const expenseDetails = {};
 
     detailedTransactions.forEach((trx) => {
       const type = (trx.type || "").toString().trim().toLowerCase();
       const amount = parseFloat(trx.amount || 0);
       const cat = trx.category || "Uncategorized";
+      const catLower = cat.toLowerCase();
 
-      if (type === "income") {
+      // Pisahkan Drawing/Prive agar tidak bercampur dengan beban usaha operasional biasa
+      if (catLower === "drawing" || catLower === "prive") {
+        totalDrawing += amount;
+      } else if (type === "income") {
         totalIncome += amount;
-      }
-      if (type === "expense") {
+      } else if (type === "expense") {
         totalExpense += amount;
         expenseDetails[cat] = (expenseDetails[cat] || 0) + amount;
       }
@@ -275,7 +270,6 @@ class FinancialReportService {
 
     const netProfit = totalIncome - totalExpense;
 
-    // 2. Inisialisasi Buku Kerja Excel
     const workbook = new excelJS.Workbook();
     workbook.creator = "Rekapin System";
     const sheet1 = workbook.addWorksheet("Financial Statement");
@@ -283,10 +277,8 @@ class FinancialReportService {
     sheet1.getColumn(1).width = 45;
     sheet1.getColumn(2).width = 25;
 
-    // Format angka: Positif biasa, Negatif pakai kurung ( )
     const accountingFormat = "#,##0;(#,##0)";
 
-    // Header Laporan
     sheet1.getCell("A1").value = profile.business_name.toUpperCase();
     sheet1.getCell("A1").font = { size: 14, bold: true };
     sheet1.getCell("A2").value =
@@ -302,7 +294,6 @@ class FinancialReportService {
     incomeRow.font = { bold: true };
     incomeRow.getCell(2).numFmt = accountingFormat;
 
-    // Di Income Statement, rincian beban tidak lagi dijabarkan, langsung totalnya (dibikin minus)
     const totalExpRow1 = sheet1.addRow(["Total Expense", -totalExpense]);
     totalExpRow1.font = { bold: true };
     totalExpRow1.getCell(2).numFmt = accountingFormat;
@@ -319,14 +310,13 @@ class FinancialReportService {
     sheet1.addRow([]);
     sheet1.addRow([]);
 
-    // --- BAGIAN 2: EXPENSE STATEMENT (BARU) ---
+    // --- BAGIAN 2: EXPENSE STATEMENT ---
     const title2 = sheet1.addRow(["2. Expense Statement"]);
     title2.font = { bold: true };
     sheet1.addRow([]);
 
     sheet1.addRow(["Category", "Amount"]).font = { italic: true, bold: true };
 
-    // Looping rincian beban (ditampilkan sebagai angka positif karena ini laporan rincian)
     for (const [category, amount] of Object.entries(expenseDetails)) {
       const row = sheet1.addRow([`     ${category}`, amount]);
       row.getCell(2).numFmt = accountingFormat;
@@ -342,14 +332,16 @@ class FinancialReportService {
     sheet1.addRow([]);
     sheet1.addRow([]);
 
-    // --- BAGIAN 3: STATEMENT OF CHANGES EQUITY ---
+    // --- BAGIAN 3: STATEMENT OF CHANGES EQUITY (DINAMIS) ---
     const title3 = sheet1.addRow(["3. Statement of Changes Equity"]);
     title3.font = { bold: true };
     sheet1.addRow([]);
 
-    const beginningEquity = 0;
-    const paidInCapital = 500000000;
-    const drawing = -5000000;
+    // DINAMISASI: Ambil dari database, ubah ke tipe data Number
+    const beginningEquity = parseFloat(profile.modal) || 0;
+    // Setoran modal berjalan diatur ke 0 (Kecuali ada fitur menambah investasi di luar modal awal)
+    const paidInCapital = 0;
+    const drawing = -totalDrawing;
     const endingEquity = beginningEquity + paidInCapital + drawing + netProfit;
 
     sheet1
@@ -398,15 +390,20 @@ class FinancialReportService {
 
     let totalIncome = 0;
     let totalExpense = 0;
+    let totalDrawing = 0; // Amankan variabel akumulasi prive harian untuk PDF
     const expenseDetails = {};
 
     detailedTransactions.forEach((trx) => {
       const type = (trx.type || "").toString().trim().toLowerCase();
       const amount = parseFloat(trx.amount || 0);
       const cat = trx.category || "Uncategorized";
+      const catLower = cat.toLowerCase();
 
-      if (type === "income") totalIncome += amount;
-      if (type === "expense") {
+      if (catLower === "drawing" || catLower === "prive") {
+        totalDrawing += amount;
+      } else if (type === "income") {
+        totalIncome += amount;
+      } else if (type === "expense") {
         totalExpense += amount;
         expenseDetails[cat] = (expenseDetails[cat] || 0) + amount;
       }
@@ -414,9 +411,11 @@ class FinancialReportService {
 
     const netProfit = totalIncome - totalExpense;
 
-    const beginningEquity = 0;
-    const paidInCapital = 500000000;
-    const drawing = -5000000;
+    // DINAMISASI: Ambil dari database, ubah ke tipe data Number
+    const beginningEquity = parseFloat(profile.modal) || 0;
+    // Setoran modal berjalan diatur ke 0 (Kecuali ada fitur menambah investasi di luar modal awal)
+    const paidInCapital = 0;
+    const drawing = -totalDrawing;
     const endingEquity = beginningEquity + paidInCapital + drawing + netProfit;
 
     const formatNumber = (num) => {
