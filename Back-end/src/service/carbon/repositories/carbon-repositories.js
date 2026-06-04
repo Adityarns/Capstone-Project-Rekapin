@@ -1,9 +1,9 @@
-import { Pool } from "pg";
+import { pool } from "../../../config/db.js";
 import { nanoid } from "nanoid";
 
 class CarbonRepositories {
   constructor() {
-    this.pool = new Pool();
+    this.pool = pool;
   }
 
   // ============================================================

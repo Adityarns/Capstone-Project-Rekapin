@@ -1,8 +1,8 @@
-import { Pool } from "pg";
+import { pool } from "../../../config/db.js";
 
 class FinancialReportRepositories {
   constructor() {
-    this.pool = new Pool();
+    this.pool = pool;
   }
 
   // ============================================================

@@ -1,9 +1,9 @@
 import { nanoid } from "nanoid";
-import { Pool } from "pg";
+import { pool } from "../../../config/db.js";
 
 class AuthenticationsRepositories {
   constructor() {
-    this.pool = new Pool();
+    this.pool = pool;
   }
 
   async addRefreshToken({ userId, tokenHash, expiresAt }) {

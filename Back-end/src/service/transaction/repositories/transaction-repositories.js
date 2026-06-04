@@ -1,9 +1,9 @@
-import { Pool } from "pg";
+import { pool } from "../../../config/db.js";
 import { nanoid } from "nanoid";
 
 class TransactionRepositories {
   constructor() {
-    this.pool = new Pool();
+    this.pool = pool;
   }
 
   async createTransaction({

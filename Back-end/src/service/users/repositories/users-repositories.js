@@ -1,10 +1,10 @@
 import { nanoid } from "nanoid";
-import { Pool } from "pg";
+import { pool } from "../../../config/db.js";
 import bcrypt from "bcrypt";
 
 class UserRepositories {
   constructor() {
-    this.pool = new Pool();
+    this.pool = pool;
   }
 
   normalizeEmail(email) {
