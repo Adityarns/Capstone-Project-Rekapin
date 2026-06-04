@@ -15,7 +15,8 @@
 
 // Vite menggunakan import.meta.env, bukan Node.js process.env.
 // Variabel wajib diawali VITE_ agar di-expose ke browser.
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // ── Token management helpers ──────────────────────────────────
 export const tokenStorage = {
