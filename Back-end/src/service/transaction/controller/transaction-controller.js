@@ -159,7 +159,9 @@ export const getTransactionsByBusinessId = async (req, res, next) => {
   if (cachedTransactions) {
     res.setHeader("X-Data-Source", "cache");
     const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+      typeof cachedTransactions === "string"
+        ? JSON.parse(cachedTransactions)
+        : cachedTransactions;
     return response(res, 200, "Transaksi berhasil diambil (cache)", {
       transactions: parsedData,
     });
@@ -187,7 +189,9 @@ export const getTransactionById = async (req, res, next) => {
   if (cachedTransaction) {
     res.setHeader("X-Data-Source", "cache");
     const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+      typeof cachedTransaction === "string"
+        ? JSON.parse(cachedTransaction)
+        : cachedTransaction;
     return response(res, 200, "Transaksi berhasil diambil (cache)", parsedData);
   }
   const transaction =

@@ -32,7 +32,7 @@ export const getUserById = async (req, res, next) => {
   if (cachedUser) {
     res.setHeader("X-Data-Source", "cache");
     const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+      typeof cachedUser === "string" ? JSON.parse(cachedUser) : cachedUser;
     return response(res, 200, "Akun ditemukan (cache)", parsedData);
   }
   const user = await UserRepositories.getUserById(userId);
