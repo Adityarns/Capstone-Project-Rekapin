@@ -158,8 +158,10 @@ export const getTransactionsByBusinessId = async (req, res, next) => {
   );
   if (cachedTransactions) {
     res.setHeader("X-Data-Source", "cache");
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(res, 200, "Transaksi berhasil diambil (cache)", {
-      transactions: JSON.parse(cachedTransactions),
+      transactions: parsedData,
     });
   }
   const transactions =
@@ -184,12 +186,9 @@ export const getTransactionById = async (req, res, next) => {
   );
   if (cachedTransaction) {
     res.setHeader("X-Data-Source", "cache");
-    return response(
-      res,
-      200,
-      "Transaksi berhasil diambil (cache)",
-      JSON.parse(cachedTransaction),
-    );
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+    return response(res, 200, "Transaksi berhasil diambil (cache)", parsedData);
   }
   const transaction =
     await TransactionRepositories.getTransactionById(transactionId);

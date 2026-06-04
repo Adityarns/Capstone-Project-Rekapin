@@ -31,7 +31,9 @@ export const getUserById = async (req, res, next) => {
   const cachedUser = await cacheService.get(`user:${userId}`);
   if (cachedUser) {
     res.setHeader("X-Data-Source", "cache");
-    return response(res, 200, "Akun ditemukan (cache)", JSON.parse(cachedUser));
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+    return response(res, 200, "Akun ditemukan (cache)", parsedData);
   }
   const user = await UserRepositories.getUserById(userId);
   if (!user) {

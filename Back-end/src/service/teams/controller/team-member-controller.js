@@ -80,8 +80,10 @@ export const getTeamMembersById = async (req, res, next) => {
   const cachedTeamMembers = await cacheService.get(`teamMembers_${businessId}`);
   if (cachedTeamMembers) {
     res.setHeader("X-Data-Source", "cache");
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(res, 200, "Anggota tim berhasil ditemukan (cache)", {
-      teamMembers: JSON.parse(cachedTeamMembers),
+      teamMembers: parsedData,
     });
   }
   const teamMembers =

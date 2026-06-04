@@ -14,11 +14,13 @@ export const getCarbonSummary = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(
       res,
       200,
       "Carbon summary berhasil diambil (cache)",
-      JSON.parse(cachedData),
+      parsedData,
     );
   }
   const summary = await CarbonRepositories.getCarbonSummary(businessId);
@@ -61,11 +63,13 @@ export const getCarbonLogs = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(
       res,
       200,
       "Carbon logs berhasil diambil (cache)",
-      JSON.parse(cachedData),
+      parsedData,
     );
   }
   const logs = await CarbonRepositories.getCarbonLogsByBusinessId(businessId);

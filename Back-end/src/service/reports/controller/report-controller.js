@@ -20,11 +20,13 @@ export const getFinancialSummary = async (req, res, next) => {
     const cachedData = await cacheService.get(cacheKey);
     if (cachedData) {
       res.setHeader("X-Data-Source", "cache");
+      const parsedData =
+        typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
       return response(
         res,
         200,
         "Financial summary berhasil diambil (cache)",
-        JSON.parse(cachedData),
+        parsedData,
       );
     }
 
@@ -51,11 +53,13 @@ export const getIncomeStatement = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
+    const parsedData =
+      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(
       res,
       200,
       "Income statement SAK EMKM berhasil diambil (cache)",
-      JSON.parse(cachedData),
+      parsedData,
     );
   }
   const data = await FinancialReportService.generateStatement({
@@ -85,11 +89,13 @@ export const getRevenueForecast = async (req, res, next) => {
     const cachedData = await cacheService.get(cacheKey);
     if (cachedData) {
       res.setHeader("X-Data-Source", "cache");
+      const parsedData =
+        typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
       return response(
         res,
         200,
         "Revenue forecast berhasil diambil (cache)",
-        JSON.parse(cachedData),
+        parsedData,
       );
     }
     const rawHistory =
