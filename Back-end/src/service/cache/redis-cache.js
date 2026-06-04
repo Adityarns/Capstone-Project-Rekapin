@@ -9,10 +9,20 @@ class CacheService {
     });
   }
 
-  // REST API Upstash tidak memerlukan .connect() atau .isOpen()
-  // Karena setiap perintah adalah satu request HTTP independen
   async set(key, value, expirationInSecond = 3600) {
-    await this._client.set(key, value, { ex: expirationInSecond });
+    // Penengah Serialisasi Ganda:
+    // Jika controller Anda terlanjur mengirim string JSON,
+    // kita urai kembali menjadi Objek agar Upstash bisa bekerja dengan optimal.
+    let rawValue = value;
+    if (typeof value === "string") {
+      try {
+        rawValue = JSON.parse(value);
+      } catch (error) {
+        rawValue = value; // Jika murni teks biasa, biarkan apa adanya
+      }
+    }
+
+    await this._client.set(key, rawValue, { ex: expirationInSecond });
   }
 
   async get(key) {
