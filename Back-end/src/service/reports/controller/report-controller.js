@@ -1,6 +1,6 @@
 import FinancialReportService from "../service/report-service.js";
 import FinancialReportRepositories from "../repositories/report-repositories.js";
-import { forecastRevenueWithAI } from "../../Models/ai-service.js";
+import { forecastRevenueWithAI } from "../../models/ai-service.js";
 import { InvariantError } from "../../../exceptions/index.js";
 import response from "../../../utils/response.js";
 import puppeteer from "puppeteer";
