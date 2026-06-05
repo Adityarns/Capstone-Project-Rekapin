@@ -82,9 +82,6 @@ export async function getTransactionsForDashboard(businessId) {
     // Cari array transaksi di berbagai kemungkinan letaknya
     const payload = jsonBody?.data?.transactions || jsonBody?.transactions;
 
-    // --- TAMBAHKAN LOG INI SEMENTARA UNTUK MEMASTIKAN ---
-    console.log("[DEBUG] Data Transaksi Terdeteksi:", payload);
-
     if (Array.isArray(payload)) {
       return payload;
     }

@@ -126,10 +126,6 @@ export const addTransaction = async (req, res, next) => {
         quantity: safeQuantity,
         carbonTotal: emissionInKg,
       });
-
-      console.log(
-        `📦 [DEBUG] Karbon berhasil dicatat: ${emissionInKg} kg untuk transaksi ${title}`,
-      );
     } catch (error) {
       // 5. JANGAN DITELAN! Cetak error aslinya agar Anda tahu apa yang rusak
       console.error(
@@ -169,10 +165,7 @@ export const getTransactionsByBusinessId = async (req, res, next) => {
       new NotFoundError("Transaksi tidak ditemukan untuk bisnis ini"),
     );
   }
-  await cacheService.set(
-    `transactions_${businessId}`,
-    transactions,
-  );
+  await cacheService.set(`transactions_${businessId}`, transactions);
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Transaksi berhasil diambil", { transactions });
 };
@@ -184,17 +177,19 @@ export const getTransactionById = async (req, res, next) => {
   );
   if (cachedTransaction) {
     res.setHeader("X-Data-Source", "cache");
-    return response(res, 200, "Transaksi berhasil diambil (cache)", cachedTransaction);
+    return response(
+      res,
+      200,
+      "Transaksi berhasil diambil (cache)",
+      cachedTransaction,
+    );
   }
   const transaction =
     await TransactionRepositories.getTransactionById(transactionId);
   if (!transaction) {
     return next(new NotFoundError("Transaksi tidak ditemukan"));
   }
-  await cacheService.set(
-    `transaction_${transactionId}`,
-    transaction,
-  );
+  await cacheService.set(`transaction_${transactionId}`, transaction);
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Transaksi berhasil diambil", transaction);
 };
