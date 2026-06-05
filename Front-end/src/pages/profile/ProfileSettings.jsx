@@ -227,8 +227,6 @@ export default function ProfileSettings() {
         const data = await getBusinessById(businessId);
 
         const members = await getTeamMembers(businessId);
-        console.log("RAW MEMBERS:", members);
-        console.log("MEMBER PERTAMA:", JSON.stringify(members[0], null, 2));
 
         setTeamMembers(
           members.map((member) => ({
@@ -246,8 +244,6 @@ export default function ProfileSettings() {
               .toUpperCase(),
           })),
         );
-
-        console.log("BUSINESS API:", data);
 
         if (!data) {
           console.error("Data business kosong");

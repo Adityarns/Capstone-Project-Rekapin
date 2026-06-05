@@ -272,8 +272,6 @@ export default function TeamManagement({
 }) {
   /* Local members state — allows Remove without an API call yet */
   const members = team || [];
-  console.log("TEAM MEMBERS:", members);
-
   /* Track which member's dropdown is open. null = none. */
   const [openMenuId, setOpenMenuId] = useState(null);
 
