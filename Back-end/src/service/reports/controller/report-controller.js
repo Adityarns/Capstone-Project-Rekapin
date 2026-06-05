@@ -91,7 +91,7 @@ export const getRevenueForecast = async (req, res, next) => {
         res,
         200,
         "Revenue forecast berhasil diambil (cache)",
-        parsedData,
+        cachedData,
       );
     }
     const rawHistory =
