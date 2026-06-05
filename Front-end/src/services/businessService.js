@@ -14,9 +14,6 @@ export async function updateBusiness(businessId, payload) {
 
 export async function getBusinessById(businessId) {
   const response = await api.get(`/businesses/${businessId}`);
-
-  console.log("FULL RESPONSE:", response.data);
-
   return response.data;
 }
 
