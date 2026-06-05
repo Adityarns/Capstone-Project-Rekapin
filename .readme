@@ -1,0 +1,48 @@
+# Rekapin
+
+Sistem manajemen keuangan dan operasional terintegrasi kelas institusi (Institutional-grade financial insights) yang dirancang khusus untuk Usaha Mikro, Kecil, dan Menengah (UMKM) modern. Rekapin tidak hanya melacak arus kas, tetapi juga dilengkapi dengan fitur pelacakan emisi karbon (Carbon Tracking) otomatis dan pemindaian struk berbasis Kecerdasan Buatan (AI).
+
+## Fitur Utama
+
+- **Manajemen Transaksi & Dasbor Keuangan:** Pencatatan pemasukan dan pengeluaran secara sistematis dengan visualisasi grafik.
+- **Pelacakan Emisi Karbon Otomatis:** Menghitung estimasi emisi CO2 berdasarkan kuantitas dan jenis kategori transaksi (misal: Listrik, Transportasi, Bahan Bakar) menggunakan perhitungan manual dan integrasi AI.
+- **Integrasi Kecerdasan Buatan (AI):** * Pemindaian dan ekstraksi data otomatis dari gambar struk/nota (*receipt scanning\*).
+  - Estimasi kalkulasi emisi karbon yang kompleks menggunakan asisten AI.
+- **Penyimpanan Tembolok (Caching) Berkinerja Tinggi:** Menggunakan Redis untuk mempercepat waktu respons pemanggilan data ringkasan finansial dan karbon, mengurangi beban pada pangkalan data utama.
+- **Autentikasi Aman:** Sistem masuk dan daftar terintegrasi dengan manajemen akses token.
+
+## Tumpukan Teknologi (Tech Stack)
+
+**Back-end:**
+
+- Node.js (v20)
+- Express.js
+- Supabase (PostgreSQL & Realtime WebSocket)
+- Upstash Redis (via `@upstash/redis` REST API)
+- PM2 (Manajemen Proses Peladen VPS)
+
+**Front-end:**
+
+- React.js
+- Vite
+- Tailwind CSS
+
+## Persyaratan Sistem (Prerequisites)
+
+Sebelum menjalankan aplikasi, pastikan sistem Anda telah terinstal:
+
+- Node.js (Disarankan versi 20.x atau lebih baru, pastikan modul `ws` terinstal untuk dukungan WebSocket).
+- Git.
+- Akun dan Proyek Supabase aktif.
+- Akun dan Basis Data Upstash Redis aktif.
+
+---
+
+## Panduan Instalasi Lokal (Development)
+
+### 1. Kloning Repositori
+
+```bash
+git clone https://github.com/Adityarns/Capstone-Project-Rekapin.git
+cd Capstone-Project-Rekapin
+```
