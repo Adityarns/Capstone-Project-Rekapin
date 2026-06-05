@@ -98,8 +98,6 @@ export default function Transactions() {
     setScanLoading(true);
     try {
       const result = await scanReceipt(receiptFile);
-      console.log("AI RESULT:", result);
-
       if (result) {
         if (result.transaction_type && result.transaction_type !== type) {
           setType(result.transaction_type);
@@ -209,7 +207,6 @@ export default function Transactions() {
         payload.quantity = 1;
       }
 
-      console.log("PAYLOAD:", payload);
       await createTransaction(payload);
 
       setSuccess("Transaction saved successfully!");
