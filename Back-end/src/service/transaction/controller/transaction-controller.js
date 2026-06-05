@@ -158,12 +158,8 @@ export const getTransactionsByBusinessId = async (req, res, next) => {
   );
   if (cachedTransactions) {
     res.setHeader("X-Data-Source", "cache");
-    const parsedData =
-      typeof cachedTransactions === "string"
-        ? JSON.parse(cachedTransactions)
-        : cachedTransactions;
     return response(res, 200, "Transaksi berhasil diambil (cache)", {
-      transactions: parsedData,
+      transactions: cachedTransactions,
     });
   }
   const transactions =
@@ -175,7 +171,7 @@ export const getTransactionsByBusinessId = async (req, res, next) => {
   }
   await cacheService.set(
     `transactions_${businessId}`,
-    JSON.stringify(transactions),
+    transactions,
   );
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Transaksi berhasil diambil", { transactions });
@@ -188,11 +184,7 @@ export const getTransactionById = async (req, res, next) => {
   );
   if (cachedTransaction) {
     res.setHeader("X-Data-Source", "cache");
-    const parsedData =
-      typeof cachedTransaction === "string"
-        ? JSON.parse(cachedTransaction)
-        : cachedTransaction;
-    return response(res, 200, "Transaksi berhasil diambil (cache)", parsedData);
+    return response(res, 200, "Transaksi berhasil diambil (cache)", cachedTransaction);
   }
   const transaction =
     await TransactionRepositories.getTransactionById(transactionId);
@@ -201,7 +193,7 @@ export const getTransactionById = async (req, res, next) => {
   }
   await cacheService.set(
     `transaction_${transactionId}`,
-    JSON.stringify(transaction),
+    transaction,
   );
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Transaksi berhasil diambil", transaction);

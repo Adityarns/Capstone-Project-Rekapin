@@ -20,13 +20,11 @@ export const getFinancialSummary = async (req, res, next) => {
     const cachedData = await cacheService.get(cacheKey);
     if (cachedData) {
       res.setHeader("X-Data-Source", "cache");
-      const parsedData =
-        typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
       return response(
         res,
         200,
         "Financial summary berhasil diambil (cache)",
-        parsedData,
+        cachedData,
       );
     }
 
@@ -37,7 +35,7 @@ export const getFinancialSummary = async (req, res, next) => {
     });
     await cacheService.set(
       `financialSummary_${businessId}_${quarter}_${year}`,
-      JSON.stringify(data),
+      data,
     );
     res.setHeader("X-Data-Source", "database");
     return response(res, 200, "Financial summary berhasil diambil", data);
@@ -53,13 +51,12 @@ export const getIncomeStatement = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
-    const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+
     return response(
       res,
       200,
       "Income statement SAK EMKM berhasil diambil (cache)",
-      parsedData,
+      cachedData,
     );
   }
   const data = await FinancialReportService.generateStatement({
@@ -72,7 +69,7 @@ export const getIncomeStatement = async (req, res, next) => {
   }
   await cacheService.set(
     `incomeStatement_${businessId}_${quarter}_${year}`,
-    JSON.stringify(data),
+    data,
   );
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Income statement SAK EMKM berhasil diambil", data);
@@ -89,8 +86,7 @@ export const getRevenueForecast = async (req, res, next) => {
     const cachedData = await cacheService.get(cacheKey);
     if (cachedData) {
       res.setHeader("X-Data-Source", "cache");
-      const parsedData =
-        typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+
       return response(
         res,
         200,
@@ -141,10 +137,7 @@ export const getRevenueForecast = async (req, res, next) => {
         confidenceNote: aiResult.confidence_note,
       },
     };
-    await cacheService.set(
-      `revenueForecast_${businessId}`,
-      JSON.stringify(formattedData),
-    );
+    await cacheService.set(`revenueForecast_${businessId}`, formattedData);
     res.setHeader("X-Data-Source", "database");
     return response(
       res,

@@ -14,13 +14,11 @@ export const getCarbonSummary = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
-    const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(
       res,
       200,
       "Carbon summary berhasil diambil (cache)",
-      parsedData,
+      cachedData,
     );
   }
   const summary = await CarbonRepositories.getCarbonSummary(businessId);
@@ -49,7 +47,7 @@ export const getCarbonSummary = async (req, res, next) => {
     title: GREEN_INSIGHTS_BANK.General.title,
     description: GREEN_INSIGHTS_BANK.General.description,
   });
-  await cacheService.set(cacheKey, JSON.stringify({ ...summary, insights }));
+  await cacheService.set(cacheKey, { ...summary, insights });
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Carbon summary berhasil diambil", {
     ...summary,
@@ -63,18 +61,16 @@ export const getCarbonLogs = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
-    const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
     return response(
       res,
       200,
       "Carbon logs berhasil diambil (cache)",
-      parsedData,
+      cachedData,
     );
   }
   const logs = await CarbonRepositories.getCarbonLogsByBusinessId(businessId);
 
-  await cacheService.set(cacheKey, JSON.stringify({ logs }));
+  await cacheService.set(cacheKey, { logs });
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Carbon logs berhasil diambil", { logs });
 };

@@ -43,15 +43,13 @@ export const getBusinessById = async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) {
     res.setHeader("X-Data-Source", "cache");
-    const parsedData =
-      typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
-    return response(res, 200, "Business ditemukan (cache)", parsedData);
+    return response(res, 200, "Business ditemukan (cache)", cachedData);
   }
   const business = await businessesRepositories.getBusinessById(businessId);
   if (!business) {
     return next(new NotFoundError("Business tidak ditemukan"));
   }
-  await cacheService.set(cacheKey, JSON.stringify(business));
+  await cacheService.set(cacheKey, business);
   res.setHeader("X-Data-Source", "database");
   return response(res, 200, "Business ditemukan", business);
 };
